@@ -1,0 +1,30 @@
+.liste {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.experience-card {
+    display: block;
+    width: 350px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #fff;
+    background-color: #2b5f7ec0;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.experience-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.experience-card h3 {
+    margin-top: 0;
+}
+
+.experience-card p {
+    margin: 5px 0;
+}
