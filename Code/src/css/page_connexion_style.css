@@ -1,0 +1,115 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f3f3f3;            /*fond gris clair pour toute la page*/
+  margin: 0;                        /*surppime le smarges par défaut du navigateur*/
+  padding: 0;                          /*supprome les espacements internes*/
+  display: flex;                  /* Active Flexbox */
+  justify-content: center;       /* Centre horizontalement */
+  align-items: center;           /* Centre verticalement */
+  height: 100vh;                 /* Hauteur = 100% de la fenêtre */
+} /* style du coprs de l'écriture de toute la page connexion*/
+
+.login-box {
+    background-color: #ffffff;
+    padding: 40px;        /*espace interne autour du contenue*/
+    border-radius: 12px;      /*coin arrondi*/
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /*ombre*/
+    width: 400px;             /*largeur du formulaire*/
+    max-width: 90%;    
+    display: flex;
+   /* place-items: center;     /* horizontal + vertical */
+   /* min-height: 300px;*/
+   flex-direction: column;  /* ✅ Change en flex-direction: column */
+}
+ /*permet d'avoir le contour blanc dans lequel est contenue le formulaire de connexion*/
+
+ form {
+    display: flex; /*permet de bouger ce qui a dans le conteneur form */
+    flex-direction: column; /*permet d'aligner les élements du form */
+} 
+
+
+input[name="mdp"] {
+    padding: 10px; /*ajoute de l’espace à l’intérieur du champ,*/
+    margin-top: 5px; /*joute un petit espace entre le label et le champ.*/
+    border: 1px solid #ccc; /*donne une bordure grise claire autour du champ.*/
+    border-radius: 6px; /*arrondit légèrement les coins du champ.*/
+    font-size: 14px; /*définit la taille du texte saisi.*/
+} /*permet d'avoir la forme du champs mot de passe*/
+
+input[name="email"]{
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+} /*permet d'avoir la forme du champs email*/ 
+
+.liens {
+  margin-top: 20px; /* Ajoute de l'espace au-dessus des liens pour les séparer du bouton */
+  display: flex; /* Utilise Flexbox pour aligner les liens horizontalement */
+  justify-content: space-between; /* Répartit les liens aux extrémités gauche et droite */
+  gap: 10px; /* Ajoute un petit espace entre les liens si jamais ils se rapprochent */
+  font-size: 14px; /* Définit une taille de texte lisible mais discrète */
+  box-sizing: border-box; /* ✅ inclut le padding dans le calcul de largeur */
+}
+
+.liens a {
+  text-decoration: none; /* Supprime le soulignement par défaut des liens */
+  color: #007BFF; /* Donne une couleur bleue vive aux liens */
+  padding: 8px 12px; /* Ajoute de l’espace autour du texte pour un effet bouton */
+  border-radius: 6px; /* Arrondit les coins pour un look plus doux */
+  transition: background-color 0.3s ease, color 0.3s ease; /* Ajoute une animation fluide au survol */
+}
+
+.liens a:hover {
+  background-color: #007BFF; /* Change le fond en bleu au survol */
+  color: white; /* Change le texte en blanc au survol pour un bon contraste */
+}
+input[type="submit"] {
+  margin-top: 20px; /* Espace au-dessus du bouton */
+  padding: 12px 20px; /* Espace intérieur : haut/bas = 12px, gauche/droite = 20px */
+  background-color: #374693; /* Couleur de fond bleue vive */
+  color: white; /* Texte blanc */
+  border: none; /* Supprime la bordure par défaut */
+  border-radius: 8px; /* Coins arrondis pour un effet doux */
+  font-size: 12px; /* Taille du texte */
+  font-weight: bold; /* Texte en gras pour plus de lisibilité */
+  cursor: pointer; /* Curseur en forme de main au survol */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Animation fluide au survol */
+}
+
+input[type="submit"]:hover {
+  background-color: #0462c6; /* Couleur plus foncée au survol */
+  transform: scale(1.03); /* Légère mise en avant du bouton au survol */
+}
+
+.message-erreur {
+  color: #721c24;
+  background-color: #f8d7da;
+  padding: 12px;
+  border-radius: 5px;
+  border: 1px solid #f5c6cb;
+  margin-top: 15px;  /* ✅ Espace au-dessus du message */
+  text-align: center;
+}
+
+
+.compte-bloque {
+  width: 400px;
+  max-width: 90%;
+  margin-bottom: 20px;  /* ✅ Espace entre le message et la boîte */
+  text-align: center;
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 12px;
+  border-radius: 5px;
+  border: 1px solid #ffeeba;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+
+
+
+
