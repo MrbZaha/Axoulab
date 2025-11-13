@@ -133,16 +133,16 @@ function afficher_Bandeau_Haut($bdd, $userID) {
         <div id="site_nav_links">
             <ul class="liste_links">
                 <li class="main_links">
-                    <a href="/contacts" class="Links">Contacts</a>
+                    <a href="Contacts.php" class="Links">Contacts</a>
                 </li>
                 <li class="main_links">
-                    <a href="/explorer" class="Links">Explorer</a>
+                    <a href="Page_explorer.php" class="Links">Explorer</a>
                 </li>
                 <li class="main_links">
-                    <a href="/mes_experiences" class="Links">Mes expériences</a>
+                    <a href="mes_experiences.php" class="Links">Mes expériences</a>
                 </li>
                 <li class="main_links">
-                    <a href="/mes_projets" class="Links">Mes projets</a>
+                    <a href="mes_projets.php" class="Links">Mes projets</a>
                 </li>
                 <li id="Notif">
                     <a class="notif_logo">

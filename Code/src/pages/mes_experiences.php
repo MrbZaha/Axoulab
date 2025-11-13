@@ -1,5 +1,5 @@
 <?php
-require_once 'init_DB.php';
+require_once '../back_php/init_DB.php';
 
 $_SESSION['ID_compte'] = 1; // TEMPORAIRE pour test
 
