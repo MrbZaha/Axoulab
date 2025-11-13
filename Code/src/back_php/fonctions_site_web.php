@@ -108,6 +108,74 @@ function recuperer_id_compte($bdd, $email) {
     return null;
 }
 
+// ======================= 10. AFFICHAGE BANDEAU DU HAUT =======================
+/* Affiche le Bandeau du haut */
+
+function afficher_Bandeau_Haut($bdd, $userID) {
+
+    // Récupérer la photo de profil depuis la base
+    $rq = $bdd->prepare("SELECT photo_de_profil FROM table_compte WHERE ID_compte = ?");
+    $rq->execute([$userID]);
+    $photoDeProfil = $rq->fetchColumn();
+
+    // Affichage du HTML
+    ?>
+    <nav class="site_nav">
+        <div id="site_nav_main">
+            <a class="lab_logo">
+                <img src="../assets/logo_labo.jpg" alt="Logo_labo">
+            </a>
+            <form action="/search" method="GET">
+                <input type="text" name="q" placeholder="Rechercher..." />
+                <button type="submit">🔍</button>
+            </form>                
+        </div>
+        <div id="site_nav_links">
+            <ul class="liste_links">
+                <li class="main_links">
+                    <a href="/contacts" class="Links">Contacts</a>
+                </li>
+                <li class="main_links">
+                    <a href="/explorer" class="Links">Explorer</a>
+                </li>
+                <li class="main_links">
+                    <a href="/mes_experiences" class="Links">Mes expériences</a>
+                </li>
+                <li class="main_links">
+                    <a href="/mes_projets" class="Links">Mes projets</a>
+                </li>
+                <li id="Notif">
+                    <a class="notif_logo">
+                        <img src="../assets/Notification_logo.png" alt="Logo_notif">
+                    </a>
+                </li>
+                <li id="User">
+                    <a class="user_logo">
+                        <img src="<?= htmlspecialchars($photoDeProfil, ENT_QUOTES) ?>" alt="PP">
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <?php
+}
+
+
+
+
+
+
+
+
+// ======================= 10. RÉCUPÉRER ID COMPTE =======================
+/* Récupère l'ID du compte à partir de l'email
+   Retourne ID du compte si trouvé, null sinon */
+
+
+
+
+
+
 // ======================= 11. VÉRIFIER SI ADMIN =======================
 /* Vérifie si un compte est administrateur
    Retourne true si l'utilisateur est admin, false sinon */

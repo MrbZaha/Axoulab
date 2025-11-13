@@ -2,6 +2,9 @@
 // Démarre la session pour garder les infos de l'utilisateur
 session_start();
 
+include_once '../back_php/fonctions_site_web.php';
+
+
 // Connexion à la base de données
 try {
     $bdd = new PDO("mysql:host=localhost;dbname=projet_site_web;charset=utf8", "caca", "juliette74");
@@ -63,11 +66,13 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
 
         // Vérifie le mot de passe
         if (password_verify($mdp, $user["mdp"])) { //compare le mdp haché stocké avec celui saisi
-             $_SESSION["email"] = $email;
-
-            echo "<p>Tu es identifié</p>"; /*à changer lorqu'on aura la page d'après connexion"*/
-
+            $_SESSION["email"] = $email;
+            $_SESSION["ID_compte"]=recuperer_id_compte($bdd, $email);
             $_SESSION['tentatives_connexion'] = 0;
+
+            // Redirection vers la page après connexion
+            header("Location: Main_page_connected.php"); 
+            exit; // Arrêter le script après la redirection
         } 
     }
         if (!$connexion_reussie) {
