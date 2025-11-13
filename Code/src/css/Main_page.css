@@ -1,0 +1,83 @@
+/* Style global */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+    background: white;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Conteneur principal */
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 80%;
+    max-width: 1000px;
+}
+
+/* Partie gauche : titre et slogan */
+.left-section {
+    flex: 1;
+}
+
+.title {
+    font-size: 60px;
+    font-weight: 700;
+    color: #7A56D8; /* violet doux */
+    margin: 0;
+}
+
+.subtitle {
+    font-size: 20px;
+    color: #6E57A1;
+    font-style: italic;
+}
+
+/* Partie droite : encadré avec boutons */
+.right-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.box {
+    background: linear-gradient(135deg, #b7dcff, #83c6ff);
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    padding: 40px 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Boutons */
+.btn {
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    padding: 12px 30px;
+    margin: 10px 0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    width: 150px;
+}
+
+.btn-login {
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.btn-register {
+    background: #ffb300;
+    color: white;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}

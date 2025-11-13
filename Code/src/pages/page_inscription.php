@@ -70,7 +70,7 @@ if (!preg_match('/^[a-zA-Z]+\.[a-zA-Z]+@axoulab\.fr$/', $email)) {
 <head>
     <meta charset="UTF-8">
     <title>Page d'inscritpion</title>
-    <link rel="stylesheet" href="page_d'inscription_style.css">
+    <link rel="stylesheet" href="../css/page_d'inscription_style.css">
 </head>
 <body>
    <form action ="" method="post"> <!-- création du formulaire-->
