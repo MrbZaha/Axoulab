@@ -1,14 +1,11 @@
 <?php
 
 session_start();
+
 try {
     // Connexion à la base de données MySQL avec PDO
     // Remplacez 'Axel' et 'zaza123' par vos identifiants MySQL personnels
-    $bdd = new PDO(
-        'mysql:host=localhost;dbname=projet_site_web;charset=utf8',
-        'wawan',   // votre nom d'utilisateur MySQL
-        'pasYannou98' // votre mot de passe MySQL
-    );
+    $bdd = new PDO("mysql:host=localhost;dbname=projet_site_web;charset=utf8", "caca", "juliette74");
 } catch (PDOException $e) {
     die('Erreur de connexion : ' . $e->getMessage());
 }
@@ -30,7 +27,7 @@ function find_last_projects (){
 <html lang="fr">
     <head>
         <meta charset= "utf-8"/>
-        <link rel="stylesheet" href="Main_page_connected_style.css">
+        <link rel="stylesheet" href="../css/Main_page_connected.css">
         <title>AxouLab</title>
 </head>
 <body>
