@@ -24,11 +24,8 @@ function get_mes_projets_complets(PDO $pdo, int $id_compte): array {
         FROM projet p
         INNER JOIN projet_collaborateur_gestionnaire pcg
             ON p.ID_projet = pcg.ID_projet
-        WHERE pcg.ID_compte = :id_compte
     ";
-    $stmt = $pdo->prepare($sql_projets);
-    $stmt->execute(['id_compte' => $id_compte]);
-    $projets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $projets = $bdd->query($sql_projets)->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($projets)) {
         return [];
