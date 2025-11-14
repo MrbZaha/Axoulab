@@ -2,7 +2,7 @@
 require_once 'Database.php';
 
 try {
-    $pdo = Database::connect('Axel', 'zaza123');
+    $pdo = Database::connect('root', '');
 
     // ✅ Afficher "Connexion réussie" uniquement si on ouvre directement init_DB.php
     if (realpath(__FILE__) == realpath($_SERVER['SCRIPT_FILENAME'])) {
