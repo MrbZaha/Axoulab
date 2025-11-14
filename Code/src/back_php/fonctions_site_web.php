@@ -83,7 +83,7 @@ function mot_de_passe_correct($bdd, $email, $mdp) {
     $stmt->execute([$email]);
     if ($stmt->rowCount() > 0) {
         $user = $stmt->fetch();
-        return $user["mdp"] === $mdp;
+        return $user["mdp"] === $mdp; #ensuite mettre password_verify($mdp, $user["mdp"]);
     }
     return false; // Email inexistant
 }
