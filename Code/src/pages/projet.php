@@ -65,7 +65,7 @@ function verifier_confidentialite(PDO $pdo, int $id_compte, int $id_projet): boo
     }
     return $result !== false && $result['Confidentiel'] == 1 && $result['Confidentiel'] !== null && $stmt->rowCount() > 0;
 }
-
+# Test
 ?>
 
 <!DOCTYPE html>
