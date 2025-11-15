@@ -28,25 +28,24 @@ if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["
     // ======================= VALIDATION EMAIL =======================
     if (!verifier_email_axoulab($email)) {
         $message = "<p style='color:red;'>L'adresse email doit être au format prenom.nom@axoulab.fr.</p>";
-    } 
-    else {
+    } else {
+
         // ======================= VALIDATION MOT DE PASSE =======================
-        // Utiliser mdp1 pour la vérification de complexité
         $erreurs_mdp = verifier_mdp($mdp1);
         if (!empty($erreurs_mdp)) {
             $message = "<p style='color:red;'>Le mot de passe doit contenir : " . implode(", ", $erreurs_mdp) . ".</p>";
-        } 
-        else {
+        } else {
+
             // Vérifier que les deux mots de passe sont identiques
             if (!mot_de_passe_identique($mdp1, $mdp2)) {
                 $message = "<p style='color:red;'>Les mots de passe ne sont pas identiques.</p>";
-            }
-            else {
+            } else {
+
                 // ======================= VERIFICATION EMAIL EXISTANT =======================
                 if (email_existe($bdd, $email)) {
                     $message = "<p style='color:red;'>Cet email a déjà un compte.</p>";
-                } 
-                else {
+                } else {
+
                     // ======================= HACHAGE DU MOT DE PASSE =======================
                     $mdp_hash = password_hash($mdp1, PASSWORD_DEFAULT);
 
@@ -56,18 +55,26 @@ if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["
                         // ======================= NOTIFICATION ADMIN =======================
                         envoyer_notification_admin($email, $nom, $prenom);
 
-                        $message = "<p style='color:green;'>Compte créé avec succès !</p>";
+                        // Message de succès + redirection
+                        $message = "<p style='color:green;'>Compte créé avec succès ! Vous allez être redirigé vers la page d'accueil </p>";
+                        //permet de redigérer vers la page d'acceuil au bout d'un certain temps ici deux seconde , permet d'informer à l'utilsateur que sont compte à bien été créer
+                        echo '<meta http-equiv="refresh" content="2;url=Main_page.php">';
 
-                        // Optionnel : vider $_POST pour ne pas réafficher les valeurs après succès
+                        // Vider $_POST pour ne pas réafficher les valeurs
                         $_POST = array();
-                    } 
-                    else {
+
+                    } else {
                         $message = "<p style='color:red;'>Erreur lors de l'inscription. Veuillez réessayer.</p>";
                     }
+
                 }
+
             }
+
         }
+
     }
+
 }
 ?>
 

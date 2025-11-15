@@ -24,26 +24,6 @@ h1 {
   margin-bottom: 30px;           /* Espace sous le sous-titre */
 }
 
-
-
-/* Bloc contenant le lien de réinitialisation */
-.reset-link-box {
-  background-color: #eef;        /* Fond bleu très clair */
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-/* Zone d'affichage du lien */
-.link-display {
-  background-color: #fff;        /* Fond blanc */
-  padding: 10px;
-  border: 1px solid #ccc;        /* Bordure grise claire */
-  word-break: break-all;         /* Coupe le lien s’il est trop long */
-  margin-bottom: 10px;
-}
-
-
 /* Texte d'information sous le lien */
 .info-text {
   font-size: 14px;
@@ -102,4 +82,38 @@ input[type="email"] {
 /* Effet au survol du lien */
 .links a:hover {
   text-decoration: underline;
+}
+
+/* CSS pour les messages */
+.message {
+    position: fixed;       /* flotte au-dessus */
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    animation: fadein 0.5s, fadeout 0.5s 3s forwards; /* ajout de forwards */
+}
+
+/* Couleur selon type */
+.message.success {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.message.error {
+    background-color: #f44336;
+    color: white;
+}
+
+/* Animation fade */
+@keyframes fadein {
+    from {opacity: 0; top: 0px;}
+    to {opacity: 1; top: 20px;}
+}
+@keyframes fadeout {
+    from {opacity: 1; top: 20px;}
+    to {opacity: 0; top: 0px;}
 }

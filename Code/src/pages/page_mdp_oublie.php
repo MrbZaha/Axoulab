@@ -1,59 +1,34 @@
 <?php
-
 session_start();
-    // Connexion à la base de données
-try {
-    $bdd = new PDO("mysql:host=localhost;dbname=projet_site_web;charset=utf8", "caca", "juliette74");
-} catch (Exception $e) {
-    die("Erreur : " . $e->getMessage());
-}
+
+// Inclusion du fichier de fonctions
+include_once '../back_php/fonctions_site_web.php';
+
+// Connexion à la base
+$bdd = connectBDD();
+
+$message = "";
+$type_message = "";
 
 // Vérifie si le formulaire a été soumis
-if (isset($_POST["email"])) {
+if (!empty($_POST["email"])) {
+
     $email = trim($_POST["email"]);
 
-    
-    // Prépare la requête pour vérifier l'utilisateur
-    $verification = $bdd->prepare("SELECT * FROM table_compte WHERE email = ?");
-    $verification->execute([$email]);
+    // Vérifie si l'email existe en base via la fonction
+    if (email_existe($bdd, $email)) {
 
-    // Si l'utilisateur existe
-    if ($verification->rowCount() > 0) {
-        $token = bin2hex(random_bytes(32)); // permet de créer le token unique sans exposer le mail ou le mdp 
-        //random_bytes(32) → crée 32 octets aléatoires.
-        //bin2hex(...) → convertit ces octets en une chaîne hexadécimale de 64 caractères.
-        
-        // Définir une date d'expiration (1 heure à partir de maintenant)
-        $expiration = date("Y-m-d H:i:s", strtotime('+1 hour'));
-        
-        // Enregistrer le token dans la base de données
-        
-        $requete_token = $bdd->prepare("INSERT INTO password_reset (email, token, expiration) VALUES (?, ?, ?)");
-        if ($requete_token->execute([$email, $token, $expiration])) {
-   
-        
+        // ******** ICI tu pourras ajouter l'envoi d'un vrai email ********
 
-            // Créer le lien de réinitialisation
-            // IMPORTANT : Remplacez par le bon chemin de votre projet
-            $lien_reset = "http://localhost/projet_site_web/reset_mdp.php?token=" . $token;
-            
-            // Message de succès
-            $message = "Lien de réinitialisation généré avec succès ! Copiez le lien ci-dessous :";
-            $type_message = "success";
-            
-        } else {
-            $message = "Erreur lors de la création du lien de réinitialisation.";
-            $type_message = "error";
-        }
-        
+        $message = "Un email vous a été envoyé avec un lien de réinitialisation";
+        $type_message = "success";
+
     } else {
-        // Email non trouvé
+
         $message = "Aucun compte n'est associé à cet email.";
         $type_message = "error";
     }
 }
-
-
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -68,27 +43,14 @@ if (isset($_POST["email"])) {
 <body>
     <div class="container">
         <h1>Mot de passe oublié ?</h1>
-        <p class="subtitle">Entrez votre adresse email pour générer un lien de réinitialisation</p>
-        
+        <p class="subtitle">Entrez votre adresse email pour envoyer un mail de  réinitialisation</p>
         <?php
         // Afficher le message s'il existe
         if (!empty($message)) {
             echo "<div class='message $type_message'>$message</div>";
         }
-        
-        // Afficher le lien de réinitialisation s'il existe
-        if (!empty($lien_reset)) {
-            echo "
-            <div class='reset-link-box'>
-                <h3> Votre lien de réinitialisation</h3>
-                <div class='link-display' id='resetLink'>$lien_reset</div>
-                <p class='info-text'> Ce lien expire dans 1 heure</p>
-                <p class='info-text'> Copiez-le dans votre navigateur</p>
-            </div>
-            ";
-        }
         ?>
-        
+       
         <!-- Formulaire de demande de réinitialisation -->
         <form method="POST" action="">
             <div class="form-group">
@@ -96,13 +58,13 @@ if (isset($_POST["email"])) {
                 <input type="email" id="email" name="email" required placeholder="votre.email@exemple.com" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
             </div>
             <button type="submit" class="btn-submit">
-                Générer le lien de réinitialisation
+                Envoyer le mail de réinitialisation
             </button>
         </form>
         
         <!-- Liens de navigation -->
         <div class="links">
-            <a href="connexion.php"> Retour à la connexion</a>
+            <a href="Main_page.php"> Retour à la connexion</a>
         </div>
     </div>
 </body>

@@ -179,26 +179,26 @@ function afficher_Bandeau_Haut($bdd, $userID) {
 // ======================= 11. VÉRIFIER SI ADMIN =======================
 /* Vérifie si un compte est administrateur
    Retourne true si l'utilisateur est admin, false sinon */
-/*function est_admin($bdd, $email) {
-    $stmt = $bdd->prepare("SELECT admin FROM table_compte WHERE email = ?");
+function est_admin($bdd, $email) {
+    $stmt = $bdd->prepare("SELECT etat FROM table_compte WHERE email = ?");
     $stmt->execute([$email]);
     if ($stmt->rowCount() > 0) {
         $user = $stmt->fetch();
-        return $user["admin"] == 1;
+        return $user["etat"] == 2;
     }
     return false;
-}*/
+}
 
 // ======================= 12. VÉRIFIER SI COMPTE EN COURS DE VALIDATION =======================
 /* Vérifie si le compte est en cours de validation
    Retourne true si validation en cours, false sinon */
-/*function en_cours_validation($bdd, $email) {
-    $stmt = $bdd->prepare("SELECT validation FROM table_compte WHERE email = ?");
+function en_cours_validation($bdd, $email) {
+    $stmt = $bdd->prepare("SELECT etat FROM table_compte WHERE email = ?");
     $stmt->execute([$email]);
     if ($stmt->rowCount() > 0) {
         $user = $stmt->fetch();
-        return $user["validation"] == 1; // 1 = en cours de validation
+        return $user["etat"] == 0; // 1 = en cours de validation
     }
     return false;
-}*/
+}
 ?>
