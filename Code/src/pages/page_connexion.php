@@ -132,7 +132,7 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
 
     <div class ="liens">
         <a href="page_mdp_oublie.php">Mot de passe oublié?</a> <!--permet de renvoyer vers la page du mot de passe oublié-->
-        <a href="page_d'inscription.php">Créer un compte</a> <!--permet de renvoyer vers la page d'inscription'-->
+        <a href="page_inscription.php">Créer un compte</a> <!--permet de renvoyer vers la page d'inscription'-->
     </div>
 
 </div>
