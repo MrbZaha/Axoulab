@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../back_php/init_DB.php';
+require __DIR__ . '/../back_php/fonctions_site_web.php';
 
 $_SESSION['ID_compte'] = 1; // TEMPORAIRE pour test
 
@@ -85,6 +86,7 @@ function afficher_projet(array $projet): void {
 $id_compte = $_SESSION['ID_compte'];
 $projets = get_mes_projets_complets($pdo, $id_compte);
 $ids_projets = array_column($projets, 'ID_projet');
+$affiche = afficher_Bandeau_Haut($pdo, $id_compte)
 ?>
 
 <!DOCTYPE html>
@@ -93,6 +95,8 @@ $ids_projets = array_column($projets, 'ID_projet');
     <meta charset="UTF-8">
     <title>Mes projets</title>
     <link rel="stylesheet" href="../css/mes_projets.css">
+    <link rel="stylesheet" href="../css/Bandeau_haut.css">
+    <?php $affiche ?>
 </head>
 <body>
 
