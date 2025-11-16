@@ -13,17 +13,26 @@ $message = "";
 
 // ======================= TRAITEMENT DU FORMULAIRE =======================
 // Note : on vérifie mdp1 et mdp2 (champs obligatoires)
-if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["etat"], $_POST["email"], $_POST["mdp1"], $_POST["mdp2"])) {
+if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["utilisateur"], $_POST["email"], $_POST["mdp1"], $_POST["mdp2"])) {
 
     // Récupération des données et nettoyage
     $nom = trim($_POST["Nom"]);
     $prenom = trim($_POST["Prenom"]);
     $datedenaissance = trim($_POST["date_de_naissance"]);
-    $utilisateur = $_POST["etat"];
+    $utilisateur = $_POST["utilisateur"]; # utilisateur permet de savoir si c'est un étudiant, prof ou admin
     $email = trim($_POST["email"]);
     $telephone = isset($_POST['telephone']) ? trim($_POST['telephone']) : '';
     $mdp1 = $_POST["mdp1"];
     $mdp2 = $_POST["mdp2"];
+
+
+    if ($utilisateur === "etudiant") {
+        $etat = 1;   // etudiant
+    } elseif ($utilisateur === "chercheur") {
+        $etat = 2;   // chercheur
+    } else {
+        $etat = 0;   // compte pas validé
+    }
 
     // ======================= VALIDATION EMAIL =======================
     if (!verifier_email_axoulab($email)) {
@@ -50,14 +59,14 @@ if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["
                     $mdp_hash = password_hash($mdp1, PASSWORD_DEFAULT);
 
                     // ======================= INSERTION DANS LA BASE =======================
-                    if (inserer_utilisateur($bdd, $nom, $prenom, $datedenaissance, $utilisateur, $email, $mdp_hash)) {
+                    if (inserer_utilisateur($bdd, $nom, $prenom, $datedenaissance, $etat, $email, $mdp_hash)) {
 
                         // ======================= NOTIFICATION ADMIN =======================
                         envoyer_notification_admin($email, $nom, $prenom);
 
                         // Message de succès + redirection
                         $message = "<p style='color:green;'>Compte créé avec succès ! Vous allez être redirigé vers la page d'accueil </p>";
-                        //permet de redigérer vers la page d'acceuil au bout d'un certain temps ici deux seconde , permet d'informer à l'utilsateur que sont compte à bien été créer
+                        // permet de rediriger vers la page d'accueil au bout d'un certain temps (ici 2s)
                         echo '<meta http-equiv="refresh" content="2;url=Main_page.php">';
 
                         // Vider $_POST pour ne pas réafficher les valeurs
@@ -118,12 +127,12 @@ if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["
 
                 <div class="user-type">
                     Je suis un(e) : <br/>
-                    <input type="radio" name="etat" value="chercheur" id="chercheur" required
-                        <?= (($_POST['etat'] ?? '') === 'chercheur') ? 'checked' : '' ?>/>
+                    <input type="radio" name="utilisateur" value="chercheur" id="chercheur" required
+                        <?= (($_POST['utilisateur'] ?? '') === 'chercheur') ? 'checked' : '' ?>/>
                     <label for="chercheur"> Chercheur(se)</label> <br/>
 
-                    <input type="radio" name="etat" value="etudiant" id="etudiant"
-                        <?= (($_POST['etat'] ?? '') === 'etudiant') ? 'checked' : '' ?>/>
+                    <input type="radio" name="utilisateur" value="etudiant" id="etudiant"
+                        <?= (($_POST['utilisateur'] ?? '') === 'etudiant') ? 'checked' : '' ?>/>
                     <label for="etudiant"> Etudiant(e)</label> <br/>
                 </div>
 

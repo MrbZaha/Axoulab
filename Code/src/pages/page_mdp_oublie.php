@@ -18,8 +18,6 @@ if (!empty($_POST["email"])) {
     // Vérifie si l'email existe en base via la fonction
     if (email_existe($bdd, $email)) {
 
-        // ******** ICI tu pourras ajouter l'envoi d'un vrai email ********
-
         $message = "Un email vous a été envoyé avec un lien de réinitialisation";
         $type_message = "success";
 

@@ -162,20 +162,6 @@ function afficher_Bandeau_Haut($bdd, $userID) {
 
 
 
-
-
-
-
-
-// ======================= 10. RÉCUPÉRER ID COMPTE =======================
-/* Récupère l'ID du compte à partir de l'email
-   Retourne ID du compte si trouvé, null sinon */
-
-
-
-
-
-
 // ======================= 11. VÉRIFIER SI ADMIN =======================
 /* Vérifie si un compte est administrateur
    Retourne true si l'utilisateur est admin, false sinon */
@@ -184,21 +170,27 @@ function est_admin($bdd, $email) {
     $stmt->execute([$email]);
     if ($stmt->rowCount() > 0) {
         $user = $stmt->fetch();
-        return $user["etat"] == 2;
+        return $user["etat"] == 3;
     }
     return false;
 }
 
 // ======================= 12. VÉRIFIER SI COMPTE EN COURS DE VALIDATION =======================
 /* Vérifie si le compte est en cours de validation
-   Retourne true si validation en cours, false sinon */
+   Retourne true si validation ,  false sinon */
 function en_cours_validation($bdd, $email) {
-    $stmt = $bdd->prepare("SELECT etat FROM table_compte WHERE email = ?");
+    $stmt = $bdd->prepare("SELECT validation, etat FROM table_compte WHERE email = ?");
     $stmt->execute([$email]);
+
     if ($stmt->rowCount() > 0) {
         $user = $stmt->fetch();
-        return $user["etat"] == 0; // 1 = en cours de validation
+
+        // Compte en cours de validation si :
+        // - validation = false (0)
+        // - ou etat = 0
+        return ($user["validation"] == 0 || $user["etat"] == 0);
     }
-    return false;
+
+    return false; // si aucun compte trouvé
 }
 ?>
