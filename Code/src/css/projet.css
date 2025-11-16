@@ -1,0 +1,280 @@
+/* Reset et base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f6f8;
+    color: #333;
+    line-height: 1.6;
+    padding: 20px;
+}
+
+/* Container principal */
+.project-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Titre du projet */
+.project-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #3498db;
+}
+
+/* Layout principal (description + info) */
+.project-main {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+    margin-bottom: 35px;
+}
+
+/* Carte description */
+.project-description {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.project-description h3 {
+    color: #2c3e50;
+    font-size: 20px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+.project-description p {
+    color: #555;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+/* Carte informations */
+.project-info {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.project-info h3 {
+    color: #2c3e50;
+    font-size: 20px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+.project-info h4 {
+    color: #34495e;
+    font-size: 15px;
+    margin-top: 20px;
+    margin-bottom: 8px;
+}
+
+.project-info p {
+    margin: 10px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.project-info p strong {
+    color: #2c3e50;
+    display: inline-block;
+    min-width: 120px;
+}
+
+/* Section expériences */
+.experiences {
+    margin-top: 30px;
+}
+
+.experiences > h3 {
+    font-size: 24px;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #3498db;
+}
+
+/* Carte expérience */
+.experience-card {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.experience-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.experience-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    gap: 15px;
+}
+
+.experience-header > div {
+    flex: 1;
+}
+
+.experience-card h4 {
+    color: #2c3e50;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 5px 0;
+}
+
+.experience-experimentateurs {
+    color: #7f8c8d;
+    font-size: 13px;
+    margin: 5px 0 0 0;
+    font-weight: normal;
+}
+
+.experience-info {
+    margin-bottom: 12px;
+}
+
+.experience-lieu {
+    color: #7f8c8d;
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+.experience-date {
+    color: #95a5a6;
+    font-size: 13px;
+    margin: 5px 0;
+}
+
+.experience-description {
+    color: #555;
+    font-size: 14px;
+    margin-top: 12px;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-left: 3px solid #3498db;
+    border-radius: 4px;
+}
+
+.experience-description strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #2c3e50;
+}
+
+.experience-description p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.experience-piece-jointe {
+    margin-top: 12px;
+    padding: 10px;
+    background-color: #e8f5e9;
+    border-radius: 5px;
+}
+
+.experience-piece-jointe a {
+    color: #2e7d32;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.experience-piece-jointe a:hover {
+    text-decoration: underline;
+}
+
+.validation-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    margin-top: 10px;
+    background-color: #d4edda;
+    color: #155724;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.experience-resultats {
+    margin-top: 12px;
+    padding: 10px;
+    background-color: #fff3cd;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.experience-resultats summary {
+    font-weight: 600;
+    color: #856404;
+    cursor: pointer;
+    user-select: none;
+}
+
+.experience-resultats summary:hover {
+    color: #533f03;
+}
+
+.experience-resultats p {
+    margin-top: 10px;
+    color: #555;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Badge statut */
+.status {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.status-en_attente {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .project-main {
+        grid-template-columns: 1fr;
+    }
+    
+    .project-title {
+        font-size: 24px;
+    }
+    
+    .experience-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+
+/* Message d'erreur/vide */
+.empty-message {
+    text-align: center;
+    padding: 40px;
+    color: #7f8c8d;
+    font-style: italic;
+}
