@@ -3,12 +3,7 @@
 include_once '../back_php/fonctions_site_web.php';
 session_start();
 
-try {
-    // Connexion à la base de données MySQL avec PDO
-    $bdd = connectBDD();
-} catch (PDOException $e) {
-    die('Erreur de connexion : ' . $e->getMessage());
-}
+$bdd = connectBDD()
 
 function find_last_projects (){
     $reponse = $bdd->query("SELECT * FROM projet JOIN projet_collaborateur_gestionnaire ORDER BY Date_de_creation DESC LIMIT 0,9");
@@ -26,6 +21,7 @@ function find_last_projects (){
     <head>
         <meta charset= "utf-8"/>
         <link rel="stylesheet" href="../css/Main_page_connected.css">
+        <link rel="stylesheet" href="../css/Bandeau_haut.css">
         <title>AxouLab</title>
 </head>
 <body>
