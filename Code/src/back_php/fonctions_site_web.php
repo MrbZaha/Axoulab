@@ -113,13 +113,11 @@ function recuperer_id_compte($bdd, $email) {
 
 function afficher_Bandeau_Haut($bdd, $userID) {
 
-    // Récupérer la photo de profil depuis la base
-    $rq = $bdd->prepare("SELECT photo_de_profil FROM table_compte WHERE ID_compte = ?");
-    $rq->execute([$userID]);
-    $photoDeProfil = $rq->fetchColumn();
+    $PPpath="../assets/Photo_de_profil/$userID.png";
 
-    // Affichage du HTML
     ?>
+    // Affichage du HTML
+    
     <nav class="site_nav">
         <div id="site_nav_main">
             <a class="lab_logo">
@@ -151,12 +149,13 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                 </li>
                 <li id="User">
                     <a class="user_logo">
-                        <img src="<?= htmlspecialchars($photoDeProfil, ENT_QUOTES) ?>" alt="PP">
+                        <img src="<?= htmlspecialchars($PPpath, ENT_QUOTES) ?>" alt="PP">
                     </a>
                 </li>
             </ul>
         </div>
     </nav>
+
     <?php
 }
 
