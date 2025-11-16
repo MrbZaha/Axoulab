@@ -67,9 +67,12 @@ unset($exp); // Bonne pratique après modification par référence
     <meta charset="UTF-8">
     <title>Mes expériences</title>
     <link rel="stylesheet" href="mes_experiences.css">
+    <link rel="stylesheet" href="../css/Bandeau_haut.css">
 </head>
 <body>
-
+<?php
+    afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);
+    ?>
 <h1>Expériences du projet</h1>
 
 <div class="projet">

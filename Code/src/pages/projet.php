@@ -186,8 +186,12 @@ $experiences = get_experiences($pdo, $id_projet);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($projet['Nom_projet']) ?></title>
     <link rel="stylesheet" href="../css/projet.css">
+    <link rel="stylesheet" href="../css/Bandeau_haut.css">
 </head>
 <body>
+    <?php
+    afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);
+    ?>
 <div class="project-container">
     <!-- Titre du projet -->
     <div class="project-title"><?= htmlspecialchars($projet['Nom_projet']) ?></div>

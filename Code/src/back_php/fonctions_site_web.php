@@ -120,7 +120,7 @@ function afficher_Bandeau_Haut($bdd, $userID) {
     <nav class="site_nav">
         <div id="site_nav_main">
             <a class="lab_logo">
-                <img src="../assets/logo_labo.png" alt="../assets/axou_logo.jpg">
+                <img src="../assets/logo_labo.png" alt="Logo_labo">
             </a>
             <form action="/search" method="GET">
                 <input type="text" name="q" placeholder="Rechercher..." />
@@ -160,17 +160,30 @@ function afficher_Bandeau_Haut($bdd, $userID) {
     </nav>
 
     <!-- Overlay notifications -->
-    <div class="overlay">
-        <div class="overlay_content">
-            <h2>Notifications</h2>
-            <p>Aucune notification pour le moment.</p>
-            <!-- Bouton fermer -->
-            <label for="notif_toggle" class="close_overlay">Fermer</label>
-        </div>
-    </div>
+    <div class="overlay_notifications">
+    <?php
+    $notifications = fetch_last_notif($bdd, $userID);
+
+    if (empty($notifications)) {
+        echo "<p>Aucune notification pour le moment.</p>";
+    } else {
+        foreach ($notifications as $notif):
+            $texte = format_notification($notif);
+    ?>
+            <div class="notif_case">
+                <?= htmlspecialchars($texte) ?><br>
+                <small><?= htmlspecialchars($notif['Date_envoi']) ?></small>
+            </div>
+    <?php
+        endforeach;
+    }
+    ?>
+    <label for="notif_toggle" class="close_overlay">Fermer</label>
+</div>
 
     <?php
 }
+
 
 
 // ======================= 11. VÉRIFIER SI ADMIN =======================
@@ -210,27 +223,41 @@ function en_cours_validation($bdd, $email) {
 // ======================= 13. RÉCUPERER LES DERNIERE NOTIFICATIONS =======================
 /* Récupère les données relatives aux notification et les  */
 
-function get_last_notif($bdd,$IDuser){
+function get_last_notif($bdd, $IDuser, $limit = 4) {
+
+    // Notifications projets
     $notif_projet = $bdd->prepare("
-        SELECT np.ID_compte_envoyeur, np.Type_de_notif, np.Date_envoi, p.Nom_projet
+        SELECT 
+            Ce.Nom AS Nom_envoyeur, 
+            Ce.Prénom AS Prenom_envoyeur,
+            np.Type_de_notif, 
+            np.Date_envoi, 
+            p.Nom_projet,
+            NULL AS Nom_experience
         FROM Notification_projet AS np
         JOIN Projet AS p ON np.ID_projet = p.ID_projet
+        JOIN Compte AS Ce ON np.ID_compte_envoyeur = Ce.ID_compte
         WHERE np.ID_compte_receveur = ?
     ");
     $notif_projet->execute([$IDuser]);
 
+    // Notifications expériences
     $notif_experience = $bdd->prepare("
-        SELECT ne.ID_compte_envoyeur, ne.Type_de_notif, ne.Date_envoi, e.Nom_experience
+        SELECT 
+            Ce.Nom AS Nom_envoyeur, 
+            Ce.Prénom AS Prenom_envoyeur,
+            ne.Type_de_notif, 
+            ne.Date_envoi, 
+            NULL AS Nom_projet,
+            e.Nom_experience
         FROM Notification_experience AS ne
         JOIN Experience AS e ON ne.ID_experience = e.ID_experience
+        JOIN Compte AS Ce ON ne.ID_compte_envoyeur = Ce.ID_compte
         WHERE ne.ID_compte_receveur = ?
     ");
     $notif_experience->execute([$IDuser]);
 
-    // Tableau des notifications projets
     $tab_projets = $notif_projet->fetchAll(PDO::FETCH_ASSOC);
-
-    // Tableau des notifications expériences
     $tab_experiences = $notif_experience->fetchAll(PDO::FETCH_ASSOC);
 
     $tab_notifications = array_merge($tab_projets, $tab_experiences);
@@ -239,8 +266,48 @@ function get_last_notif($bdd,$IDuser){
         return strtotime($b['Date_envoi']) - strtotime($a['Date_envoi']);
     });
 
-    
+    $notifications = array_slice($tab_notifications, 0, $limit);
 
+    // Tableau des textes
+    $texte_notifications = [
+        'type1'  => '"{Nom_envoyeur}" "{Prenom_envoyeur}" vous a proposé de créer l\'expérience "{Nom_experience}"',
+        'type2'  => '"{Nom_envoyeur}" "{Prenom_envoyeur}" a validé l\'experience "{Nom_experience}"',
+        'type3'  => '"{Nom_envoyeur}" "{Prenom_envoyeur}" a refusé l\'experience "{Nom_experience}"',
+        'type4'  => '"{Nom_envoyeur}" "{Prenom_envoyeur}" vous a invité à modifier l\'experience "{Nom_experience}"',
+        'type5'  => '"{Nom_experience}" a été modifiée par "{Nom_envoyeur}" "{Prenom_envoyeur}"',
+        'type11' => '"{Nom_envoyeur}" "{Prenom_envoyeur}" vous a proposé de créer le projet "{Nom_projet}"',
+        'type12' => '"{Nom_envoyeur}" "{Prenom_envoyeur}" a validé le projet "{Nom_projet}"',
+        'type13' => '"{Nom_envoyeur}" "{Prenom_envoyeur}" a refusé le projet "{Nom_projet}"',
+        'type14' => '"{Nom_envoyeur}" "{Prenom_envoyeur}" vous a invité à modifier le projet "{Nom_projet}"',
+        'type15' => '"{Nom_projet}" a été modifiée par "{Nom_envoyeur}" "{Prenom_envoyeur}"',
+    ];
+
+    // Formater toutes les notifications
+    $result = [];
+    foreach ($notifications as $notif) {
+        $texte = $texte_notifications['type'.$notif['Type_de_notif']] ?? 'Notification inconnue';
+
+        if ($notif['Type_de_notif'] >= 1 && $notif['Type_de_notif'] <= 5) {
+            $texte = str_replace(
+                ['{Nom_envoyeur}','{Prenom_envoyeur}','{Nom_experience}'],
+                [$notif['Nom_envoyeur'],$notif['Prenom_envoyeur'],$notif['Nom_experience']],
+                $texte
+            );
+        } elseif ($notif['Type_de_notif'] >= 11 && $notif['Type_de_notif'] <= 15) {
+            $texte = str_replace(
+                ['{Nom_envoyeur}','{Prenom_envoyeur}','{Nom_projet}'],
+                [$notif['Nom_envoyeur'],$notif['Prenom_envoyeur'],$notif['Nom_projet']],
+                $texte
+            );
+        }
+
+        $result[] = [
+            'texte' => $texte,
+            'date'  => $notif['Date_envoi']
+        ];
+    }
+
+    return $result;
 }
 
 
