@@ -82,7 +82,7 @@ CREATE TABLE notification_experience (
     Date_envoi DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ID_compte_envoyeur) REFERENCES compte(ID_compte) ON DELETE CASCADE,
     FOREIGN KEY (ID_compte_receveur) REFERENCES compte(ID_compte) ON DELETE CASCADE,
-    FOREIGN KEY (ID_experience) REFERENCES experience(ID_experience) ON DELETE CASCADE,
+    FOREIGN KEY (ID_experience) REFERENCES experience(ID_experience) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE notification_projet (
@@ -94,5 +94,5 @@ CREATE TABLE notification_projet (
     Date_envoi DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ID_compte_envoyeur) REFERENCES compte(ID_compte) ON DELETE CASCADE,
     FOREIGN KEY (ID_compte_receveur) REFERENCES compte(ID_compte) ON DELETE CASCADE,
-    FOREIGN KEY (ID_projet) REFERENCES projet(ID_projet) ON DELETE CASCADE,
+    FOREIGN KEY (ID_projet) REFERENCES projet(ID_projet) ON DELETE CASCADE
 ) ENGINE=InnoDB;
