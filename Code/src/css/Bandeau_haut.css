@@ -47,3 +47,46 @@
     width:20px;
     object-fit: contain;
 }
+
+
+/* Overlay notifications */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    display: none; /* caché par défaut */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+#notif_toggle:checked ~ .overlay {
+    display: flex;
+}
+
+.overlay_content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Bouton fermer */
+.close_overlay {
+    margin-top: 20px;
+    padding: 10px 15px;
+    background: #389abb;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.close_overlay:hover {
+    background: #2b7c95;
+}

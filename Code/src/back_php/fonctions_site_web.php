@@ -114,10 +114,11 @@ function recuperer_id_compte($bdd, $email) {
 function afficher_Bandeau_Haut($bdd, $userID) {
 
     $PPpath="../assets/Photo_de_profil/$userID.png";
-
     ?>
-    // Affichage du HTML
-    
+
+    <!-- Checkbox caché pour l’overlay notifications -->
+    <input type="checkbox" id="notif_toggle" hidden>
+
     <nav class="site_nav">
         <div id="site_nav_main">
             <a class="lab_logo">
@@ -142,10 +143,11 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                 <li class="main_links">
                     <a href="mes_projets.php" class="Links">Mes projets</a>
                 </li>
+                <!-- Icone notification qui agit comme un label -->
                 <li id="Notif">
-                    <a class="notif_logo">
+                    <label for="notif_toggle" class="notif_logo">
                         <img src="../assets/Notification_logo.png" alt="Logo_notif">
-                    </a>
+                    </label>
                 </li>
                 <li id="User">
                     <a class="user_logo">
@@ -155,6 +157,16 @@ function afficher_Bandeau_Haut($bdd, $userID) {
             </ul>
         </div>
     </nav>
+
+    <!-- Overlay notifications -->
+    <div class="overlay">
+        <div class="overlay_content">
+            <h2>Notifications</h2>
+            <p>Aucune notification pour le moment.</p>
+            <!-- Bouton fermer -->
+            <label for="notif_toggle" class="close_overlay">Fermer</label>
+        </div>
+    </div>
 
     <?php
 }
@@ -192,4 +204,44 @@ function en_cours_validation($bdd, $email) {
 
     return false; // si aucun compte trouvé
 }
+
+
+
+// ======================= 13. RÉCUPERER LES DERNIERE NOTIFICATIONS =======================
+/* Récupère les données relatives aux notification et les  */
+
+function get_last_notif($bdd,$IDuser){
+    $notif_projet = $bdd->prepare("
+        SELECT np.ID_compte_envoyeur, np.Type_de_notif, np.Date_envoi, p.Nom_projet
+        FROM Notification_projet AS np
+        JOIN Projet AS p ON np.ID_projet = p.ID_projet
+        WHERE np.ID_compte_receveur = ?
+    ");
+    $notif_projet->execute([$IDuser]);
+
+    $notif_experience = $bdd->prepare("
+        SELECT ne.ID_compte_envoyeur, ne.Type_de_notif, ne.Date_envoi, e.Nom_experience
+        FROM Notification_experience AS ne
+        JOIN Experience AS e ON ne.ID_experience = e.ID_experience
+        WHERE ne.ID_compte_receveur = ?
+    ");
+    $notif_experience->execute([$IDuser]);
+
+    // Tableau des notifications projets
+    $tab_projets = $notif_projet->fetchAll(PDO::FETCH_ASSOC);
+
+    // Tableau des notifications expériences
+    $tab_experiences = $notif_experience->fetchAll(PDO::FETCH_ASSOC);
+
+    $tab_notifications = array_merge($tab_projets, $tab_experiences);
+
+    usort($tab_notifications, function($a, $b) {
+        return strtotime($b['Date_envoi']) - strtotime($a['Date_envoi']);
+    });
+
+    
+
+}
+
+
 ?>
