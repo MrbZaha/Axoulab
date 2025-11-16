@@ -11,7 +11,7 @@
    Retourne l'objet PDO si connexion réussie */
 function connectBDD() {
     try {
-        $bdd = new PDO("mysql:host=localhost;dbname=projet_site_web;charset=utf8","caca","juliette74");
+        $bdd = new PDO("mysql:host=localhost;dbname=projet_site_web;charset=utf8","root","");
         return $bdd;
     } catch (Exception $e) {
         // Si erreur de connexion, on arrête le script et on affiche le message
@@ -41,7 +41,7 @@ function verifier_mdp($mdp) {
 /* Vérifie si une adresse email existe déjà dans la base de données
    Retourne true si l'email existe, false sinon */
 function email_existe($bdd, $email) {
-    $stmt = $bdd->prepare("SELECT * FROM table_compte WHERE email = ?");
+    $stmt = $bdd->prepare("SELECT * FROM compte WHERE email = ?");
     $stmt->execute([$email]);
     return $stmt->rowCount() > 0;
 }
@@ -63,7 +63,7 @@ function verifier_email_axoulab($email) {
 /* Insère un nouvel utilisateur dans la base de données
    Retourne true si insertion réussie, false sinon */
 function inserer_utilisateur($bdd, $nom, $prenom, $date, $etat, $email, $mdp_hash) {
-    $sql = $bdd->prepare("INSERT INTO table_compte (Nom, Prenom, date_de_naissance, etat, email, mdp) VALUES (?, ?, ?, ?, ?, ?)");
+    $sql = $bdd->prepare("INSERT INTO compte (Nom, Prenom, date_de_naissance, etat, email, mdp) VALUES (?, ?, ?, ?, ?, ?)");
     return $sql->execute([$nom, $prenom, $date, $etat, $email, $mdp_hash]);
 }
 
@@ -79,10 +79,10 @@ function envoyer_notification_admin($email, $nom, $prenom) {
 /* Vérifie si le mot de passe saisi correspond au hash stocké en base
    Retourne true si mot de passe correct, false sinon */
 function mot_de_passe_correct($bdd, $email, $mdp) {
-    $stmt = $bdd->prepare("SELECT mdp FROM table_compte WHERE email = ?");
+    $stmt = $bdd->prepare("SELECT mdp FROM compte WHERE email = ?");
     $stmt->execute([$email]);
     if ($stmt->rowCount() > 0) {
-        $user = $stmt->fetch();
+        $user = $stmt->fetch();       # Récupère un tableau avec l'ensemble des attributs de l'utilisateur
         return $user["mdp"] === $mdp; #ensuite mettre password_verify($mdp, $user["mdp"]);
     }
     return false; // Email inexistant
@@ -99,7 +99,7 @@ function connexion_valide($bdd, $email, $mdp) {
 /* Récupère l'ID du compte à partir de l'email
    Retourne ID du compte si trouvé, null sinon */
 function recuperer_id_compte($bdd, $email) {
-    $stmt = $bdd->prepare("SELECT ID_compte FROM table_compte WHERE email = ?");
+    $stmt = $bdd->prepare("SELECT ID_compte FROM compte WHERE email = ?");
     $stmt->execute([$email]);
     if ($stmt->rowCount() > 0) {
         $user = $stmt->fetch();
@@ -108,22 +108,16 @@ function recuperer_id_compte($bdd, $email) {
     return null;
 }
 
-// ======================= 10. AFFICHAGE BANDEAU DU HAUT =======================
+// ======================= 11. AFFICHAGE BANDEAU DU HAUT =======================
 /* Affiche le Bandeau du haut */
 
 function afficher_Bandeau_Haut($bdd, $userID) {
 
-    // Récupérer la photo de profil depuis la base
-    $rq = $bdd->prepare("SELECT photo_de_profil FROM table_compte WHERE ID_compte = ?");
-    $rq->execute([$userID]);
-    $photoDeProfil = $rq->fetchColumn();
-
-    // Affichage du HTML
     ?>
     <nav class="site_nav">
         <div id="site_nav_main">
             <a class="lab_logo">
-                <img src="../assets/logo_labo.jpg" alt="Logo_labo">
+                <img src="../assets/logo_labo.png" alt="../assets/axou_logo.jpg">
             </a>
             <form action="/search" method="GET">
                 <input type="text" name="q" placeholder="Rechercher..." />
@@ -132,9 +126,6 @@ function afficher_Bandeau_Haut($bdd, $userID) {
         </div>
         <div id="site_nav_links">
             <ul class="liste_links">
-                <li class="main_links">
-                    <a href="Contacts.php" class="Links">Contacts</a>
-                </li>
                 <li class="main_links">
                     <a href="Page_explorer.php" class="Links">Explorer</a>
                 </li>
@@ -151,7 +142,13 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                 </li>
                 <li id="User">
                     <a class="user_logo">
-                        <img src="<?= htmlspecialchars($photoDeProfil, ENT_QUOTES) ?>" alt="PP">
+                        <?php
+                        $path = "../assets/profile_pictures/" . $userID . ".jpg";
+                        if (!file_exists($path)) {
+                            $path = "../assets/profile_pictures/model.jpg";
+                        }
+                        ?>
+                        <img src="<?= $path ?>" alt="Photo de profil">
                     </a>
                 </li>
             </ul>
@@ -161,12 +158,11 @@ function afficher_Bandeau_Haut($bdd, $userID) {
 }
 
 
-
 // ======================= 11. VÉRIFIER SI ADMIN =======================
 /* Vérifie si un compte est administrateur
    Retourne true si l'utilisateur est admin, false sinon */
 function est_admin($bdd, $email) {
-    $stmt = $bdd->prepare("SELECT etat FROM table_compte WHERE email = ?");
+    $stmt = $bdd->prepare("SELECT etat FROM compte WHERE email = ?");
     $stmt->execute([$email]);
     if ($stmt->rowCount() > 0) {
         $user = $stmt->fetch();
@@ -179,7 +175,7 @@ function est_admin($bdd, $email) {
 /* Vérifie si le compte est en cours de validation
    Retourne true si validation ,  false sinon */
 function en_cours_validation($bdd, $email) {
-    $stmt = $bdd->prepare("SELECT validation, etat FROM table_compte WHERE email = ?");
+    $stmt = $bdd->prepare("SELECT validation, etat FROM compte WHERE email = ?");
     $stmt->execute([$email]);
 
     if ($stmt->rowCount() > 0) {

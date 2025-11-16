@@ -1,25 +1,23 @@
 <?php
+// Inclure le fichier de fonctions
 include_once '../back_php/fonctions_site_web.php';
 session_start();
 
 try {
     // Connexion à la base de données MySQL avec PDO
-    // Remplacez 'Axel' et 'zaza123' par vos identifiants MySQL personnels
-    $bdd = new PDO("mysql:host=localhost;dbname=projet_site_web;charset=utf8", "caca", "juliette74");
+    $bdd = connectBDD();
 } catch (PDOException $e) {
     die('Erreur de connexion : ' . $e->getMessage());
 }
 
-
 function find_last_projects (){
-    $reponse = $bdd->query("SELECT * FROM table_projet JOIN table_projet_collaborateur_gestionnaire ORDER BY Date_de_creation DESC LIMIT 0,9");
+    $reponse = $bdd->query("SELECT * FROM projet JOIN projet_collaborateur_gestionnaire ORDER BY Date_de_creation DESC LIMIT 0,9");
 
     while ($donnees = $reponse->fetch()) {
-    echo $donnees['Nom_projet'];
-    echo $donnees['Description'];
-    echo $donnees['Validation'];
-
-}
+      echo $donnees['Nom_projet'];
+      echo $donnees['Description'];
+      echo $donnees['Validation'];
+    }
 }
 ?>
 

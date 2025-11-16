@@ -19,7 +19,7 @@ if (isset($_POST['token'], $_POST['new_password'])) {
         $email = $stmt->fetch()['email'];
 
         // Met à jour le mot de passe 
-        $update = $bdd->prepare("UPDATE table_compte SET mdp = ? WHERE email = ?");
+        $update = $bdd->prepare("UPDATE compte SET mdp = ? WHERE email = ?");
         $update->execute([$new_password, $email]);
 
         // Supprime le token

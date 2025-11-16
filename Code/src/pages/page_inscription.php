@@ -56,6 +56,7 @@ if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["
                 } else {
 
                     // ======================= HACHAGE DU MOT DE PASSE =======================
+                    # Permet de garantir plus de sécurité au niveau de la base de données
                     $mdp_hash = password_hash($mdp1, PASSWORD_DEFAULT);
 
                     // ======================= INSERTION DANS LA BASE =======================
@@ -75,15 +76,10 @@ if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["
                     } else {
                         $message = "<p style='color:red;'>Erreur lors de l'inscription. Veuillez réessayer.</p>";
                     }
-
                 }
-
             }
-
         }
-
     }
-
 }
 ?>
 

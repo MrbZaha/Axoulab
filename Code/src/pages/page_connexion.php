@@ -2,11 +2,12 @@
 // Démarre la session pour garder les infos de l'utilisateur
 session_start();
 
+// Inclure le fichier de fonctions
 include_once '../back_php/fonctions_site_web.php';
 
 // Connexion à la base de données
 try {
-    $bdd = new PDO("mysql:host=localhost;dbname=projet_site_web;charset=utf8", "caca", "juliette74");
+    $bdd = connectBDD();
 } catch (Exception $e) {
     die("Erreur : " . $e->getMessage());
 }
@@ -27,6 +28,7 @@ if (!isset($_SESSION['tentatives_connexion'])) {
 $compte_bloque = false;
 $temps_restant_minutes = 0;
 
+// Si trop d'essai erroné ont lieu
 if ($_SESSION['tentatives_connexion'] >= $tentatives_max) {
     $temps_ecoule = time() - $_SESSION['dernier_essai'];
     if ($temps_ecoule < $delai_blocage) {
@@ -51,7 +53,7 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
     $mdp = trim($_POST["mdp"]);
 
     // Prépare la requête pour vérifier l'utilisateur
-    $verification = $bdd->prepare("SELECT * FROM table_compte WHERE email = ?");
+    $verification = $bdd->prepare("SELECT * FROM compte WHERE email = ?");
     $verification->execute([$email]);
 
     // Variable pour savoir si la connexion a réussi
@@ -131,7 +133,7 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
     Mot de passe<input type = "password" name="mdp" /> <br/> <!-- Emplacement pour écrire le mot de passe -->
     <input type = "submit" value="Se connecter" /> <!-- permet d'envoyer le formulaire afin d'enregistrer les informatiosn -->
     
-    <!-- affihcage du message d'erreur : email ou mdp incorrect et le nombre de tentatives restante-->
+    <!-- affichage du message d'erreur : email ou mdp incorrect et le nombre de tentatives restantes-->
     <?php if (!empty($erreur) && !$compte_bloque): ?>
         <div class='message-erreur'><?php echo $erreur; ?></div>
     <?php endif; ?>

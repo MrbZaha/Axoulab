@@ -18,8 +18,8 @@ $sql = "
         e.Heure_fin,
         e.Resultats,
         e.ID_piece_jointe
-    FROM table_experience e
-    INNER JOIN table_projet_experience pe
+    FROM experience e
+    INNER JOIN projet_experience pe
         ON e.ID_experience = pe.ID_experience
     WHERE pe.ID_projet = :id_projet
 ";
@@ -37,8 +37,8 @@ $sql2 = "
         p.Validation, 
         pcg.Statut,
         p.Date_de_creation
-    FROM table_projet p
-    INNER JOIN table_projet_collaborateur_gestionnaire pcg
+    FROM projet p
+    INNER JOIN projet_collaborateur_gestionnaire pcg
         ON p.ID_projet = pcg.ID_projet
     WHERE p.ID_projet = :id_projet
 ";
