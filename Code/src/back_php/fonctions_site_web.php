@@ -140,8 +140,8 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                 </li>
                 <!-- Icone notification qui agit comme un label -->
                 <li id="Notif">
-                    <label for="notif_toggle" class="notif_logo">
-                        <img src="../assets/Notification_logo.png" alt="Logo_notif">
+                    <label for="notif_toggle" class="notif_logo" style="cursor:pointer;">
+                        <img src="..\assets\Notification_logo.png">
                     </label>
                 </li>
                 <li id="User">
@@ -160,9 +160,9 @@ function afficher_Bandeau_Haut($bdd, $userID) {
     </nav>
 
     <!-- Overlay notifications -->
-    <div class="overlay_notifications">
+<div class="overlay">
     <?php
-    $notifications = fetch_last_notif($bdd, $userID);
+    $notifications = get_last_notif($bdd, $userID);
 
     if (empty($notifications)) {
         echo "<p>Aucune notification pour le moment.</p>";
@@ -180,6 +180,7 @@ function afficher_Bandeau_Haut($bdd, $userID) {
     ?>
     <label for="notif_toggle" class="close_overlay">Fermer</label>
 </div>
+
 
     <?php
 }
