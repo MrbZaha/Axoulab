@@ -6,8 +6,7 @@ CREATE TABLE compte (
     Email VARCHAR(64),
     Mdp VARCHAR(64),
     Etat TINYINT,
-    Validation TINYINT,
-    Photo_de_profil VARCHAR(255) NULL
+    Validation TINYINT
 ) ENGINE=InnoDB;
 
 CREATE TABLE projet (
