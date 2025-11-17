@@ -15,6 +15,7 @@ DELETE FROM projet_collaborateur_gestionnaire;
 DELETE FROM projet;
 DELETE FROM compte;
 DELETE FROM salle_materiel;
+DELETE FROM experience_fichier;
 
 -- ========================================
 -- INSERTION DES COMPTES (utilisateurs)
