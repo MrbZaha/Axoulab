@@ -63,7 +63,7 @@ if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["
                     if (inserer_utilisateur($bdd, $nom, $prenom, $datedenaissance, $etat, $email, $mdp_hash)) {
 
                         // ======================= NOTIFICATION ADMIN =======================
-                        envoyer_notification_admin($email, $nom, $prenom);
+                        //envoyer_notification_admin($email, $nom, $prenom);
 
                         // Message de succès + redirection
                         $message = "<p style='color:green;'>Compte créé avec succès ! Vous allez être redirigé vers la page d'accueil </p>";

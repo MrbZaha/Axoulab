@@ -6,11 +6,9 @@ session_start();
 include_once '../back_php/fonctions_site_web.php';
 
 // Connexion à la base de données
-try {
-    $bdd = connectBDD();
-} catch (Exception $e) {
-    die("Erreur : " . $e->getMessage());
-}
+
+$bdd = connectBDD();
+
 
 $erreur = "";
 
