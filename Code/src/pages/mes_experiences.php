@@ -1,114 +1,130 @@
 <?php
-require_once '../back_php/init_DB.php';
+require_once __DIR__ . '/../back_php/init_DB.php';
+require __DIR__ . '/../back_php/fonctions_site_web.php';
 
-$_SESSION['ID_compte'] = 1; // TEMPORAIRE pour test
+$_SESSION['ID_compte'] = 3; // TEMPORAIRE pour test
+
+/*
+if (!isset($_SESSION['ID_compte'])) {
+    header('Location: login.php');
+    exit;
+}
+*/
+
+function get_mes_experiences_complets(PDO $pdo, int $id_compte): array {
+    // Récupération des expériences du compte
+    $sql_projets = "
+        SELECT 
+            e.ID_experience, 
+            e.Nom, 
+            e.Validation, 
+            e.Description, 
+            e.Salle, 
+            e.Date_reservation,
+            e.Heure_debut,
+            e.Heure_fin,
+            e.Resultat,
+            e.Fin_experience,
+            
+        FROM experience e
+        INNER JOIN projet_collaborateur_gestionnaire pcg
+            ON p.ID_projet = pcg.ID_projet
+        WHERE pcg.ID_compte = :id_compte
+    ";
+    $stmt = $pdo->prepare($sql_projets);
+    $stmt->execute(['id_compte' => $id_compte]);
+    $projets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (empty($projets)) {
+        return [];
+    }
+
+    // Récupération des gestionnaires pour tous les projets trouvés
+    $ids_projets = array_column($projets, 'ID_projet');
+    $in = str_repeat('?,', count($ids_projets) - 1) . '?';
+
+    $sql_gestionnaires = "
+        SELECT 
+            pcg.ID_projet, 
+            c.Nom, 
+            c.Prenom
+        FROM projet_collaborateur_gestionnaire pcg
+        INNER JOIN compte c ON pcg.ID_compte = c.ID_compte
+        WHERE pcg.Statut = 1 AND pcg.ID_projet IN ($in)
+    ";
+    $stmt2 = $pdo->prepare($sql_gestionnaires);
+    $stmt2->execute($ids_projets);
+    $rows = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
+    // Organisation des gestionnaires par projet
+    $gestionnaires = [];
+    foreach ($rows as $row) {
+        $gestionnaires[$row['ID_projet']][] = $row['Prenom'] . ' ' . $row['Nom'];
+    }
+
+    // Ajout des gestionnaires directement dans le tableau des projets
+    foreach ($projets as &$p) {
+        $p['Gestionnaires'] = $gestionnaires[$p['ID_projet']] ?? [];
+    }
+
+    return $projets;
+}
+
+function afficher_experience(array $projet): void {
+    $id = htmlspecialchars($projet['ID_projet']);
+    $nom = htmlspecialchars($projet['Nom_projet']);
+    $description = $projet['Description'];
+    $desc = strlen($description) > 200 
+    ? htmlspecialchars(substr($description, 0, 200)) . '…'
+    : htmlspecialchars($description);    $date = htmlspecialchars($projet['Date_de_creation']);
+    $role = $projet['Statut'] ? "Gestionnaire" : "Collaborateur";
+
+    echo "<a class='projet-card' href='projet.php?id=$id'>";
+    echo "<h3>$nom</h3>";
+    echo "<p>$desc</p>";
+    echo "<p><strong>Date de création :</strong> $date</p>";
+    echo "<p><strong>Rôle :</strong> $role</p>";
+    echo "</a>";
+}
 
 $id_compte = $_SESSION['ID_compte'];
-
-// Récupérer toutes les expériences liées au projet
-$sql = "
-    SELECT 
-        e.ID_experience, 
-        e.Validation, 
-        e.Description, 
-        e.Nom,    
-        e.Salle, 
-        e.Date_reservation,
-        e.Heure_debut,
-        e.Heure_fin,
-        e.Resultats,
-        e.ID_piece_jointe
-    FROM experience e
-    INNER JOIN projet_experience pe
-        ON e.ID_experience = pe.ID_experience
-    WHERE pe.ID_projet = :id_projet
-";
-$stmt = $pdo->prepare($sql);
-$stmt->execute(['id_projet' => $_GET['id']]);
-$experiences = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Récupérer les infos du projet
-$sql2 = "
-    SELECT 
-        p.ID_projet, 
-        p.Nom_projet, 
-        p.Description, 
-        p.Confidentiel, 
-        p.Validation, 
-        pcg.Statut,
-        p.Date_de_creation
-    FROM projet p
-    INNER JOIN projet_collaborateur_gestionnaire pcg
-        ON p.ID_projet = pcg.ID_projet
-    WHERE p.ID_projet = :id_projet
-";
-$stmt2 = $pdo->prepare($sql2);
-$stmt2->execute(['id_projet' => $_GET['id']]);
-$projet = $stmt2->fetchAll(PDO::FETCH_ASSOC);
-
-// Catégoriser les expériences
-$date_actuelle = date('Y-m-d');
-foreach ($experiences as &$exp) { // Par référence pour modifier directement
-    $date_exp = $exp['Date_reservation'];
-    if ($date_exp > $date_actuelle) {
-        $exp['categorie'] = "à venir";
-    } elseif ($date_exp == $date_actuelle) {
-        $exp['categorie'] = "en cours";
-    } else {
-        $exp['categorie'] = "passée";
-    }
-}
-unset($exp); // Bonne pratique après modification par référence
+$projets = get_mes_projets_complets($pdo, $id_compte);
+$ids_projets = array_column($projets, 'ID_projet');
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Mes expériences</title>
-    <link rel="stylesheet" href="mes_experiences.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>Mes projets</title>
+    <link rel="stylesheet" href="../css/mes_projets.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <?php afficher_Bandeau_Haut($pdo, $id_compte)?>
 </head>
 <body>
-<?php
-    afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);
-    ?>
-<h1>Expériences du projet</h1>
 
-<div class="projet">
-    <h2>Projet</h2>
+<h1>Mes projets</h1>
+
+<div class="projets">
+
+    <h2>Expérience à venir</h2>
     <div class="liste">
-        <a class="projet-card" href="projet.php?id=<?= $projet[0]['ID_projet'] ?>">
-            <h3><?= htmlspecialchars($projet[0]['Nom_projet']) ?></h3>
-            <p><?= htmlspecialchars($projet[0]['Description']) ?></p>
-            <p><strong>Date de création :</strong> <?= htmlspecialchars($projet[0]['Date_de_creation']) ?></p>
-            <p><strong>Rôle :</strong> <?= $projet[0]['Statut'] ? "Gestionnaire" : "Collaborateur" ?></p>
-        </a>
+        <?php foreach ($projets as $p): ?>
+            <?php if ($p['Validation'] == 0): ?>
+                <?php afficher_experience($p); ?>
+            <?php endif; ?>
+        <?php endforeach; ?>
     </div>
 
-    <h2>Expériences</h2>
-
-    <?php
-    $categories = ['en cours' => 'Expérience en cours', 'à venir' => 'Expérience(s) future(s)', 'passée' => 'Expérience(s) passée(s)'];
-    foreach ($categories as $key => $titre):
-    ?>
-        <h3><?= $titre ?></h3>
-        <div class="liste">
-            <?php foreach ($experiences as $exp): ?>
-                <?php if ($exp['categorie'] == $key): ?>
-                    <a class="experience-card" href="experience.php?id=<?= $exp['ID_experience'] ?>">
-                        <h3><?= htmlspecialchars($exp['Nom']) ?></h3>
-                        <p><strong>Date :</strong> <?= htmlspecialchars($exp['Date_reservation']) ?></p>
-                        <p><strong>Heure de début :</strong> <?= htmlspecialchars($exp['Heure_debut']) ?></p>
-                        <p><strong>Heure de fin :</strong> <?= htmlspecialchars($exp['Heure_fin']) ?></p>
-                        <p><strong>Salle :</strong> <?= htmlspecialchars($exp['Salle']) ?></p>
-                        <p><strong>Description :</strong> <?= htmlspecialchars($exp['Description']) ?></p>
-                    </a>
-                <?php endif; ?>
-            <?php endforeach; ?>
-        </div>
-    <?php endforeach; ?>
+    <h2>Expériences terminés</h2>
+    <div class="liste">
+        <?php foreach ($projets as $p): ?>
+            <?php if ($p['Validation'] == 1): ?>
+                <?php afficher_experience($p); ?>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </div>
 
 </div>
 

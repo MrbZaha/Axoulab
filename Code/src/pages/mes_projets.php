@@ -86,7 +86,6 @@ function afficher_projet(array $projet): void {
 $id_compte = $_SESSION['ID_compte'];
 $projets = get_mes_projets_complets($pdo, $id_compte);
 $ids_projets = array_column($projets, 'ID_projet');
-$affiche = afficher_Bandeau_Haut($pdo, $id_compte)
 ?>
 
 <!DOCTYPE html>
@@ -97,7 +96,7 @@ $affiche = afficher_Bandeau_Haut($pdo, $id_compte)
     <link rel="stylesheet" href="../css/mes_projets.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <?php $affiche ?>
+    <?php afficher_Bandeau_Haut($pdo, $id_compte)?>
 </head>
 <body>
 

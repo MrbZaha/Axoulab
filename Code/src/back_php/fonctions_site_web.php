@@ -114,21 +114,17 @@ function recuperer_id_compte($bdd, $email) {
 function afficher_Bandeau_Haut($bdd, $userID) {
     ?>
 
-    <!-- Checkbox caché pour l’overlay notifications -->
-    <input type="checkbox" id="notif_toggle" hidden>
-
     <nav class="site_nav">
         <div id="site_nav_main">
             <a class="lab_logo">
                 <img src="../assets/logo_labo.png" alt="Logo_labo">
             </a>
             <div class="searchbar">
-                <!-- <form action="/search" method="GET"> -->
-                    <input type="text" name="q" placeholder="Rechercher..." />
-                    <span class="searchbar-icon"><i class="fas fa-search"></i></span>
-                <!-- </form>         -->
+                <input type="text" name="q" placeholder="Rechercher..." />
+                <span class="searchbar-icon"><i class="fas fa-search"></i></span>
             </div>        
         </div>
+
         <div id="site_nav_links">
             <ul class="liste_links">
                 <li class="main_links">
@@ -140,12 +136,14 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                 <li class="main_links">
                     <a href="mes_projets.php" class="Links">Mes projets</a>
                 </li>
-                <!-- Icone notification qui agit comme un label -->
+
+                <!-- Icône notification -->
                 <li id="Notif">
                     <label for="notif_toggle" class="notif_logo">
-                        <img src="..\assets\Notification_logo.png">
+                        <img src="../assets/Notification_logo.png" alt="Notification">
                     </label>
                 </li>
+
                 <li id="User">
                     <a href="mon_profil.php" class="user_logo">
                         <?php
@@ -161,7 +159,10 @@ function afficher_Bandeau_Haut($bdd, $userID) {
         </div>
     </nav>
 
-        <!-- Overlay notifications -->
+    <!-- Checkbox caché : doit être juste avant l’overlay -->
+    <input type="checkbox" id="notif_toggle" hidden>
+
+    <!-- Overlay notifications -->
     <div class="overlay">
         <?php
         $notifications = get_last_notif($bdd, $userID);
@@ -180,12 +181,14 @@ function afficher_Bandeau_Haut($bdd, $userID) {
             endforeach;
         }
         ?>
+
+        <!-- Bouton fermer -->
         <label for="notif_toggle" class="close_overlay">Fermer</label>
     </div>
 
-
     <?php
 }
+
 
 
 
@@ -289,7 +292,6 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
     $result = [];
     foreach ($notifications as $notif) {
         $texte = $texte_notifications['type'.$notif['Type_notif']] ?? 'Notification inconnue';
-        echo('type'.$notif['Type_notif']);
         if ($notif['Type_notif'] >= 1 && $notif['Type_notif'] <= 5) {
             $texte = str_replace(
                 ['{Nom_envoyeur}','{Prenom_envoyeur}','{Nom_experience}'],

@@ -151,3 +151,15 @@ body{
     background: #d3d3d3;
 }
 
+/* Overlay fermée par défaut */
+#notif_toggle:not(:checked) + .overlay {
+    display: none;
+}
+
+/* Overlay quand checkbox activé */
+#notif_toggle:checked + .overlay {
+    display: flex;
+}
+
+
+
