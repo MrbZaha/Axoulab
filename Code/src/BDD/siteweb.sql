@@ -25,7 +25,6 @@ CREATE TABLE experience (
     Nom VARCHAR(500),
     Validation TINYINT DEFAULT 0,
     Description VARCHAR(10000),
-    Salle VARCHAR(20),
     Date_reservation DATE,
     Heure_debut TIME,
     Heure_fin TIME,
