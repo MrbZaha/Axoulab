@@ -20,16 +20,16 @@ DELETE FROM salle_materiel;
 -- INSERTION DES COMPTES (utilisateurs)
 -- ========================================
 INSERT INTO compte (ID_compte, Nom, Prenom, Date_de_naissance, Email, Mdp, Etat, Validation, Photo_de_profil) VALUES
-(1, 'Dupont', 'Marie', '1990-05-15', 'marie.dupont@axoulab.fr', 'password123', 1, 1, NULL),
-(2, 'Martin', 'Pierre', '1988-03-22', 'pierre.martin@axoulab.fr', 'password123', 2, 1, NULL),
-(3, 'Bernard', 'Sophie', '1992-11-08', 'sophie.bernard@axoulab.fr', 'password123', 1, 1, NULL),
-(4, 'Dubois', 'Lucas', '1995-07-30', 'lucas.dubois@axoulab.fr', 'password123', 1, 1, NULL),
-(5, 'Thomas', 'Emma', '1991-02-14', 'emma.thomas@axoulab.fr', 'password123', 2, 1, NULL),
-(6, 'Robert', 'Hugo', '1989-09-25', 'hugo.robert@axoulab.fr', 'password123', 1, 1, NULL),
-(7, 'Petit', 'Léa', '1993-12-03', 'lea.petit@axoulab.fr', 'password123', 1, 1, NULL),
-(8, 'Moreau', 'Antoine', '1987-06-18', 'antoine.moreau@axoulab.fr', 'password123', 1, 1, NULL),
-(9, 'Leroy', 'Camille', '1994-04-12', 'camille.leroy@axoulab.fr', 'password123', 2, 1, NULL),
-(10, 'Girard', 'Thomas', '1986-08-30', 'thomas.girard@axoulab.fr', 'password123', 3, 1, NULL);
+(1, 'Dupont', 'Marie', '1990-05-15', 'marie.dupont@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1, NULL),
+(2, 'Martin', 'Pierre', '1988-03-22', 'pierre.martin@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1, NULL),
+(3, 'Bernard', 'Sophie', '1992-11-08', 'sophie.bernard@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1, NULL),
+(4, 'Dubois', 'Lucas', '1995-07-30', 'lucas.dubois@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1, NULL),
+(5, 'Thomas', 'Emma', '1991-02-14', 'emma.thomas@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1, NULL),
+(6, 'Robert', 'Hugo', '1989-09-25', 'hugo.robert@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1, NULL),
+(7, 'Petit', 'Léa', '1993-12-03', 'lea.petit@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1, NULL),
+(8, 'Moreau', 'Antoine', '1987-06-18', 'antoine.moreau@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1, NULL),
+(9, 'Leroy', 'Camille', '1994-04-12', 'camille.leroy@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1, NULL),
+(10, 'Girard', 'Thomas', '1986-08-30', 'thomas.girard@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 3, 1, NULL);
 
 -- ========================================
 -- INSERTION DES SALLES
