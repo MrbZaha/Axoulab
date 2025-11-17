@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../back_php/init_DB.php';
+require __DIR__ . '/../back_php/fonctions_site_web.php';
 
 $_SESSION['ID_compte'] = 3; // TEMPORAIRE pour test
 
@@ -14,6 +15,7 @@ $id_compte = $_SESSION['ID_compte'];
 $id_projet = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($id_projet === 0) {
+    afficher_Bandeau_Haut($pdo,$_SESSION["ID_compte"]);
     echo "❌ ID de projet manquant.";
     exit;
 }
@@ -82,6 +84,7 @@ function get_info_projet(PDO $pdo, int $id_compte, int $id_projet) {
     $projet = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$projet) {
+        afficher_Bandeau_Haut($pdo,$_SESSION["ID_compte"]);
         echo "❌ Désolé, ce projet n'existe pas.";
         exit;
     }
@@ -139,7 +142,6 @@ function get_experiences(PDO $pdo, int $id_projet): array {
             e.Validation,
             e.Resultat,
             e.Nom,
-            e.Piece_jointe,
             e.Fin_experience
         FROM experience e
         INNER JOIN projet_experience pe ON e.ID_experience = pe.ID_experience
@@ -186,11 +188,12 @@ $experiences = get_experiences($pdo, $id_projet);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($projet['Nom_projet']) ?></title>
     <link rel="stylesheet" href="../css/projet.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
 </head>
 <body>
     <?php
-    afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);
+    afficher_Bandeau_Haut($pdo,$_SESSION["ID_compte"]);
     ?>
 <div class="project-container">
     <!-- Titre du projet -->
