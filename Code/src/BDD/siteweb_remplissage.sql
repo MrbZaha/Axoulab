@@ -353,9 +353,4 @@ INSERT INTO experience_fichier (ID_experience,path_file) VALUES
 (21, 'lipid_profile.pdf'),
 (23, 'synthese_xy247.pdf'),
 (28,  'fermentation_rapport.pdf'),
-(31,  'preclinical_10mg.pdf');
-
-
-
-
-
+(31,  'preclinical_10mg.pdf');  

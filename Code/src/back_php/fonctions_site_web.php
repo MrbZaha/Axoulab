@@ -168,11 +168,11 @@ function afficher_Bandeau_Haut($bdd, $userID) {
         echo "<p>Aucune notification pour le moment.</p>";
     } else {
         foreach ($notifications as $notif):
-            $texte = format_notification($notif);
+            $texte = $notif['texte'];
     ?>
             <div class="notif_case">
                 <?= htmlspecialchars($texte) ?><br>
-                <small><?= htmlspecialchars($notif['Date_envoi']) ?></small>
+                <small><?= htmlspecialchars($notif['date']) ?></small>
             </div>
     <?php
         endforeach;
@@ -230,13 +230,13 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
     $notif_projet = $bdd->prepare("
         SELECT 
             Ce.Nom AS Nom_envoyeur, 
-            Ce.Prénom AS Prenom_envoyeur,
-            np.Type_de_notif, 
+            Ce.Prenom AS Prenom_envoyeur,
+            np.Type_notif, 
             np.Date_envoi, 
             p.Nom_projet,
             NULL AS Nom_experience
         FROM Notification_projet AS np
-        JOIN Projet AS p ON np.ID_projet = p.ID_projet
+        JOIN projet AS p ON np.ID_projet = p.ID_projet
         JOIN Compte AS Ce ON np.ID_compte_envoyeur = Ce.ID_compte
         WHERE np.ID_compte_receveur = ?
     ");
@@ -246,13 +246,13 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
     $notif_experience = $bdd->prepare("
         SELECT 
             Ce.Nom AS Nom_envoyeur, 
-            Ce.Prénom AS Prenom_envoyeur,
-            ne.Type_de_notif, 
+            Ce.Prenom AS Prenom_envoyeur,
+            ne.Type_notif, 
             ne.Date_envoi, 
             NULL AS Nom_projet,
-            e.Nom_experience
+            e.Nom
         FROM Notification_experience AS ne
-        JOIN Experience AS e ON ne.ID_experience = e.ID_experience
+        JOIN experience AS e ON ne.ID_experience = e.ID_experience
         JOIN Compte AS Ce ON ne.ID_compte_envoyeur = Ce.ID_compte
         WHERE ne.ID_compte_receveur = ?
     ");
@@ -286,15 +286,15 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
     // Formater toutes les notifications
     $result = [];
     foreach ($notifications as $notif) {
-        $texte = $texte_notifications['type'.$notif['Type_de_notif']] ?? 'Notification inconnue';
-
-        if ($notif['Type_de_notif'] >= 1 && $notif['Type_de_notif'] <= 5) {
+        $texte = $texte_notifications['type'.$notif['Type_notif']] ?? 'Notification inconnue';
+        echo('type'.$notif['Type_notif']);
+        if ($notif['Type_notif'] >= 1 && $notif['Type_notif'] <= 5) {
             $texte = str_replace(
                 ['{Nom_envoyeur}','{Prenom_envoyeur}','{Nom_experience}'],
-                [$notif['Nom_envoyeur'],$notif['Prenom_envoyeur'],$notif['Nom_experience']],
+                [$notif['Nom_envoyeur'],$notif['Prenom_envoyeur'],$notif['Nom']],
                 $texte
             );
-        } elseif ($notif['Type_de_notif'] >= 11 && $notif['Type_de_notif'] <= 15) {
+        } elseif ($notif['Type_notif'] >= 11 && $notif['Type_notif'] <= 15) {
             $texte = str_replace(
                 ['{Nom_envoyeur}','{Prenom_envoyeur}','{Nom_projet}'],
                 [$notif['Nom_envoyeur'],$notif['Prenom_envoyeur'],$notif['Nom_projet']],
