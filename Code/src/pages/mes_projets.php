@@ -96,6 +96,7 @@ $affiche = afficher_Bandeau_Haut($pdo, $id_compte)
     <title>Mes projets</title>
     <link rel="stylesheet" href="../css/mes_projets.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <?php $affiche ?>
 </head>
 <body>

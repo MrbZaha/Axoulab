@@ -122,10 +122,12 @@ function afficher_Bandeau_Haut($bdd, $userID) {
             <a class="lab_logo">
                 <img src="../assets/logo_labo.png" alt="../assets/axou_logo.jpg">
             </a>
-            <form action="/search" method="GET">
-                <input type="text" name="q" placeholder="Rechercher..." />
-                <button type="submit">🔍</button>
-            </form>                
+            <div class="searchbar">
+                <!-- <form action="/search" method="GET"> -->
+                    <input type="text" name="q" placeholder="Rechercher..." />
+                    <span class="searchbar-icon"><i class="fas fa-search"></i></span>
+                <!-- </form>         -->
+            </div>        
         </div>
         <div id="site_nav_links">
             <ul class="liste_links">
@@ -145,7 +147,7 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                     </label>
                 </li>
                 <li id="User">
-                    <a class="user_logo">
+                    <a href="mon_profil.php" class="user_logo">
                         <?php
                         $path = "../assets/profile_pictures/" . $userID . ".jpg";
                         if (!file_exists($path)) {
