@@ -271,16 +271,16 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
 
     // Tableau des textes
     $texte_notifications = [
-        'type1'  => '"{Nom_envoyeur}" "{Prenom_envoyeur}" vous a proposé de créer l\'expérience "{Nom_experience}"',
-        'type2'  => '"{Nom_envoyeur}" "{Prenom_envoyeur}" a validé l\'experience "{Nom_experience}"',
-        'type3'  => '"{Nom_envoyeur}" "{Prenom_envoyeur}" a refusé l\'experience "{Nom_experience}"',
-        'type4'  => '"{Nom_envoyeur}" "{Prenom_envoyeur}" vous a invité à modifier l\'experience "{Nom_experience}"',
-        'type5'  => '"{Nom_experience}" a été modifiée par "{Nom_envoyeur}" "{Prenom_envoyeur}"',
-        'type11' => '"{Nom_envoyeur}" "{Prenom_envoyeur}" vous a proposé de créer le projet "{Nom_projet}"',
-        'type12' => '"{Nom_envoyeur}" "{Prenom_envoyeur}" a validé le projet "{Nom_projet}"',
-        'type13' => '"{Nom_envoyeur}" "{Prenom_envoyeur}" a refusé le projet "{Nom_projet}"',
-        'type14' => '"{Nom_envoyeur}" "{Prenom_envoyeur}" vous a invité à modifier le projet "{Nom_projet}"',
-        'type15' => '"{Nom_projet}" a été modifiée par "{Nom_envoyeur}" "{Prenom_envoyeur}"',
+        'type1'  => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer l\'expérience {Nom_experience}',
+        'type2'  => '{Nom_envoyeur} {Prenom_envoyeur} a validé l\'experience {Nom_experience}',
+        'type3'  => '{Nom_envoyeur} {Prenom_envoyeur} a refusé l\'experience {Nom_experience}',
+        'type4'  => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier l\'experience {Nom_experience}',
+        'type5'  => '{Nom_experience} a été modifiée par {Nom_envoyeur} {Prenom_envoyeur}',
+        'type11' => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer le projet {Nom_projet}',
+        'type12' => '{Nom_envoyeur} {Prenom_envoyeur} a validé le projet {Nom_projet}',
+        'type13' => '{Nom_envoyeur} {Prenom_envoyeur} a refusé le projet {Nom_projet}',
+        'type14' => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier le projet {Nom_projet}',
+        'type15' => '{Nom_projet} a été modifiée par {Nom_envoyeur} {Prenom_envoyeur}',
     ];
 
     // Formater toutes les notifications
