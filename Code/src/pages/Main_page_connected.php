@@ -5,15 +5,6 @@ session_start();
 
 $bdd = connectBDD();
 
-function find_last_projects (){
-    $reponse = $bdd->query("SELECT * FROM projet JOIN projet_collaborateur_gestionnaire ORDER BY Date_de_creation DESC LIMIT 0,9");
-
-    while ($donnees = $reponse->fetch()) {
-      echo $donnees['Nom_projet'];
-      echo $donnees['Description'];
-      echo $donnees['Validation'];
-    }
-}
 ?>
 
 <!DOCTYPE html>

@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../back_php/init_DB.php';
 
-$_SESSION['ID_compte'] = 1; // TEMPORAIRE pour test
+$_SESSION['ID_compte'] = 3; // TEMPORAIRE pour test
 
 /*
 if (!isset($_SESSION['ID_compte'])) {
@@ -187,8 +187,12 @@ $experiences = get_experiences($pdo, $id_projet);
     <title><?= htmlspecialchars($projet['Nom_projet']) ?></title>
     <link rel="stylesheet" href="../css/projet.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/Bandeau_haut.css">
 </head>
 <body>
+    <?php
+    afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);
+    ?>
 <div class="project-container">
     <!-- Titre du projet -->
     <div class="project-title"><?= htmlspecialchars($projet['Nom_projet']) ?></div>

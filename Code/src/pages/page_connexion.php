@@ -64,7 +64,7 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
         $user = $verification->fetch();
 
         // Vérifie le mot de passe
-        if (password_verify($mdp, $user["mdp"])) {
+        if (password_verify($mdp, $user["Mdp"])) {
             $_SESSION["email"] = $email;
             $_SESSION["ID_compte"] = recuperer_id_compte($bdd, $email);
             $_SESSION['tentatives_connexion'] = 0;

@@ -25,12 +25,10 @@ CREATE TABLE experience (
     Nom VARCHAR(500),
     Validation TINYINT DEFAULT 0,
     Description VARCHAR(10000),
-    Salle VARCHAR(20),
     Date_reservation DATE,
     Heure_debut TIME,
     Heure_fin TIME,
     Resultat VARCHAR(4000),
-    Piece_jointe VARCHAR(255) NULL,
     Fin_experience TINYINT DEFAULT 0
 ) ENGINE=InnoDB;
 
@@ -38,6 +36,12 @@ CREATE TABLE salle_materiel (
     ID_salle BIGINT PRIMARY KEY AUTO_INCREMENT,
     Salle VARCHAR(64),
     Materiel VARCHAR(64)
+) ENGINE=InnoDB;
+
+CREATE TABLE experience_fichier (
+    ID_experience BIGINT PRIMARY KEY,
+    path_file VARCHAR(100),
+    FOREIGN KEY (ID_experience) REFERENCES experience(ID_experience) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE experience_experimentateur (
@@ -82,7 +86,7 @@ CREATE TABLE notification_experience (
     Date_envoi DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ID_compte_envoyeur) REFERENCES compte(ID_compte) ON DELETE CASCADE,
     FOREIGN KEY (ID_compte_receveur) REFERENCES compte(ID_compte) ON DELETE CASCADE,
-    FOREIGN KEY (ID_experience) REFERENCES experience(ID_experience) ON DELETE CASCADE,
+    FOREIGN KEY (ID_experience) REFERENCES experience(ID_experience) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE notification_projet (
@@ -94,5 +98,5 @@ CREATE TABLE notification_projet (
     Date_envoi DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ID_compte_envoyeur) REFERENCES compte(ID_compte) ON DELETE CASCADE,
     FOREIGN KEY (ID_compte_receveur) REFERENCES compte(ID_compte) ON DELETE CASCADE,
-    FOREIGN KEY (ID_projet) REFERENCES projet(ID_projet) ON DELETE CASCADE,
+    FOREIGN KEY (ID_projet) REFERENCES projet(ID_projet) ON DELETE CASCADE
 ) ENGINE=InnoDB;
