@@ -29,7 +29,7 @@ INSERT INTO compte (ID_compte, Nom, Prenom, Date_de_naissance, Email, Mdp, Etat,
 (7, 'Petit', 'Léa', '1993-12-03', 'lea.petit@axoulab.fr', 'password123', 1, 1, NULL),
 (8, 'Moreau', 'Antoine', '1987-06-18', 'antoine.moreau@axoulab.fr', 'password123', 1, 1, NULL),
 (9, 'Leroy', 'Camille', '1994-04-12', 'camille.leroy@axoulab.fr', 'password123', 2, 1, NULL),
-(10, 'Girard', 'Thomas', '1986-08-30', 'thomas.girard@axoulab.fr', 'password123', 1, 1, NULL);
+(10, 'Girard', 'Thomas', '1986-08-30', 'thomas.girard@axoulab.fr', 'password123', 3, 1, NULL);
 
 -- ========================================
 -- INSERTION DES SALLES
@@ -133,69 +133,69 @@ INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VAL
 -- ========================================
 
 -- Expériences pour Projet 1 (NON confidentiel - 5 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Salle, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
-(1, 'Test de sensibilité aux antibiotiques', 1, 'Test de sensibilité aux antibiotiques sur E.coli. Méthode de diffusion en gélose avec 8 antibiotiques différents.', 'A101', '2024-11-10', '09:00:00', '12:00:00', 'Résistance observée à l\"ampicilline. Sensibilité maintenue pour la ciprofloxacine.', NULL, 1),
-(2, 'Culture bactérienne et isolation', 1, 'Culture bactérienne en milieu liquide puis isolation sur gélose nutritive. Purification par repiquages successifs.', 'A101', '2024-11-12', '14:00:00', '17:00:00', 'Colonies isolées avec succès. Pureté confirmée par coloration de Gram.', 'rapport_culture.pdf', 1),
-(3, 'Analyse génétique des souches', 0, 'Séquençage du gène de résistance par méthode Sanger. Extraction d\"ADN et PCR des régions d\"intérêt.', 'B201', '2024-11-15', '10:00:00', '16:00:00', NULL, NULL, 0),
-(4, 'Test CMI', 1, 'Détermination de la concentration minimale inhibitrice par dilution en bouillon pour 5 antibiotiques.', 'A102', '2024-11-18', '08:30:00', '11:30:00', 'CMI déterminée : 8 µg/mL pour la tétracycline.', NULL, 1),
-(5, 'Validation PCR', 0, 'Validation des résultats par PCR quantitative. Amplification des gènes de résistance identifiés.', 'B201', '2024-11-20', '13:00:00', '18:00:00', NULL, NULL, 0);
+INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Fin_experience) VALUES
+(1, 'Test de sensibilité aux antibiotiques', 1, 'Test de sensibilité aux antibiotiques sur E.coli. Méthode de diffusion en gélose avec 8 antibiotiques différents.', '2024-11-10', '09:00:00', '12:00:00', 'Résistance observée à l\"ampicilline. Sensibilité maintenue pour la ciprofloxacine.', 1),
+(2, 'Culture bactérienne et isolation', 1, 'Culture bactérienne en milieu liquide puis isolation sur gélose nutritive. Purification par repiquages successifs.', '2024-11-12', '14:00:00', '17:00:00', 'Colonies isolées avec succès. Pureté confirmée par coloration de Gram.', 1),
+(3, 'Analyse génétique des souches', 0, 'Séquençage du gène de résistance par méthode Sanger. Extraction d\"ADN et PCR des régions d\"intérêt.', '2024-11-15', '10:00:00', '16:00:00', NULL, 0),
+(4, 'Test CMI', 1, 'Détermination de la concentration minimale inhibitrice par dilution en bouillon pour 5 antibiotiques.', '2024-11-18', '08:30:00', '11:30:00', 'CMI déterminée : 8 µg/mL pour la tétracycline.', 1),
+(5, 'Validation PCR', 0, 'Validation des résultats par PCR quantitative. Amplification des gènes de résistance identifiés.', '2024-11-20', '13:00:00', '18:00:00', NULL, 0);
 
 -- Expériences pour Projet 2 (NON confidentiel - 4 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Salle, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
-(6, 'Prélèvement Site A', 1, 'Prélèvement d\"eau à la rivière principale. Filtration sur membrane 0.45µm et conservation à 4°C.', 'B202', '2024-11-01', '09:00:00', '11:00:00', 'Concentration en microplastiques : 450 particules/L', 'site_a_analyse.pdf', 1),
-(7, 'Prélèvement Site B', 1, 'Prélèvement à la confluence. Triple prélèvement pour validation statistique.', 'B202', '2024-11-03', '09:00:00', '11:00:00', 'Concentration en microplastiques : 680 particules/L', NULL, 1),
-(8, 'Analyse spectroscopique', 1, 'Identification des polymères par spectroscopie infrarouge FTIR.', 'B201', '2024-11-06', '14:00:00', '18:00:00', 'Identification : 65% polyéthylène, 25% polypropylène, 10% autres.', NULL, 1),
-(9, 'Prélèvement Site C', 0, 'Prélèvement en zone urbaine à proximité d\"une station d\"épuration.', 'B202', '2024-11-25', '09:00:00', '11:00:00', NULL, NULL, 0);
+INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
+(6, 'Prélèvement Site A', 1, 'Prélèvement d\"eau à la rivière principale. Filtration sur membrane 0.45µm et conservation à 4°C.', '2024-11-01', '09:00:00', '11:00:00', 'Concentration en microplastiques : 450 particules/L', 1),
+(7, 'Prélèvement Site B', 1, 'Prélèvement à la confluence. Triple prélèvement pour validation statistique.', '2024-11-03', '09:00:00', '11:00:00', 'Concentration en microplastiques : 680 particules/L', 1),
+(8, 'Analyse spectroscopique', 1, 'Identification des polymères par spectroscopie infrarouge FTIR.', '2024-11-06', '14:00:00', '18:00:00', 'Identification : 65% polyéthylène, 25% polypropylène, 10% autres.', 1),
+(9, 'Prélèvement Site C', 0, 'Prélèvement en zone urbaine à proximité d\"une station d\"épuration.', '2024-11-25', '09:00:00', '11:00:00', NULL, 0);
 
 -- Expériences pour Projet 3 (NON confidentiel - 6 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Salle, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
-(10, 'Polymérisation PLA modifié', 1, 'Polymérisation du PLA avec ajout de plastifiants biosourcés. Contrôle strict température et pression.', 'C301', '2024-10-20', '10:00:00', '14:00:00', 'Masse molaire Mw = 85 000 g/mol. Indice de polydispersité = 1.8', 'pla_caracterisation.pdf', 1),
-(11, 'Test biodégradabilité', 1, 'Test de biodégradabilité en milieu aqueux selon norme ISO 14851. Suivi pendant 30 jours.', 'A102', '2024-10-25', '09:00:00', '12:00:00', 'Dégradation de 45% après 30 jours.', NULL, 1),
-(12, 'Analyse thermogravimétrique', 1, 'Caractérisation thermique par ATG sous azote. Rampe de température 10°C/min.', 'B202', '2024-10-28', '13:00:00', '16:00:00', 'Td = 285°C. Stabilité thermique satisfaisante.', NULL, 1),
-(13, 'Test résistance mécanique', 1, 'Essai de traction sur éprouvettes normalisées. Machine universelle Instron.', 'A101', '2024-11-02', '10:00:00', '13:00:00', 'Module de Young = 1.2 GPa. Élongation à la rupture = 8%.', NULL, 1),
-(14, 'Optimisation formulation', 0, 'Tests de différentes proportions de plastifiants pour améliorer les propriétés.', 'C301', '2024-11-16', '08:00:00', '15:00:00', NULL, NULL, 0),
-(15, 'Test compostage industriel', 0, 'Essai de compostabilité selon norme EN 13432. Conditions industrielles simulées.', 'A102', '2024-11-24', '09:00:00', '12:00:00', NULL, NULL, 0);
+INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
+(10, 'Polymérisation PLA modifié', 1, 'Polymérisation du PLA avec ajout de plastifiants biosourcés. Contrôle strict température et pression.', '2024-10-20', '10:00:00', '14:00:00', 'Masse molaire Mw = 85 000 g/mol. Indice de polydispersité = 1.8', 1),
+(11, 'Test biodégradabilité', 1, 'Test de biodégradabilité en milieu aqueux selon norme ISO 14851. Suivi pendant 30 jours.', '2024-10-25', '09:00:00', '12:00:00', 'Dégradation de 45% après 30 jours.', 1),
+(12, 'Analyse thermogravimétrique', 1, 'Caractérisation thermique par ATG sous azote. Rampe de température 10°C/min.', '2024-10-28', '13:00:00', '16:00:00', 'Td = 285°C. Stabilité thermique satisfaisante.', 1),
+(13, 'Test résistance mécanique', 1, 'Essai de traction sur éprouvettes normalisées. Machine universelle Instron.','2024-11-02', '10:00:00', '13:00:00', 'Module de Young = 1.2 GPa. Élongation à la rupture = 8%.', 1),
+(14, 'Optimisation formulation', 0, 'Tests de différentes proportions de plastifiants pour améliorer les propriétés.', '2024-11-16', '08:00:00', '15:00:00', NULL, 0),
+(15, 'Test compostage industriel', 0, 'Essai de compostabilité selon norme EN 13432. Conditions industrielles simulées.', '2024-11-24', '09:00:00', '12:00:00', NULL, 0);
 
 -- Expériences pour Projet 4 (NON confidentiel - 4 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Salle, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
-(16, 'Test aigu Daphnia', 1, 'Test de toxicité aiguë sur Daphnia magna selon norme OCDE 202.', 'A101', '2024-10-15', '09:00:00', '17:00:00', 'CL50 (48h) = 12 mg/L. Toxicité modérée.', NULL, 1),
-(17, 'Test chronique poissons', 1, 'Test chronique sur embryons de poissons zèbre. Exposition pendant 96h.', 'A101', '2024-10-22', '08:00:00', '16:00:00', 'NOEC = 2 mg/L. Effets sur la reproduction observés.', 'zebrafish_toxicity.pdf', 1),
-(18, 'Bioaccumulation', 0, 'Étude de bioaccumulation dans les tissus musculaires et hépatiques.', 'A102', '2024-11-19', '10:00:00', '15:00:00', NULL, NULL, 0),
-(19, 'Analyse métabolites', 0, 'Identification des métabolites par chromatographie liquide couplée à la spectrométrie de masse.', 'B201', '2024-11-27', '09:00:00', '14:00:00', NULL, NULL, 0);
+INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
+(16, 'Test aigu Daphnia', 1, 'Test de toxicité aiguë sur Daphnia magna selon norme OCDE 202.', '2024-10-15', '09:00:00', '17:00:00', 'CL50 (48h) = 12 mg/L. Toxicité modérée.', 1),
+(17, 'Test chronique poissons', 1, 'Test chronique sur embryons de poissons zèbre. Exposition pendant 96h.', '2024-10-22', '08:00:00', '16:00:00', 'NOEC = 2 mg/L. Effets sur la reproduction observés.', 1),
+(18, 'Bioaccumulation', 0, 'Étude de bioaccumulation dans les tissus musculaires et hépatiques.', '2024-11-19', '10:00:00', '15:00:00', NULL, 0),
+(19, 'Analyse métabolites', 0, 'Identification des métabolites par chromatographie liquide couplée à la spectrométrie de masse.', '2024-11-27', '09:00:00', '14:00:00', NULL, 0);
 
 -- Expériences pour Projet 5 (NON confidentiel - 3 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Salle, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
-(20, 'Dosage triglycérides', 1, 'Dosage enzymatique des triglycérides plasmatiques sur 50 patients.', 'A102', '2024-10-18', '09:00:00', '12:00:00', 'Moyenne patients diabétiques : 2.8 mmol/L vs contrôle : 1.2 mmol/L', NULL, 1),
-(21, 'Chromatographie acides gras', 1, 'Analyse du profil en acides gras par chromatographie en phase gazeuse.', 'B202', '2024-10-25', '13:00:00', '17:00:00', 'Profil lipidique altéré : augmentation des AG saturés.', 'lipid_profile.pdf', 1),
-(22, 'Western blot enzymes', 0, 'Détection des enzymes du métabolisme lipidique par Western blot.', 'A101', '2024-11-23', '08:00:00', '15:00:00', NULL, NULL, 0);
+INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
+(20, 'Dosage triglycérides', 1, 'Dosage enzymatique des triglycérides plasmatiques sur 50 patients.', '2024-10-18', '09:00:00', '12:00:00', 'Moyenne patients diabétiques : 2.8 mmol/L vs contrôle : 1.2 mmol/L', 1),
+(21, 'Chromatographie acides gras', 1, 'Analyse du profil en acides gras par chromatographie en phase gazeuse.', '2024-10-25', '13:00:00', '17:00:00', 'Profil lipidique altéré : augmentation des AG saturés.', 1),
+(22, 'Western blot enzymes', 0, 'Détection des enzymes du métabolisme lipidique par Western blot.', '2024-11-23', '08:00:00', '15:00:00', NULL, 0);
 
 -- Expériences pour Projet 6 (CONFIDENTIEL - 3 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Salle, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
-(23, 'Synthèse composé XY-247', 1, 'Synthèse multi-étapes du composé principal. Purification par chromatographie sur colonne.', 'C301', '2024-11-05', '09:00:00', '15:00:00', 'Rendement de 78%. Pureté > 99% confirmée par HPLC.', 'synthese_xy247.pdf', 1),
-(24, 'Test cytotoxicité in vitro', 1, 'Évaluation de la cytotoxicité sur 5 lignées cellulaires cancéreuses.', 'A102', '2024-11-08', '10:00:00', '14:00:00', 'IC50 = 2.3 µM sur cellules cancéreuses HeLa.', NULL, 1),
-(25, 'Optimisation conditions', 0, 'Optimisation des conditions de réaction pour améliorer le rendement.', 'C301', '2024-11-22', '08:00:00', '12:00:00', NULL, NULL, 0);
+INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
+(23, 'Synthèse composé XY-247', 1, 'Synthèse multi-étapes du composé principal. Purification par chromatographie sur colonne.','2024-11-05', '09:00:00', '15:00:00', 'Rendement de 78%. Pureté > 99% confirmée par HPLC.', 1),
+(24, 'Test cytotoxicité in vitro', 1, 'Évaluation de la cytotoxicité sur 5 lignées cellulaires cancéreuses.','2024-11-08', '10:00:00', '14:00:00', 'IC50 = 2.3 µM sur cellules cancéreuses HeLa.', 1),
+(25, 'Optimisation conditions', 0, 'Optimisation des conditions de réaction pour améliorer le rendement.',  '2024-11-22', '08:00:00', '12:00:00', NULL, 0);
 
 -- Expériences pour Projet 7 (CONFIDENTIEL - 2 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Salle, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
-(26, 'Séquençage patient 001', 0, 'Séquençage génomique complet par technologie NGS Illumina.', 'C302', '2024-11-14', '08:00:00', '17:00:00', NULL, NULL, 0),
-(27, 'Analyse mutations', 0, 'Analyse comparative des mutations entre patients et groupes témoins.', 'C302', '2024-11-28', '09:00:00', '16:00:00', NULL, NULL, 0);
+INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
+(26, 'Séquençage patient 001', 0, 'Séquençage génomique complet par technologie NGS Illumina.', '2024-11-14', '08:00:00', '17:00:00', NULL, 0),
+(27, 'Analyse mutations', 0, 'Analyse comparative des mutations entre patients et groupes témoins.', '2024-11-28', '09:00:00', '16:00:00', NULL, 0);
 
 -- Expériences pour Projet 8 (CONFIDENTIEL - 1 expérience)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Salle, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
-(28, 'Fermentation E.coli recombinant', 1, 'Fermentation en batch avec suivi en ligne de la biomasse et de l\"activité enzymatique.', 'A102', '2024-11-07', '08:00:00', '18:00:00', 'Production d\'enzyme : 2.5 g/L. Activité spécifique : 450 U/mg.', 'fermentation_rapport.pdf', 1);
+INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
+(28, 'Fermentation E.coli recombinant', 1, 'Fermentation en batch avec suivi en ligne de la biomasse et de l\"activité enzymatique.', '2024-11-07', '08:00:00', '18:00:00', 'Production enzyme : 2.5 g/L. Activité spécifique : 450 U/mg.', 1);
 
 -- Expériences pour Projet 9 (CONFIDENTIEL - 2 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Salle, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
-(29, 'Synthèse nanoparticules or', 0, 'Synthèse de nanoparticules d\'or par réduction chimique. Contrôle de la taille par spectroscopie UV-Vis.', 'C301', '2024-11-11', '09:00:00', '13:00:00', NULL, NULL, 0),
-(30, 'Fonctionnalisation surface', 0, 'Fonctionnalisation des nanoparticules avec des ligands bioactifs.', 'C301', '2024-11-21', '10:00:00', '16:00:00', NULL, NULL, 0);
+INSERT INTO experience (ID_experience, Nom, Validation, Description,  Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
+(29, 'Synthèse nanoparticules or', 0, 'Synthèse de nanoparticules d_or par réduction chimique. Contrôle de la taille par spectroscopie UV-Vis.', '2024-11-11', '09:00:00', '13:00:00', NULL, 0),
+(30, 'Fonctionnalisation surface', 0, 'Fonctionnalisation des nanoparticules avec des ligands bioactifs.', '2024-11-21', '10:00:00', '16:00:00', NULL, 0);
 
 -- Expériences pour Projet 10 (CONFIDENTIEL - 5 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Salle, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
-(31, 'Test in vivo 10mg/kg', 1, 'Évaluation sur modèle murin d\"inflammation aiguë. Administration par voie orale.', 'A101', '2024-10-12', '08:00:00', '18:00:00', 'Réduction de l\"inflammation de 65%. Aucun effet secondaire.', 'preclinical_10mg.pdf', 1),
-(32, 'Test in vivo 50mg/kg', 1, 'Test à dose élevée pour évaluation de la toxicité potentielle.', 'A101', '2024-10-19', '08:00:00', '18:00:00', 'Réduction de l\"inflammation de 85%. Légère toxicité hépatique.', NULL, 1),
-(33, 'Pharmacocinétique', 1, 'Étude de l\"absorption, distribution, métabolisme et excrétion (ADME).', 'B202', '2024-10-26', '09:00:00', '16:00:00', 'Tmax = 2h. Biodisponibilité = 78%. Demi-vie = 6h.', NULL, 1),
-(34, 'Toxicité répétée 28 jours', 0, 'Étude de toxicité subchronique selon directive OCDE 407.', 'A101', '2024-11-17', '08:00:00', '17:00:00', NULL, NULL, 0),
-(35, 'Évaluation génotoxicité', 0, 'Tests d\"Ames et test du micronoyau sur lymphocytes humains.', 'B201', '2024-11-26', '10:00:00', '15:00:00', NULL, NULL, 0);
+INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Piece_jointe, Fin_experience) VALUES
+(31, 'Test in vivo 10mg/kg', 1, 'Évaluation sur modèle murin d\"inflammation aiguë. Administration par voie orale.', '2024-10-12', '08:00:00', '18:00:00', 'Réduction de l\"inflammation de 65%. Aucun effet secondaire.', 1),
+(32, 'Test in vivo 50mg/kg', 1, 'Test à dose élevée pour évaluation de la toxicité potentielle.', '2024-10-19', '08:00:00', '18:00:00', 'Réduction de l\"inflammation de 85%. Légère toxicité hépatique.' 1),
+(33, 'Pharmacocinétique', 1, 'Étude de l\"absorption, distribution, métabolisme et excrétion (ADME).', '2024-10-26', '09:00:00', '16:00:00', 'Tmax = 2h. Biodisponibilité = 78%. Demi-vie = 6h.', 1),
+(34, 'Toxicité répétée 28 jours', 0, 'Étude de toxicité subchronique selon directive OCDE 407.', '2024-11-17', '08:00:00', '17:00:00', NULL,  0),
+(35, 'Évaluation génotoxicité', 0, 'Tests d\"Ames et test du micronoyau sur lymphocytes humains.', '2024-11-26', '10:00:00', '15:00:00', NULL, 0);
 
 -- ========================================
 -- LIAISON PROJETS-EXPÉRIENCES
@@ -340,3 +340,22 @@ INSERT INTO notification_projet (ID_compte_envoyeur, ID_compte_receveur, ID_proj
 (6, 8, 8, 2, '2024-06-12 15:20:00'),   -- Hugo notifie Antoine pour validation projet 8
 (8, 10, 9, 2, '2024-08-15 11:10:00'),  -- Antoine notifie Thomas pour validation projet 9
 (2, 5, 10, 2, '2024-10-10 14:50:00'); -- Pierre notifie Emma pour validation projet 10
+
+-- ========================================
+-- INSERTION DES PIECES JOINTES
+-- ========================================
+
+INSERT INTO experience_fichier (ID_experience,path_file) VALUES
+(2, 'rapport_culture.pdf'),
+(7, 'site_a_analyse.pdf'),
+(10, 'pla_caracterisation.pdf'),
+(17, 'zebrafish_toxicity.pdf'),
+(21, 'lipid_profile.pdf'),
+(23, 'synthese_xy247.pdf'),
+(28,  'fermentation_rapport.pdf'),
+(31,  'preclinical_10mg.pdf');
+
+
+
+
+
