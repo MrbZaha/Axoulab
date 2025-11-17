@@ -30,7 +30,6 @@ CREATE TABLE experience (
     Heure_debut TIME,
     Heure_fin TIME,
     Resultat VARCHAR(4000),
-    Piece_jointe VARCHAR(255) NULL,
     Fin_experience TINYINT DEFAULT 0
 ) ENGINE=InnoDB;
 
@@ -38,6 +37,12 @@ CREATE TABLE salle_materiel (
     ID_salle BIGINT PRIMARY KEY AUTO_INCREMENT,
     Salle VARCHAR(64),
     Materiel VARCHAR(64)
+) ENGINE=InnoDB;
+
+CREATE TABLE experience_fichier (
+    ID_experience BIGINT PRIMARY KEY,
+    path_file VARCHAR(100),
+    FOREIGN KEY (ID_experience) REFERENCES experience(ID_experience) ON DELETE CASCADE,
 ) ENGINE=InnoDB;
 
 CREATE TABLE experience_experimentateur (
