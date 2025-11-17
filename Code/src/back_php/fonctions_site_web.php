@@ -142,7 +142,7 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                 </li>
                 <!-- Icone notification qui agit comme un label -->
                 <li id="Notif">
-                    <label for="notif_toggle" class="notif_logo" style="cursor:pointer;">
+                    <label for="notif_toggle" class="notif_logo">
                         <img src="..\assets\Notification_logo.png">
                     </label>
                 </li>
