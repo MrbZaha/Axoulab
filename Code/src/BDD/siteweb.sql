@@ -25,7 +25,6 @@ CREATE TABLE experience (
     Nom VARCHAR(500),
     Validation TINYINT DEFAULT 0,
     Description VARCHAR(10000),
-    Salle VARCHAR(20),
     Date_reservation DATE,
     Heure_debut TIME,
     Heure_fin TIME,
@@ -42,7 +41,7 @@ CREATE TABLE salle_materiel (
 CREATE TABLE experience_fichier (
     ID_experience BIGINT PRIMARY KEY,
     path_file VARCHAR(100),
-    FOREIGN KEY (ID_experience) REFERENCES experience(ID_experience) ON DELETE CASCADE,
+    FOREIGN KEY (ID_experience) REFERENCES experience(ID_experience) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE experience_experimentateur (
