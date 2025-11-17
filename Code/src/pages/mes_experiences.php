@@ -67,6 +67,7 @@ unset($exp); // Bonne pratique après modification par référence
     <meta charset="UTF-8">
     <title>Mes expériences</title>
     <link rel="stylesheet" href="mes_experiences.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
 </head>
 <body>

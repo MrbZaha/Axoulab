@@ -3,7 +3,7 @@
 include_once '../back_php/fonctions_site_web.php';
 session_start();
 
-$bdd = connectBDD()
+$bdd = connectBDD();
 
 ?>
 
@@ -13,8 +13,10 @@ $bdd = connectBDD()
         <meta charset= "utf-8"/>
         <link rel="stylesheet" href="../css/Main_page_connected.css">
         <link rel="stylesheet" href="../css/Bandeau_haut.css">
+        <!-- Permet d'afficher la loupe pour le bandeau de recherche -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <title>AxouLab</title>
-</head>
+    </head>
 <body>
     <?php
     afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);
@@ -28,19 +30,19 @@ $bdd = connectBDD()
   <!-- Slides -->
   <div class="slides">
     <div class="slide s1">
-      <img src="exemple1.jpg" alt="Image 1">
+      <img src="../assets/exemple1.jpg" alt="Image 1">
       <label for="slide3" class="prev">◀</label>
       <label for="slide2" class="next">▶</label>
     </div>
 
     <div class="slide s2">
-      <img src="exemple2.jpg" alt="Image 2">
+      <img src="../assets/exemple2.jpg" alt="Image 2">
       <label for="slide1" class="prev">◀</label>
       <label for="slide3" class="next">▶</label>
     </div>
 
     <div class="slide s3">
-      <img src="exemple3.jpg" alt="Image 3">
+      <img src="../assets/exemple3.jpg" alt="Image 3">
       <label for="slide2" class="prev">◀</label>
       <label for="slide1" class="next">▶</label>
     </div>

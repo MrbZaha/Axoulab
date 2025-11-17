@@ -1,13 +1,52 @@
 .site_nav {
-    background-color: #389abb; 
+    background-color: #ffffff; 
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 20px;
-    border-radius: 10px; 
+    padding: 30px 20px;
+    border-radius: 0px; 
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin-bottom: 60px; /* espace entre la barre et le slider */
+    margin : 0px 0px 60px 0px;                    /* On met de l'espace entre le bandeau et le dessous du bandeau */
+    border-bottom: 3px solid rgb(244, 224, 127);
 }
+
+body{
+ margin: 0px;
+}
+
+/* Conteneur global de la searchbar */
+.searchbar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: #eee7f3; /* couleur proche du modèle figma */
+    border-radius: 999px;        /* arrondi "pilule" */
+    padding: 12px 20px;
+    width: 380px;                /* j'adapte la largeur */
+}
+
+/* Champ de texte */
+.searchbar input[type="text"] {
+    border: none;
+    background: transparent;  /* le fond est celui du container */
+    font-size: 18px;
+    outline: none;
+    padding: 0;
+    flex: 1;                  /* prend toute la largeur disponible */
+    color: #464646;
+}
+
+/* Icône de recherche */
+.searchbar-icon {
+    position: absolute;
+    right: 18px;
+    font-size: 18px;
+    color: #666;
+    cursor: pointer;
+    top: 50%;                 /* centrage vertical réel */
+    transform: translateY(-50%);
+}
+
 
 #site_nav_main {
     display: flex;
@@ -18,34 +57,43 @@
 #site_nav_links ul {
     list-style: none;
     display: flex;
-    gap: 20px;
+    align-items: center;
     margin: 0;
     padding: 0;
 }
 
 .Links {
     text-decoration: none;
-    color: black;
-    font-weight: bold;
+    color: rgb(98, 98, 98);
+    font-size: larger;
+    padding: 0px 20px 0px 20px;
+    font-family:'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
 .Links:hover {
-    color: #004080; /* bleu plus foncé au survol */
+    color: #000000; /* bleu plus foncé au survol */
 }
 
-.notif_logo img {
-    width: 20px;
+.notif_logo img{
+    width:50px;
     object-fit: contain;
+    padding: 0px 20px 0px 20px;
+    transform: rotate(20deg);
+    cursor: pointer;
 }
 
-.user_logo img {
-    width: 20px;
+.user_logo img{
+    display: block;
+    width:50px;
     object-fit: contain;
+    padding: 0px 30px 0px 30px;
 }
 
-.lab_logo img {
-    width: 20px;
+.lab_logo img{
+    width:50px;
     object-fit: contain;
+    padding: 0px 30px 0px 30px;
+
 }
 
 /* Overlay notifications */
