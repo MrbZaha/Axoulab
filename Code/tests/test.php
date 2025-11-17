@@ -1,11 +1,16 @@
 <?php 
 echo  'Propriétaire du script courant : ' . get_current_user().'</br>';
 echo 'commande whoami : '. exec('whoami');
+
+# Connection à la BDD et on ajoute les trucs importants : 
+// Inclure le fichier de fonctions
+include_once '../back_php/fonctions_site_web.php';
+session_start();
+
+$bdd = connectBDD();
 ?>
 
-
-
-
+<!-- Premier test de la fonciton pour afficher le footer -->
 function afficher_Bandeau_Bas($bdd, $userID) {
     <nav class="site_nav">
         <!-- Création de 3 div les unes après les autres -->
