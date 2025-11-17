@@ -315,15 +315,15 @@ INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
 INSERT INTO notification_experience (ID_compte_envoyeur, ID_compte_receveur, ID_experience, Type_notif, Date_envoi) VALUES
 -- Notifications pour expériences en attente de validation
 (1, 2, 3, 1, '2024-11-15 16:30:00'),  -- Marie notifie Pierre pour validation exp 3
-(5, 3, 9, 1, '2024-11-25 11:30:00'),  -- Emma notifie Sophie pour validation exp 9
-(7, 5, 14, 1, '2024-11-16 15:45:00'), -- Léa notifie Emma pour validation exp 14
+(5, 3, 9, 2, '2024-11-25 11:30:00'),  -- Emma notifie Sophie pour validation exp 9
+(7, 5, 14, 3, '2024-11-16 15:45:00'), -- Léa notifie Emma pour validation exp 14
 (2, 7, 18, 1, '2024-11-19 15:20:00'), -- Pierre notifie Léa pour validation exp 18
-(1, 5, 22, 1, '2024-11-23 15:10:00'), -- Marie notifie Emma pour validation exp 22
+(1, 5, 22, 5, '2024-11-23 15:10:00'), -- Marie notifie Emma pour validation exp 22
 (4, 2, 25, 1, '2024-11-22 12:15:00'), -- Lucas notifie Pierre pour validation exp 25
 (4, 6, 26, 1, '2024-11-14 17:30:00'), -- Lucas notifie Hugo pour validation exp 26
-(8, 9, 29, 1, '2024-11-11 13:25:00'), -- Antoine notifie Camille pour validation exp 29
+(8, 9, 29, 2, '2024-11-11 13:25:00'), -- Antoine notifie Camille pour validation exp 29
 (9, 10, 30, 1, '2024-11-21 16:40:00'),-- Camille notifie Thomas pour validation exp 30
-(2, 6, 34, 1, '2024-11-17 17:15:00'), -- Pierre notifie Hugo pour validation exp 34
+(2, 6, 34, 4, '2024-11-17 17:15:00'), -- Pierre notifie Hugo pour validation exp 34
 (5, 2, 35, 1, '2024-11-26 15:30:00'); -- Emma notifie Pierre pour validation exp 35
 
 -- ========================================
@@ -331,15 +331,15 @@ INSERT INTO notification_experience (ID_compte_envoyeur, ID_compte_receveur, ID_
 -- ========================================
 INSERT INTO notification_projet (ID_compte_envoyeur, ID_compte_receveur, ID_projet, Type_notif, Date_envoi) VALUES
 -- Notifications pour projets en attente de validation
-(3, 1, 2, 2, '2024-03-10 14:20:00'),   -- Sophie notifie Marie pour validation projet 2
-(5, 3, 3, 2, '2024-05-20 11:15:00'),   -- Emma notifie Sophie pour validation projet 3
-(7, 5, 4, 2, '2024-07-08 09:45:00'),   -- Léa notifie Emma pour validation projet 4
-(1, 7, 5, 2, '2024-09-01 10:30:00'),   -- Marie notifie Léa pour validation projet 5
-(2, 4, 6, 2, '2024-02-01 16:25:00'),   -- Pierre notifie Lucas pour validation projet 6
-(4, 6, 7, 2, '2024-04-05 13:40:00'),   -- Lucas notifie Hugo pour validation projet 7
-(6, 8, 8, 2, '2024-06-12 15:20:00'),   -- Hugo notifie Antoine pour validation projet 8
-(8, 10, 9, 2, '2024-08-15 11:10:00'),  -- Antoine notifie Thomas pour validation projet 9
-(2, 5, 10, 2, '2024-10-10 14:50:00'); -- Pierre notifie Emma pour validation projet 10
+(3, 1, 2, 11, '2024-03-10 14:20:00'),   -- Sophie notifie Marie pour validation projet 2
+(5, 3, 3, 13, '2024-05-20 11:15:00'),   -- Emma notifie Sophie pour validation projet 3
+(7, 5, 4, 12, '2024-07-08 09:45:00'),   -- Léa notifie Emma pour validation projet 4
+(1, 7, 5, 12, '2024-09-01 10:30:00'),   -- Marie notifie Léa pour validation projet 5
+(2, 4, 6, 14, '2024-02-01 16:25:00'),   -- Pierre notifie Lucas pour validation projet 6
+(4, 6, 7, 14, '2024-04-05 13:40:00'),   -- Lucas notifie Hugo pour validation projet 7
+(6, 8, 8, 11, '2024-06-12 15:20:00'),   -- Hugo notifie Antoine pour validation projet 8
+(8, 10, 9, 15, '2024-08-15 11:10:00'),  -- Antoine notifie Thomas pour validation projet 9
+(2, 5, 10, 12, '2024-10-10 14:50:00'); -- Pierre notifie Emma pour validation projet 10
 
 -- ========================================
 -- INSERTION DES PIECES JOINTES
