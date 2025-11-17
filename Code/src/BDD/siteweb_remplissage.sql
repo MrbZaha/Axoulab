@@ -20,27 +20,31 @@ DELETE FROM salle_materiel;
 -- INSERTION DES COMPTES (utilisateurs)
 -- ========================================
 INSERT INTO compte (ID_compte, Nom, Prenom, Date_de_naissance, Email, Mdp, Etat, Validation, Photo_de_profil) VALUES
-(1, 'Dupont', 'Marie', '1990-05-15', 'marie.dupont@example.com', 'password123', 1, 1, NULL),
-(2, 'Martin', 'Pierre', '1988-03-22', 'pierre.martin@example.com', 'password123', 1, 1, NULL),
-(3, 'Bernard', 'Sophie', '1992-11-08', 'sophie.bernard@example.com', 'password123', 1, 1, NULL),
-(4, 'Dubois', 'Lucas', '1995-07-30', 'lucas.dubois@example.com', 'password123', 1, 1, NULL),
-(5, 'Thomas', 'Emma', '1991-02-14', 'emma.thomas@example.com', 'password123', 1, 1, NULL),
-(6, 'Robert', 'Hugo', '1989-09-25', 'hugo.robert@example.com', 'password123', 1, 1, NULL),
-(7, 'Petit', 'Léa', '1993-12-03', 'lea.petit@example.com', 'password123', 1, 1, NULL),
-(8, 'Moreau', 'Antoine', '1987-06-18', 'antoine.moreau@example.com', 'password123', 1, 1, NULL),
-(9, 'Leroy', 'Camille', '1994-04-12', 'camille.leroy@example.com', 'password123', 1, 1, NULL),
-(10, 'Girard', 'Thomas', '1986-08-30', 'thomas.girard@example.com', 'password123', 1, 1, NULL);
+(1, 'Dupont', 'Marie', '1990-05-15', 'marie.dupont@axoulab.fr', 'password123', 1, 1, NULL),
+(2, 'Martin', 'Pierre', '1988-03-22', 'pierre.martin@axoulab.fr', 'password123', 2, 1, NULL),
+(3, 'Bernard', 'Sophie', '1992-11-08', 'sophie.bernard@axoulab.fr', 'password123', 1, 1, NULL),
+(4, 'Dubois', 'Lucas', '1995-07-30', 'lucas.dubois@axoulab.fr', 'password123', 1, 1, NULL),
+(5, 'Thomas', 'Emma', '1991-02-14', 'emma.thomas@axoulab.fr', 'password123', 2, 1, NULL),
+(6, 'Robert', 'Hugo', '1989-09-25', 'hugo.robert@axoulab.fr', 'password123', 1, 1, NULL),
+(7, 'Petit', 'Léa', '1993-12-03', 'lea.petit@axoulab.fr', 'password123', 1, 1, NULL),
+(8, 'Moreau', 'Antoine', '1987-06-18', 'antoine.moreau@axoulab.fr', 'password123', 1, 1, NULL),
+(9, 'Leroy', 'Camille', '1994-04-12', 'camille.leroy@axoulab.fr', 'password123', 2, 1, NULL),
+(10, 'Girard', 'Thomas', '1986-08-30', 'thomas.girard@axoulab.fr', 'password123', 1, 1, NULL);
 
 -- ========================================
 -- INSERTION DES SALLES
 -- ========================================
 INSERT INTO salle_materiel (ID_salle, Salle, Materiel) VALUES
-(1, 'A101', 'Microscopes, Pipettes'),
-(2, 'A102', 'Centrifugeuse, pH-mètre'),
-(3, 'B201', 'Spectrophotomètre'),
-(4, 'B202', 'Chromatographe'),
-(5, 'C301', 'Hotte chimique, Balance'),
-(6, 'C302', 'PCR, Thermocycleur');
+(1, 'A101', 'Microscopes'),
+(2, 'A101', 'Pipettes'),
+(3, 'A102', 'Centrifugeuse'),
+(4, 'A102', 'pH-mètre')
+(5, 'B201', 'Spectrophotomètre'),
+(6, 'B202', 'Chromatographe'),
+(7, 'C301', 'Hotte chimique'),
+(8, 'C301', 'Balance'),
+(9, 'C302', 'PCR')
+(10,'C302', 'Thermocycleur');
 
 -- ========================================
 -- INSERTION DES PROJETS
