@@ -161,27 +161,27 @@ function afficher_Bandeau_Haut($bdd, $userID) {
         </div>
     </nav>
 
-    <!-- Overlay notifications -->
-<div class="overlay">
-    <?php
-    $notifications = get_last_notif($bdd, $userID);
+        <!-- Overlay notifications -->
+    <div class="overlay">
+        <?php
+        $notifications = get_last_notif($bdd, $userID);
 
-    if (empty($notifications)) {
-        echo "<p>Aucune notification pour le moment.</p>";
-    } else {
-        foreach ($notifications as $notif):
-            $texte = $notif['texte'];
-    ?>
-            <div class="notif_case">
-                <?= htmlspecialchars($texte) ?><br>
-                <small><?= htmlspecialchars($notif['date']) ?></small>
-            </div>
-    <?php
-        endforeach;
-    }
-    ?>
-    <label for="notif_toggle" class="close_overlay">Fermer</label>
-</div>
+        if (empty($notifications)) {
+            echo "<p>Aucune notification pour le moment.</p>";
+        } else {
+            foreach ($notifications as $notif):
+                $texte = $notif['texte'];
+        ?>
+                <div class="notif_case">
+                    <?= htmlspecialchars($texte) ?><br>
+                    <small><?= htmlspecialchars($notif['date']) ?></small>
+                </div>
+        <?php
+            endforeach;
+        }
+        ?>
+        <label for="notif_toggle" class="close_overlay">Fermer</label>
+    </div>
 
 
     <?php
@@ -237,9 +237,9 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
             np.Date_envoi, 
             p.Nom_projet,
             NULL AS Nom_experience
-        FROM Notification_projet AS np
+        FROM notification_projet AS np
         JOIN projet AS p ON np.ID_projet = p.ID_projet
-        JOIN Compte AS Ce ON np.ID_compte_envoyeur = Ce.ID_compte
+        JOIN compte AS Ce ON np.ID_compte_envoyeur = Ce.ID_compte
         WHERE np.ID_compte_receveur = ?
     ");
     $notif_projet->execute([$IDuser]);
@@ -253,9 +253,9 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
             ne.Date_envoi, 
             NULL AS Nom_projet,
             e.Nom
-        FROM Notification_experience AS ne
+        FROM notification_experience AS ne
         JOIN experience AS e ON ne.ID_experience = e.ID_experience
-        JOIN Compte AS Ce ON ne.ID_compte_envoyeur = Ce.ID_compte
+        JOIN compte AS Ce ON ne.ID_compte_envoyeur = Ce.ID_compte
         WHERE ne.ID_compte_receveur = ?
     ");
     $notif_experience->execute([$IDuser]);
@@ -314,4 +314,32 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
 }
 
 
-?>
+
+
+
+// ======================= 14. Affichage bandeau du bas =======================
+/* Affiche le bandeau du bas de page  */ 
+function afficher_Bandeau_Bas() { ?>
+    <nav class="site_footer">
+        <!-- Création de 3 div les unes après les autres -->
+        <div id="Contact">
+            <p class="titre">Contact</p>
+            <p class="text">Campus SophiaTech</p>
+            <p class="text">930 Route des Colles</p>
+            <p class="text">BP 145, 06903 Sophia Antipolis</p>
+        </div>
+        <div id="Powered">
+            <p class="milieu">Powered</p>
+            <p class="milieu">by la Polyteam</p>
+        </div>
+        <div id="Concepteurs">
+            <p class="titre">Concepteurs</p>
+            <p class="text">Bardet Trouilloud Juliette</p>
+            <p class="text">Helias Ewan</p>
+            <p class="text">Marhabi Zahir Hajar</p>
+            <p class="text">Rey Axel</p>
+
+        </div>
+    </nav>
+<?php } ?>
+
