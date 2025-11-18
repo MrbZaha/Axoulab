@@ -188,6 +188,7 @@ $experiences = get_experiences($pdo, $id_projet);
     <title><?= htmlspecialchars($projet['Nom_projet']) ?></title>
     <link rel="stylesheet" href="../css/projet.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
+    <link rel="stylesheet" href="../css/Bandeau_bas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
