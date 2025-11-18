@@ -240,9 +240,9 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
             np.Date_envoi, 
             p.Nom_projet,
             NULL AS Nom_experience
-        FROM Notification_projet AS np
+        FROM notification_projet AS np
         JOIN projet AS p ON np.ID_projet = p.ID_projet
-        JOIN Compte AS Ce ON np.ID_compte_envoyeur = Ce.ID_compte
+        JOIN compte AS Ce ON np.ID_compte_envoyeur = Ce.ID_compte
         WHERE np.ID_compte_receveur = ?
     ");
     $notif_projet->execute([$IDuser]);
@@ -256,9 +256,9 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
             ne.Date_envoi, 
             NULL AS Nom_projet,
             e.Nom
-        FROM Notification_experience AS ne
+        FROM notification_experience AS ne
         JOIN experience AS e ON ne.ID_experience = e.ID_experience
-        JOIN Compte AS Ce ON ne.ID_compte_envoyeur = Ce.ID_compte
+        JOIN compte AS Ce ON ne.ID_compte_envoyeur = Ce.ID_compte
         WHERE ne.ID_compte_receveur = ?
     ");
     $notif_experience->execute([$IDuser]);
@@ -285,7 +285,7 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
         'type12' => '{Nom_envoyeur} {Prenom_envoyeur} a validé le projet {Nom_projet}',
         'type13' => '{Nom_envoyeur} {Prenom_envoyeur} a refusé le projet {Nom_projet}',
         'type14' => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier le projet {Nom_projet}',
-        'type15' => '{Nom_projet} a été modifiée par {Nom_envoyeur} {Prenom_envoyeur}',
+        'type15' => '{Nom_projet} a été modifiée par {Nom_envoyeur} {Prenom_envoyeur}'
     ];
 
     // Formater toutes les notifications
