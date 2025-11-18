@@ -3,6 +3,7 @@ require_once __DIR__ . '/../back_php/init_DB.php';
 require __DIR__ . '/../back_php/fonctions_site_web.php';
 
 $_SESSION['ID_compte'] = 3; // TEMPORAIRE pour test
+$bdd = connectBDD();
 
 /*
 if (!isset($_SESSION['ID_compte'])) {
@@ -12,15 +13,15 @@ if (!isset($_SESSION['ID_compte'])) {
 */
 
 $id_compte = $_SESSION['ID_compte'];
-$id_projet = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$id_projet = isset($_GET['id_projet']) ? (int)$_GET['id_projet'] : 0;
 
 if ($id_projet === 0) {
-    afficher_Bandeau_Haut($pdo,$_SESSION["ID_compte"]);
+    afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);
     echo "❌ ID de projet manquant.";
     exit;
 }
 
-function verifier_confidentialite(PDO $pdo, int $id_compte, int $id_projet): bool {
+function verifier_confidentialite(PDO $bdd, int $id_compte, int $id_projet): bool {
     $sql = "
         SELECT 
             p.Confidentiel,
@@ -31,7 +32,7 @@ function verifier_confidentialite(PDO $pdo, int $id_compte, int $id_projet): boo
         WHERE p.ID_projet = :id_projet
     ";
 
-    $stmt = $pdo->prepare($sql);
+    $stmt = $bdd->prepare($sql);
     $stmt->execute([
         'id_compte' => $id_compte,
         'id_projet' => $id_projet
@@ -52,9 +53,9 @@ function verifier_confidentialite(PDO $pdo, int $id_compte, int $id_projet): boo
     return isset($result['Statut']) && (int)$result['Statut'] === 1;
 }
 
-function get_info_projet(PDO $pdo, int $id_compte, int $id_projet) {
+function get_info_projet(PDO $bdd, int $id_compte, int $id_projet) {
     // Vérification d'accès avant tout
-    if (!verifier_confidentialite($pdo, $id_compte, $id_projet)) {
+    if (!verifier_confidentialite($bdd, $id_compte, $id_projet)) {
         echo "⛔ Il s'agit d'un projet confidentiel auquel vous n'avez pas accès.";
         exit;
     }
@@ -75,7 +76,7 @@ function get_info_projet(PDO $pdo, int $id_compte, int $id_projet) {
         WHERE p.ID_projet = :id_projet
     ";
 
-    $stmt = $pdo->prepare($sql_projet);
+    $stmt = $bdd->prepare($sql_projet);
     $stmt->execute([
         'id_compte' => $id_compte,
         'id_projet' => $id_projet
@@ -84,7 +85,7 @@ function get_info_projet(PDO $pdo, int $id_compte, int $id_projet) {
     $projet = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$projet) {
-        afficher_Bandeau_Haut($pdo,$_SESSION["ID_compte"]);
+        afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);
         echo "❌ Désolé, ce projet n'existe pas.";
         exit;
     }
@@ -92,7 +93,7 @@ function get_info_projet(PDO $pdo, int $id_compte, int $id_projet) {
     return $projet;
 }
 
-function get_gestionnaires(PDO $pdo, int $id_projet): array {
+function get_gestionnaires(PDO $bdd, int $id_projet): array {
     $sql = "
         SELECT c.Nom, c.Prenom
         FROM projet_collaborateur_gestionnaire pcg
@@ -100,7 +101,7 @@ function get_gestionnaires(PDO $pdo, int $id_projet): array {
         WHERE pcg.ID_projet = :id_projet AND pcg.Statut = 1
     ";
     
-    $stmt = $pdo->prepare($sql);
+    $stmt = $bdd->prepare($sql);
     $stmt->execute(['id_projet' => $id_projet]);
     
     $gestionnaires = [];
@@ -111,7 +112,7 @@ function get_gestionnaires(PDO $pdo, int $id_projet): array {
     return $gestionnaires;
 }
 
-function get_collaborateurs(PDO $pdo, int $id_projet): array {
+function get_collaborateurs(PDO $bdd, int $id_projet): array {
     $sql = "
         SELECT c.Nom, c.Prenom
         FROM projet_collaborateur_gestionnaire pcg
@@ -119,7 +120,7 @@ function get_collaborateurs(PDO $pdo, int $id_projet): array {
         WHERE pcg.ID_projet = :id_projet AND pcg.Statut = 2
     ";
     
-    $stmt = $pdo->prepare($sql);
+    $stmt = $bdd->prepare($sql);
     $stmt->execute(['id_projet' => $id_projet]);
     
     $collaborateurs = [];
@@ -130,7 +131,7 @@ function get_collaborateurs(PDO $pdo, int $id_projet): array {
     return $collaborateurs;
 }
 
-function get_experiences(PDO $pdo, int $id_projet): array {
+function get_experiences(PDO $bdd, int $id_projet): array {
     $sql = "
         SELECT 
             e.ID_experience,
@@ -148,13 +149,13 @@ function get_experiences(PDO $pdo, int $id_projet): array {
         ORDER BY e.Date_reservation DESC, e.Heure_debut DESC
     ";
     
-    $stmt = $pdo->prepare($sql);
+    $stmt = $bdd->prepare($sql);
     $stmt->execute(['id_projet' => $id_projet]);
     
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function get_experimentateurs(PDO $pdo, int $id_experience): array {
+function get_experimentateurs(PDO $bdd, int $id_experience): array {
     $sql = "
         SELECT c.Prenom, c.Nom
         FROM experience_experimentateur ee
@@ -162,7 +163,7 @@ function get_experimentateurs(PDO $pdo, int $id_experience): array {
         WHERE ee.ID_experience = :id_experience
     ";
     
-    $stmt = $pdo->prepare($sql);
+    $stmt = $bdd->prepare($sql);
     $stmt->execute(['id_experience' => $id_experience]);
     
     $experimentateurs = [];
@@ -174,10 +175,10 @@ function get_experimentateurs(PDO $pdo, int $id_experience): array {
 }
 
 // Récupération des données
-$projet = get_info_projet($pdo, $id_compte, $id_projet);
-$gestionnaires = get_gestionnaires($pdo, $id_projet);
-$collaborateurs = get_collaborateurs($pdo, $id_projet);
-$experiences = get_experiences($pdo, $id_projet);
+$projet = get_info_projet($bdd, $id_compte, $id_projet);
+$gestionnaires = get_gestionnaires($bdd, $id_projet);
+$collaborateurs = get_collaborateurs($bdd, $id_projet);
+$experiences = get_experiences($bdd, $id_projet);
 ?>
 
 <!DOCTYPE html>
@@ -192,7 +193,7 @@ $experiences = get_experiences($pdo, $id_projet);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-<?php afficher_Bandeau_Haut($pdo, $id_compte)?>
+<?php afficher_Bandeau_Haut($bdd, $id_compte)?>
 <div class="project-container">
     <div class="project-title"><?= htmlspecialchars($projet['Nom_projet']) ?></div>
     <div class="project-main">
