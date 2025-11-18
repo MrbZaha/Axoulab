@@ -1,10 +1,10 @@
 <?php
 require_once __DIR__ . '/../back_php/init_DB.php';
 require __DIR__ . '/../back_php/fonctions_site_web.php';
-
+$bdd = connectBDD();
 $_SESSION['ID_compte'] = 3; // TEMPORAIRE pour test
 
-function get_mes_projets_complets(PDO $pdo, int $id_compte): array {
+function get_mes_projets_complets(PDO $bdd, int $id_compte): array {
     $sql_projets = "
         SELECT 
             p.ID_projet, 
@@ -19,7 +19,7 @@ function get_mes_projets_complets(PDO $pdo, int $id_compte): array {
             ON p.ID_projet = pcg.ID_projet
         WHERE pcg.ID_compte = :id_compte
     ";
-    $stmt = $pdo->prepare($sql_projets);
+    $stmt = $bdd->prepare($sql_projets);
     $stmt->execute(['id_compte' => $id_compte]);
     $projets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -39,7 +39,7 @@ function get_mes_projets_complets(PDO $pdo, int $id_compte): array {
         INNER JOIN compte c ON pcg.ID_compte = c.ID_compte
         WHERE pcg.Statut = 1 AND pcg.ID_projet IN ($in)
     ";
-    $stmt2 = $pdo->prepare($sql_gestionnaires);
+    $stmt2 = $bdd->prepare($sql_gestionnaires);
     $stmt2->execute($ids_projets);
     $rows = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
@@ -84,7 +84,7 @@ function afficher_projets_pagines(array $projets, int $page_actuelle = 1, int $i
                 $role = $p['Statut'] ? "Gestionnaire" : "Collaborateur";
                 ?>
                 
-                <a class='projet-card' href='projet.php?id=<?= $id ?>'>
+                <a class='projet-card' href='projet.php?id_projet=<?= $id ?>'>
                     <h3><?= $nom ?></h3>
                     <p><?= $desc ?></p>
                     <p><strong>Date de création :</strong> <?= $date ?></p>
@@ -126,7 +126,7 @@ function afficher_pagination(int $page_actuelle, int $total_pages, string $type 
 
 // Récupération et filtrage des projets
 $id_compte = $_SESSION['ID_compte'];
-$projets = get_mes_projets_complets($pdo, $id_compte);
+$projets = get_mes_projets_complets($bdd, $id_compte);
 
 // Séparation en deux listes
 $projets_en_cours = array_filter($projets, fn($p) => $p['Validation'] == 0);
@@ -160,7 +160,7 @@ if ($page_termines > $total_pages_termines) $page_termines = $total_pages_termin
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-<?php afficher_Bandeau_Haut($pdo, $id_compte)?>
+<?php afficher_Bandeau_Haut($bdd, $id_compte)?>
 <h1>Mes projets</h1>
 
 <div class="projets">
