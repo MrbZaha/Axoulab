@@ -1,7 +1,6 @@
 <?php
 // ======================= FICHIER DE FONCTIONS =======================
 // Ce fichier contient toutes les fonctions réutilisables pour les pages
-// inscription et connexion du projet de cahier de laboratoire.
 // L'objectif est de centraliser le code pour qu'il soit plus propre,
 // facile à maintenir et réutilisable sur plusieurs pages.
 
@@ -309,6 +308,58 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
 
     return $result;
 }
+
+// ======================= VERIFIER TAILLES DES CHAMPS POUR CREATION DE PROJET =======================
+function verifier_champs_projet($nom_projet, $description) {
+    # a voir le nb de caractère accordé en focntion de ce qu'on met dans bdd
+    
+    $erreurs = [];
+
+    if (strlen($nom) < 3 || strlen($nom) > 100) {
+        $erreurs[] = "Le nom du projet doit contenir entre 3 et 100 caractères."; 
+
+    if (strlen($description) < 10 || strlen($description) > 2000) {
+        $erreurs[] = "La description doit contenir entre 10 et 2000 caractères.";
+    }
+
+    return $erreurs;
+}
+}
+
+// ======================= INSERER UN NOUVEAU PROJET =======================
+function creer_projet($bdd, $nom_projet, $description, $confidentialite) {
+    $date_creation = date('Y-m-d H:i:s'); #permet d'integrer automatiquement la date de creation dans la bdd
+    
+    $sql = $bdd->prepare("
+        INSERT INTO projets (Nom_projet, Description, Confidentiel, Date_de_creation )
+        VALUES (?, ?, ?,?)
+    ");
+
+    return $sql->execute([$nom, $description, $confidentialite, $date_creation]);
+}
+
+// ======================= AJOUTER PARTICIPANTS À UN PROJET =======================
+function ajouter_participants($bdd, $id_projet, $gestionnaires, $collaborateurs) {
+
+    // gestionnaires = array d'ID utilisateurs
+    // collaborateurs = array d'ID utilisateurs
+    $sql = $bdd->prepare("
+        INSERT INTO projet_collaborateur_gestionnaire (Id_projet, Id_compte, Statut)
+        VALUES (?, ?, ?)
+    ");
+
+    foreach ($gestionnaires as $id_compte) {
+        $sql->execute([$id_projet, $id_compte, 'gestionnaire']);
+    }
+
+    foreach ($collaborateurs as $id_compte) {
+        $sql->execute([$id_projet, $id_compte, 'collaborateur']);
+    }
+}
+
+
+
+
 
 // ======================= 14. Affichage bandeau du bas =======================
 /* Affiche le bandeau du bas de page  */ 
