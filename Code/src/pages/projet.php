@@ -135,7 +135,6 @@ function get_experiences(PDO $pdo, int $id_projet): array {
         SELECT 
             e.ID_experience,
             e.Description,
-            e.Salle,
             e.Date_reservation,
             e.Heure_debut,
             e.Heure_fin,
@@ -188,12 +187,11 @@ $experiences = get_experiences($pdo, $id_projet);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($projet['Nom_projet']) ?></title>
     <link rel="stylesheet" href="../css/projet.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
-    <?php afficher_Bandeau_Haut($pdo,$id_compte);?>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-
+<?php afficher_Bandeau_Haut($pdo, $id_compte)?>
 <div class="project-container">
     <div class="project-title"><?= htmlspecialchars($projet['Nom_projet']) ?></div>
     <div class="project-main">
@@ -229,7 +227,6 @@ $experiences = get_experiences($pdo, $id_projet);
                         <?= $exp['Fin_experience'] ? "Terminée" : "En cours" ?>
                     </span>
                 </div>
-                <p class="experience-lieu">📍 <?= htmlspecialchars($exp['Salle']) ?></p>
                 <p class="experience-date">
                     📅 <?= date('d/m/Y', strtotime($exp['Date_reservation'])) ?> 
                     | ⏰ <?= substr($exp['Heure_debut'], 0, 5) ?> - <?= substr($exp['Heure_fin'], 0, 5) ?>

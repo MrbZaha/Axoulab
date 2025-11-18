@@ -312,7 +312,8 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
 
 // ======================= 14. Affichage bandeau du bas =======================
 /* Affiche le bandeau du bas de page  */ 
-function afficher_Bandeau_Bas() { ?>
+function afficher_Bandeau_Bas() { 
+    ?>
     <nav class="site_footer">
         <!-- Création de 3 div les unes après les autres -->
         <div id="Contact">

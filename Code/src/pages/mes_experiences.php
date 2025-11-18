@@ -51,37 +51,6 @@ $sql_experiences = "
     return $experiences;    
 }
 
-    // // Récupération des gestionnaires pour tous les projets trouvés
-    // $ids_projets = array_column($projets, 'ID_projet');
-    // $in = str_repeat('?,', count($ids_projets) - 1) . '?';
-
-    // $sql_gestionnaires = "
-    //     SELECT 
-    //         pcg.ID_projet, 
-    //         c.Nom, 
-    //         c.Prenom
-    //     FROM projet_collaborateur_gestionnaire pcg
-    //     INNER JOIN compte c ON pcg.ID_compte = c.ID_compte
-    //     WHERE pcg.Statut = 1 AND pcg.ID_projet IN ($in)
-    // ";
-    // $stmt2 = $pdo->prepare($sql_gestionnaires);
-    // $stmt2->execute($ids_projets);
-    // $rows = $stmt2->fetchAll(PDO::FETCH_ASSOC);
-
-//     // Organisation des gestionnaires par projet
-//     $gestionnaires = [];
-//     foreach ($rows as $row) {
-//         $gestionnaires[$row['ID_projet']][] = $row['Prenom'] . ' ' . $row['Nom'];
-//     }
-
-//     // Ajout des gestionnaires directement dans le tableau des projets
-//     foreach ($projets as &$p) {
-//         $p['Gestionnaires'] = $gestionnaires[$p['ID_projet']] ?? [];
-//     }
-
-//     return $projets;
-// }
-
 function afficher_experience(array $experience): void {
     $id_experience = htmlspecialchars($experience['ID_experience']);
     $nom = htmlspecialchars($experience['Nom']);
