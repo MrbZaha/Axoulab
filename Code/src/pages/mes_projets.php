@@ -121,7 +121,6 @@ $ids_projets = array_column($projets, 'ID_projet');
             <?php endif; ?>
         <?php endforeach; ?>
     </div>
-
 </div>
 <?php afficher_Bandeau_Bas() ?>
 </body>
