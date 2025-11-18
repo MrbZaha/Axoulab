@@ -1,9 +1,12 @@
 <?php
 session_start();
+
 include_once "../back_php/fonctions_site_web.php";
 $bdd = connectBDD();
+$_SESSION["ID_compte"] =3;
 
 $message = "";
+
 
 if (isset($_POST["nom_projet"],$_POST["description"], $_POST["confidentialite"],$_POST["gestionnaires[]"], $_POST["collaborateurs"])){
     $nom_projet=trim($_POST["nom_projet"]);
@@ -35,8 +38,14 @@ if (isset($_POST["nom_projet"],$_POST["description"], $_POST["confidentialite"],
     <meta charset="UTF-8">
     <title>Page de création de projet</title>
     <link rel="stylesheet" href="../css/page_creation_projet_style.css">
+    <link rel="stylesheet" href="../css/Bandeau_haut.css">
+    <?php
+    afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);
+    ?>
+
 </head>
 <body>
+
     <div class="project-box">
         <h2>Créer un projet</h2>
 

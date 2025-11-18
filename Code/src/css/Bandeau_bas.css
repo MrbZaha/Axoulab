@@ -1,0 +1,44 @@
+.site_footer {
+    /* background-color: #ffffff;  */
+    background-image: linear-gradient(to bottom, black, #00356B);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 20px;
+    border-radius: 0px; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin : 0px 0px 60px 0px;                    /* On met de l'espace entre le bandeau et le dessous du bandeau */
+    border-top: 3px solid rgb(244, 224, 127);
+
+    /* background: -webkit-linear-gradient (right , black, blue );
+    background: -o-linear-gradient (right , blue , white , red );
+    background: -moz-linear-gradient (right , blue , white , red );
+    background: -ms-linear-gradient (to right , blue , white , red);
+    background: linear-gradient (to right , blue , white , red); */
+}
+
+.titre {
+    font-size: larger;
+    font-weight: bold;
+}
+
+#Contact {
+    padding-left: 40px;
+}
+
+#Powered {
+    text-align: center;
+    font-size: x-large;
+    font-weight: bold;
+}
+
+#Concepteurs {
+    padding: 0px 40px;
+}
+
+
+p {
+    font-family:'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    color: aliceblue;
+}

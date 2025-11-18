@@ -1,7 +1,6 @@
 <?php
 // ======================= FICHIER DE FONCTIONS =======================
 // Ce fichier contient toutes les fonctions réutilisables pour les pages
-// inscription et connexion du projet de cahier de laboratoire.
 // L'objectif est de centraliser le code pour qu'il soit plus propre,
 // facile à maintenir et réutilisable sur plusieurs pages.
 
@@ -240,9 +239,9 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
             np.Date_envoi, 
             p.Nom_projet,
             NULL AS Nom_experience
-        FROM Notification_projet AS np
+        FROM notification_projet AS np
         JOIN projet AS p ON np.ID_projet = p.ID_projet
-        JOIN Compte AS Ce ON np.ID_compte_envoyeur = Ce.ID_compte
+        JOIN compte AS Ce ON np.ID_compte_envoyeur = Ce.ID_compte
         WHERE np.ID_compte_receveur = ?
     ");
     $notif_projet->execute([$IDuser]);
@@ -256,9 +255,9 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
             ne.Date_envoi, 
             NULL AS Nom_projet,
             e.Nom
-        FROM Notification_experience AS ne
+        FROM notification_experience AS ne
         JOIN experience AS e ON ne.ID_experience = e.ID_experience
-        JOIN Compte AS Ce ON ne.ID_compte_envoyeur = Ce.ID_compte
+        JOIN compte AS Ce ON ne.ID_compte_envoyeur = Ce.ID_compte
         WHERE ne.ID_compte_receveur = ?
     ");
     $notif_experience->execute([$IDuser]);
@@ -364,4 +363,32 @@ function ajouter_participants($bdd, $id_projet, $gestionnaires, $collaborateurs)
 }
 
 
-?>
+
+
+
+// ======================= 14. Affichage bandeau du bas =======================
+/* Affiche le bandeau du bas de page  */ 
+function afficher_Bandeau_Bas() { ?>
+    <nav class="site_footer">
+        <!-- Création de 3 div les unes après les autres -->
+        <div id="Contact">
+            <p class="titre">Contact</p>
+            <p class="text">Campus SophiaTech</p>
+            <p class="text">930 Route des Colles</p>
+            <p class="text">BP 145, 06903 Sophia Antipolis</p>
+        </div>
+        <div id="Powered">
+            <p class="milieu">Powered</p>
+            <p class="milieu">by la Polyteam</p>
+        </div>
+        <div id="Concepteurs">
+            <p class="titre">Concepteurs</p>
+            <p class="text">Bardet Trouilloud Juliette</p>
+            <p class="text">Helias Ewan</p>
+            <p class="text">Marhabi Zahir Hajar</p>
+            <p class="text">Rey Axel</p>
+
+        </div>
+    </nav>
+<?php } ?>
+
