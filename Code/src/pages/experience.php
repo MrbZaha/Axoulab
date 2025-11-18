@@ -248,6 +248,6 @@ $experiences = get_experiences($pdo, $id_projet);
     </div>
     <?php endif; ?>
 </div>
-<?php afficher_Bandeau_Bas() ?>
 </body>
+<?php afficher_Bandeau_Bas() ?>
 </html>
