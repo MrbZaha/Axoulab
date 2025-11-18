@@ -188,9 +188,6 @@ function afficher_Bandeau_Haut($bdd, $userID) {
     <?php
 }
 
-
-
-
 // ======================= 11. VÉRIFIER SI ADMIN =======================
 /* Vérifie si un compte est administrateur
    Retourne true si l'utilisateur est admin, false sinon */
@@ -222,8 +219,6 @@ function en_cours_validation($bdd, $email) {
 
     return false; // si aucun compte trouvé
 }
-
-
 
 // ======================= 13. RÉCUPERER LES DERNIERE NOTIFICATIONS =======================
 /* Récupère les données relatives aux notification et les  */
@@ -390,5 +385,5 @@ function afficher_Bandeau_Bas() { ?>
 
         </div>
     </nav>
-<?php } ?>
-
+<?php } 
+?>

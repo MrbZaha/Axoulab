@@ -6,7 +6,7 @@
     padding: 30px 20px;
     border-radius: 0px; 
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin : 0px 0px 60px 0px;                    /* On met de l'espace entre le bandeau et le dessous du bandeau */
+    /* margin : 0px 0px 60px 0px;                    On met de l'espace entre le bandeau et le dessous du bandeau */
     border-bottom: 3px solid rgb(244, 224, 127);
 }
 
