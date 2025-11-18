@@ -5,6 +5,38 @@ session_start();
 // Inclure le fichier de fonctions
 include_once '../back_php/fonctions_site_web.php';
 
+//fonction utilisée dans cette page
+// ======================= 2. VÉRIFICATION FORCE DU MOT DE PASSE =======================
+/* Vérifie que le mot de passe respecte les règles de sécurité :
+   - Au moins 8 caractères
+   - Au moins une majuscule
+   - Au moins une minuscule
+   - Au moins un chiffre
+   - Au moins un caractère spécial
+   Retourne un tableau d'erreurs (vide si mot de passe valide) */
+function verifier_mdp($mdp) {
+    $erreurs = [];
+    if (strlen($mdp) < 8) $erreurs[] = "au moins 8 caractères";
+    if (!preg_match('/[A-Z]/', $mdp)) $erreurs[] = "au moins une majuscule";
+    if (!preg_match('/[a-z]/', $mdp)) $erreurs[] = "au moins une minuscule";
+    if (!preg_match('/[0-9]/', $mdp)) $erreurs[] = "au moins un chiffre";
+    if (!preg_match('/[\W_]/', $mdp)) $erreurs[] = "au moins un caractère spécial (!@#$%^&*...)";
+    return $erreurs;
+}
+
+// ======================= 4. COMPARAISON DE MOT DE PASSE =======================
+/* Vérifie si deux mots de passe sont identiques (mot de passe et "réécrire mot de passe") */
+function mot_de_passe_identique($mdp1, $mdp2) {
+    return $mdp1 === $mdp2;
+}
+
+// ======================= 5. VALIDATION EMAIL AXOULAB =======================
+/* Vérifie que l'email est au format prenom.nom@axoulab.fr
+   Retourne true si le format est correct, false sinon */
+function verifier_email_axoulab($email) {
+    return preg_match('/^[a-zA-Z]+\.[a-zA-Z]+@axoulab\.fr$/', $email);
+}
+
 // Connexion à la base
 $bdd = connectBDD();
 
