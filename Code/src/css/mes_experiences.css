@@ -1,30 +1,196 @@
-.liste {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+/* Container principal */
+.experiences {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
+/* Sections d'expériences */
+.section-experiences {
+    margin-bottom: 50px;
+}
+
+.section-experiences h2 {
+    color: #2b5f7e;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+/* Liste verticale des expériences */
+.liste {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Carte d'expérience - style vertical */
 .experience-card {
     display: block;
-    width: 350px;
-    padding: 15px;
-    border: 1px solid #ccc;
+    width: 100%;
+    padding: 20px 25px;
+    border: 1px solid #e0e0e0;
     border-radius: 8px;
     text-decoration: none;
-    color: #fff;
-    background-color: #2b5f7ec0;
-    transition: transform 0.2s, box-shadow 0.2s;
+    color: #333;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .experience-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    border-color: #2b5f7e;
+    box-shadow: 0 4px 12px rgba(43, 95, 126, 0.15);
+    transform: translateX(5px);
+}
+
+/* Header de l'expérience (titre + badge projet) */
+.experience-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
 }
 
 .experience-card h3 {
-    margin-top: 0;
+    margin: 0;
+    color: #1a1a1a;
+    font-size: 1.1rem;
+    font-weight: 600;
+    flex: 1;
 }
 
-.experience-card p {
-    margin: 5px 0;
+/* Badge du nom du projet */
+.projet-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    background-color: #2b5f7e;
+    color: white;
+    font-size: 0.85rem;
+    border-radius: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Description de l'expérience */
+.experience-card .description {
+    color: #444;
+    margin: 10px 0 15px 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* Détails de l'expérience */
+.experience-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.experience-details p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.experience-details p strong {
+    color: #2b5f7e;
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+/* Message si aucune expérience */
+.no-experiences {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    padding: 40px 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    border: 1px dashed #ddd;
+}
+
+/* Styles de pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    padding: 8px 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #333;
+    background-color: white;
+    transition: all 0.2s;
+    font-weight: 500;
+    font-size: 0.9rem;
+    min-width: 36px;
+    text-align: center;
+}
+
+.page-btn:hover {
+    background-color: #f5f5f5;
+    border-color: #2b5f7e;
+    color: #2b5f7e;
+}
+
+.page-btn.active {
+    background-color: #2b5f7e;
+    color: white;
+    border-color: #2b5f7e;
+    cursor: default;
+}
+
+/* Titre principal de la page */
+h1 {
+    text-align: center;
+    color: #1a1a1a;
+    font-size: 2rem;
+    margin: 30px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .experiences {
+        padding: 15px;
+    }
+    
+    .experience-card {
+        padding: 15px 20px;
+    }
+    
+    .experience-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .experience-card h3 {
+        font-size: 1rem;
+    }
+    
+    .experience-details {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .experience-details p {
+        font-size: 0.85rem;
+    }
+    
+    .projet-badge {
+        font-size: 0.8rem;
+    }
 }
