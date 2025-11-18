@@ -37,12 +37,6 @@ CREATE TABLE salle_materiel (
     Materiel VARCHAR(64)
 ) ENGINE=InnoDB;
 
-CREATE TABLE experience_fichier (
-    ID_experience BIGINT PRIMARY KEY,
-    path_file VARCHAR(100),
-    FOREIGN KEY (ID_experience) REFERENCES experience(ID_experience) ON DELETE CASCADE
-) ENGINE=InnoDB;
-
 CREATE TABLE experience_experimentateur (
     ID_experience BIGINT,
     ID_compte BIGINT,

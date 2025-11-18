@@ -1,0 +1,120 @@
+/* ======================= STYLE GÉNÉRAL ======================= */
+body {
+    font-family: Arial, sans-serif; /* Police principale de toute la page */
+    background-color: #f3f3f3;      /* Fond gris clair pour tout le body */
+    margin: 0;                      /* Supprime les marges par défaut du navigateur */
+    padding: 0;                     /* Supprime les paddings par défaut */
+    display: flex;                  /* Active Flexbox pour centrer le contenu */
+    justify-content: center;        /* Centre horizontalement le contenu */
+    align-items: center;            /* Centre verticalement le contenu */
+    min-height: 100vh;              /* Hauteur minimale = 100% de la fenêtre */
+}
+
+/* ======================= CONTAINER PRINCIPAL ======================= */
+.project-box {
+   background-color: #ffffff;
+    padding: 40px;        /*espace interne autour du contenue*/
+    border-radius: 12px;      /*coin arrondi*/
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /*ombre*/
+    width: 400px;             /*largeur du formulaire*/
+    max-width: 90%;    
+    display: flex;
+   /* place-items: center;     /* horizontal + vertical */
+   /* min-height: 300px;*/
+   flex-direction: column;  /* ✅ Change en flex-direction: column */
+}
+
+/* ======================= TITRE ======================= */
+.project-box h2 {
+    text-align: center;             /* Centre le titre horizontalement */
+    color: #374693;                 /* Couleur bleu foncé */
+    margin-bottom: 20px;            /* Espace sous le titre */
+}
+
+/* ======================= FORMULAIRE ======================= */
+form {
+    display: flex;                  /* Flexbox pour les champs du formulaire */
+    flex-direction: column;         /* Empile les champs verticalement */
+}
+
+/* Labels des champs */
+form label {
+    margin-top: 10px;               /* Espace au-dessus du label */
+    font-weight: bold;              /* Texte en gras pour les labels */
+}
+/* Champs texte, date, textarea, select */
+input[type="text"], input[type="date"], textarea, select {
+    padding: 10px;                  /* Espacement interne à l’intérieur du champ */
+    margin-top: 5px;                /* Petit espace entre label et champ */
+    border: 1px solid #ccc;         /* Bordure grise autour du champ */
+    border-radius: 6px;             /* Coins légèrement arrondis */
+    font-size: 14px;                /* Taille de texte lisible */
+}
+
+/* Textarea pour la description */
+textarea {
+    resize: vertical;               /* L’utilisateur peut redimensionner verticalement */
+    min-height: 80px;               /* Hauteur minimale */
+}
+
+/* ======================= BOUTON SUBMIT ======================= */
+input[type="submit"], button {
+    margin-top: 20px;               /* Espace au-dessus du bouton */
+    padding: 12px 20px;             /* Espacement interne du bouton */
+    background-color: #374693;      /* Couleur de fond bleu */
+    color: white;                   /* Texte blanc */
+    border: none;                   /* Supprime la bordure par défaut */
+    border-radius: 8px;             /* Coins arrondis */
+    font-size: 14px;                /* Taille du texte */
+    font-weight: bold;              /* Texte en gras */
+    cursor: pointer;                /* Curseur en forme de main au survol */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Animation fluide */
+}
+
+/* Hover sur bouton */
+input[type="submit"]:hover, button:hover {
+    background-color: #0462c6;      /* Change le fond en bleu plus foncé */
+    transform: scale(1.03);         /* Légère mise en avant du bouton */
+}
+
+/* ======================= RADIO BUTTONS ======================= */
+.user-type {
+    margin-top: 10px;               /* Espace au-dessus de la section radio */
+}
+
+.user-type input[type="radio"] {
+    margin-right: 5px;              /* Espace entre le bouton radio et le texte */
+}
+
+/* ======================= MESSAGES ======================= */
+.message-success {
+    color: #155724;                 /* Texte vert foncé */
+    background-color: #d4edda;      /* Fond vert clair */
+    padding: 12px;                   /* Espacement interne */
+    border-radius: 5px;              /* Coins arrondis */
+    border: 1px solid #c3e6cb;      /* Bordure verte claire */
+    margin-top: 15px;                /* Espace au-dessus du message */
+    text-align: center;              /* Centré horizontalement */
+}
+
+.message-error {
+    color: #721c24;                 /* Texte rouge foncé */
+    background-color: #f8d7da;      /* Fond rose clair */
+    padding: 12px;                   /* Espacement interne */
+    border-radius: 5px;              /* Coins arrondis */
+    border: 1px solid #f5c6cb;      /* Bordure rose */
+    margin-top: 15px;                /* Espace au-dessus du message */
+    text-align: center;              /* Centré horizontalement */
+}
+
+/* ======================= FLEX COLONNES ======================= */
+.form-columns {
+    display: flex;                  /* Flexbox pour diviser en colonnes */
+    gap: 20px;                      /* Espace entre les colonnes */
+}
+
+.colonne1, .colonne2 {
+    flex: 1;                        /* Chaque colonne prend la moitié */
+    display: flex;                  /* Flexbox interne pour aligner les champs */
+    flex-direction: column;         /* Empile les champs verticalement */
+}

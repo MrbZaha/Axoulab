@@ -15,7 +15,6 @@ DELETE FROM projet_collaborateur_gestionnaire;
 DELETE FROM projet;
 DELETE FROM compte;
 DELETE FROM salle_materiel;
-DELETE FROM experience_fichier;
 
 -- ========================================
 -- INSERTION DES COMPTES (utilisateurs)
@@ -341,17 +340,3 @@ INSERT INTO notification_projet (ID_compte_envoyeur, ID_compte_receveur, ID_proj
 (6, 8, 8, 11, '2024-06-12 15:20:00'),   -- Hugo notifie Antoine pour validation projet 8
 (8, 10, 9, 15, '2024-08-15 11:10:00'),  -- Antoine notifie Thomas pour validation projet 9
 (2, 5, 10, 12, '2024-10-10 14:50:00'); -- Pierre notifie Emma pour validation projet 10
-
--- ========================================
--- INSERTION DES PIECES JOINTES
--- ========================================
-
-INSERT INTO experience_fichier (ID_experience,path_file) VALUES
-(2, 'rapport_culture.pdf'),
-(7, 'site_a_analyse.pdf'),
-(10, 'pla_caracterisation.pdf'),
-(17, 'zebrafish_toxicity.pdf'),
-(21, 'lipid_profile.pdf'),
-(23, 'synthese_xy247.pdf'),
-(28,  'fermentation_rapport.pdf'),
-(31,  'preclinical_10mg.pdf');
