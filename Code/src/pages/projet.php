@@ -190,16 +190,12 @@ $experiences = get_experiences($pdo, $id_projet);
     <link rel="stylesheet" href="../css/projet.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
+    <?php afficher_Bandeau_Haut($pdo,$id_compte);?>
 </head>
 <body>
-    <?php
-    afficher_Bandeau_Haut($pdo,$_SESSION["ID_compte"]);
-    ?>
+
 <div class="project-container">
-    <!-- Titre du projet -->
     <div class="project-title"><?= htmlspecialchars($projet['Nom_projet']) ?></div>
-    
-    <!-- Bloc description et info -->
     <div class="project-main">
         <div class="project-description">
             <h3>Description</h3>
