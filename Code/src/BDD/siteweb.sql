@@ -71,6 +71,7 @@ CREATE TABLE salle_experience (
 ) ENGINE=InnoDB;
 
 CREATE TABLE notification_experience (
+    ID_notification_experience BIGINT PRIMARY KEY AUTO_INCREMENT,
     ID_compte_envoyeur BIGINT,
     ID_compte_receveur BIGINT,
     ID_experience BIGINT,
@@ -82,6 +83,7 @@ CREATE TABLE notification_experience (
 ) ENGINE=InnoDB;
 
 CREATE TABLE notification_projet (
+    ID_notification_projet BIGINT PRIMARY KEY AUTO_INCREMENT,
     ID_compte_envoyeur BIGINT,
     ID_compte_receveur BIGINT,
     ID_projet BIGINT,
