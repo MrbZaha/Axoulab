@@ -97,26 +97,35 @@ body{
 }
 
 /* --- Overlay complet --- */
-.overlay {
-    position: fixed;
-    top: 70px;              /* sous le header */
-    right: 20px;
-    width: 350px;
-    max-height: 70vh;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 25px rgba(0,0,0,0.15);
-    padding: 15px 20px;
-    overflow-y: auto;       /* scroll si trop de notifs */
-    display: flex;
-    flex-direction: column;
-    gap: 12px;              /* espace entre les blocs */
-    z-index: 2000;
-    border: 1px solid #e0e0e0;
+#Notif {
+    position: relative;
 }
 
-/* --- Chaque bloc de notification --- */
-.notif_case {
+/* Overlay */
+#Notif .overlay {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 350px;
+    max-height: 300px;       /* fixe la hauteur max pour activer scroll */
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 4px 25px rgba(0,0,0,0.15);
+    overflow-y: auto;        /* scroll vertical */
+    display: none;           /* caché par défaut */
+    flex-direction: column;
+    gap: 12px;
+    z-index: 9999;
+}
+
+/* Affichage quand checkbox coché */
+#Notif input#notif_toggle:checked + .overlay {
+    display: flex;
+}
+
+/* Notification */
+#Notif .notif_case {
     background: #f7f7f7;
     padding: 12px 15px;
     border-radius: 10px;
@@ -126,16 +135,15 @@ body{
     line-height: 1.4;
 }
 
-/* Date plus discrète */
-.notif_case small {
-    display: block;
-    color: #888;
-    margin-top: 6px;
-    font-size: 12px;
+#Notif .notif_case small {
+    display:block;
+    margin-top:6px;
+    color:#777;
+    font-size:12px;
 }
 
-/* Bouton "Fermer" */
-.close_overlay {
+/* Bouton fermer */
+#Notif .close_overlay {
     display: block;
     margin-top: 10px;
     text-align: center;
@@ -144,22 +152,12 @@ body{
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
-    transition: background 0.2s;
 }
 
-.close_overlay:hover {
+#Notif .close_overlay:hover {
     background: #d3d3d3;
 }
 
-/* Overlay fermée par défaut */
-#notif_toggle:not(:checked) + .overlay {
-    display: none;
-}
-
-/* Overlay quand checkbox activé */
-#notif_toggle:checked + .overlay {
-    display: flex;
-}
 
 
 
