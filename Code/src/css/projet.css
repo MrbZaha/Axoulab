@@ -278,3 +278,15 @@ body {
     color: #7f8c8d;
     font-style: italic;
 }
+
+.experience-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.experience-link:hover .experience-card {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+}
