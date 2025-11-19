@@ -34,7 +34,8 @@ CREATE TABLE experience (
 CREATE TABLE salle_materiel (
     ID_salle BIGINT PRIMARY KEY AUTO_INCREMENT,
     Salle VARCHAR(64),
-    Materiel VARCHAR(64)
+    Materiel VARCHAR(64),
+    Nombre INT(11)
 ) ENGINE=InnoDB;
 
 CREATE TABLE experience_experimentateur (
