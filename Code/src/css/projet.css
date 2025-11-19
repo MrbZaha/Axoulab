@@ -115,6 +115,7 @@ body {
     margin-bottom: 15px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
 }
 
 .experience-card:hover {
@@ -139,6 +140,7 @@ body {
     font-size: 18px;
     font-weight: 600;
     margin: 0 0 5px 0;
+    text-decoration: none !important;
 }
 
 .experience-experimentateurs {
@@ -146,6 +148,7 @@ body {
     font-size: 13px;
     margin: 5px 0 0 0;
     font-weight: normal;
+    text-decoration: none !important;
 }
 
 .experience-info {
@@ -156,12 +159,14 @@ body {
     color: #7f8c8d;
     font-size: 14px;
     margin: 5px 0;
+    text-decoration: none !important;
 }
 
 .experience-date {
     color: #95a5a6;
     font-size: 13px;
     margin: 5px 0;
+    text-decoration: none !important;
 }
 
 .experience-description {
@@ -172,17 +177,20 @@ body {
     background-color: #f8f9fa;
     border-left: 3px solid #3498db;
     border-radius: 4px;
+    text-decoration: none !important;
 }
 
 .experience-description strong {
     display: block;
     margin-bottom: 8px;
     color: #2c3e50;
+    text-decoration: none !important;
 }
 
 .experience-description p {
     margin: 0;
     line-height: 1.6;
+    text-decoration: none !important;
 }
 
 .experience-piece-jointe {
@@ -190,6 +198,7 @@ body {
     padding: 10px;
     background-color: #e8f5e9;
     border-radius: 5px;
+    text-decoration: none !important;
 }
 
 .experience-piece-jointe a {
@@ -211,6 +220,7 @@ body {
     border-radius: 15px;
     font-size: 12px;
     font-weight: 600;
+    text-decoration: none !important;
 }
 
 .experience-resultats {
@@ -219,6 +229,7 @@ body {
     background-color: #fff3cd;
     border-radius: 5px;
     cursor: pointer;
+    text-decoration: none !important;
 }
 
 .experience-resultats summary {
@@ -226,6 +237,7 @@ body {
     color: #856404;
     cursor: pointer;
     user-select: none;
+    text-decoration: none !important;
 }
 
 .experience-resultats summary:hover {
@@ -237,6 +249,7 @@ body {
     color: #555;
     font-size: 14px;
     line-height: 1.6;
+    text-decoration: none !important;
 }
 
 /* Badge statut */
@@ -247,11 +260,22 @@ body {
     font-weight: 600;
     text-transform: uppercase;
     white-space: nowrap;
+    text-decoration: none !important;
 }
 
 .status-en_attente {
     background-color: #fff3cd;
     color: #856404;
+}
+
+.status-termine {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-en_cours {
+    background-color: #d1ecf1;
+    color: #0c5460;
 }
 
 /* Responsive */
@@ -279,14 +303,67 @@ body {
     font-style: italic;
 }
 
-.experience-link {
-    text-decoration: none;
-    color: inherit;
+/* Styles pour les liens d'expérience - SOLUTION DÉFINITIVE */
+a.experience-link {
+    all: unset;
     display: block;
+    text-decoration: none !important;
+    color: inherit !important;
+    cursor: pointer;
 }
 
-.experience-link:hover .experience-card {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    cursor: pointer;
+/* Message d'erreur */
+.error-message {
+    padding: 20px;
+    background-color: #fee;
+    border: 1px solid #fcc;
+    border-radius: 8px;
+    color: #c00;
+    text-align: center;
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+/* Indicateur visuel que la carte est cliquable */
+.experience-card::after {
+    content: "→";
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: #3498db;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    font-size: 18px;
+}
+
+/* S'assurer que tous les textes dans la carte n'ont pas de style de lien */
+.experience-card h4,
+.experience-card p,
+.experience-card span,
+.experience-card .experience-date,
+.experience-card .experience-description,
+.experience-card .validation-badge,
+.experience-card .status {
+    text-decoration: none !important;
+    border-bottom: none !important;
+}
+
+/* Style spécifique pour la date */
+.experience-date {
+    color: #666;
+    font-size: 14px;
+    margin: 8px 0;
+}
+
+/* Style spécifique pour la description */
+.experience-description {
+    color: #555;
+    font-size: 14px;
+    margin-top: 12px;
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-left: 3px solid #3498db;
+    border-radius: 4px;
+    text-decoration: none !important;
 }
