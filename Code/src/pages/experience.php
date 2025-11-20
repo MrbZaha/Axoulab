@@ -287,7 +287,7 @@ function modifie_value_exp(PDO $bdd, int $id, int $value) {
         ':id' => $id
     ]);
 }
-
+// METTRE CES FONCTIONS DANS TOUTES LES PAGES RELATIVES AUX EXP2RIENCE
 // ========== CHARGEMENT DES DONNÉES ==========
 
 function charger_donnees_experience(PDO $bdd, int $id_compte, int $id_experience): array {
