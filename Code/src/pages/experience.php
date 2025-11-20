@@ -246,6 +246,47 @@ function afficher_experience(array $experience, array $experimentateurs, array $
     </div>
     <?php
 }
+function maj_bdd_experience(PDO $bdd) {
+    $now = new DateTime();
+    $now_datetime = new DateTime($now->format('Y-m-d H:i'));
+
+    // Sélection uniquement des expériences non terminées
+    $sql = "
+        SELECT ID_experience, 
+        Date_reservation, 
+        Heure_fin, 
+        Fin_experience
+        FROM experience
+        WHERE Fin_experience = 0
+    ";
+    $stmt = $bdd->prepare($sql);
+    $stmt->execute();
+    $experiences = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($experiences as $exp) {
+        // Création d'un DateTime complet pour la fin de l'expérience
+        $exp_datetime_fin = new DateTime($exp['Date_reservation'] . ' ' . $exp['Heure_fin']);
+
+        // Mise à jour uniquement si l'expérience est passée
+        if ($exp_datetime_fin < $now_datetime) {
+            modifie_value_exp($bdd, $exp["ID_experience"], 1);
+        }
+    }
+}
+
+function modifie_value_exp(PDO $bdd, int $id, int $value) {
+    $sql_maj_bdd = "
+        UPDATE experience
+        SET Fin_experience = :Fin_experience
+        WHERE ID_experience = :id
+    ";
+
+    $stmt = $bdd->prepare($sql_maj_bdd);
+    $stmt->execute([
+        ':Fin_experience' => $value,
+        ':id' => $id
+    ]);
+}
 
 // ========== CHARGEMENT DES DONNÉES ==========
 
