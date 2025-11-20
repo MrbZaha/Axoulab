@@ -19,16 +19,6 @@ body {
     margin: 0 auto;
 }
 
-/* Titre du projet */
-.project-title {
-    font-size: 32px;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 25px;
-    padding-bottom: 15px;
-    border-bottom: 3px solid #3498db;
-}
-
 /* Layout principal (description + info) */
 .project-main {
     display: grid;
@@ -99,7 +89,7 @@ body {
     margin-top: 30px;
 }
 
-.experiences > h3 {
+.experiences h3 {
     font-size: 24px;
     color: #2c3e50;
     margin-bottom: 20px;
@@ -107,212 +97,14 @@ body {
     border-bottom: 2px solid #3498db;
 }
 
-/* Carte expérience */
-.experience-card {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    position: relative;
-}
-
-.experience-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.experience-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 15px;
-    gap: 15px;
-}
-
-.experience-header > div {
-    flex: 1;
-}
-
-.experience-card h4 {
-    color: #2c3e50;
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0 0 5px 0;
-    text-decoration: none !important;
-}
-
-.experience-experimentateurs {
-    color: #7f8c8d;
-    font-size: 13px;
-    margin: 5px 0 0 0;
-    font-weight: normal;
-    text-decoration: none !important;
-}
-
-.experience-info {
-    margin-bottom: 12px;
-}
-
-.experience-lieu {
-    color: #7f8c8d;
-    font-size: 14px;
-    margin: 5px 0;
-    text-decoration: none !important;
-}
-
+/* Style spécifique pour la date */
 .experience-date {
-    color: #95a5a6;
-    font-size: 13px;
-    margin: 5px 0;
-    text-decoration: none !important;
-}
-
-.experience-description {
-    color: #555;
+    color: #666;
     font-size: 14px;
-    margin-top: 12px;
-    padding: 12px;
-    background-color: #f8f9fa;
-    border-left: 3px solid #3498db;
-    border-radius: 4px;
-    text-decoration: none !important;
+    margin: 8px 0;
 }
 
-.experience-description strong {
-    display: block;
-    margin-bottom: 8px;
-    color: #2c3e50;
-    text-decoration: none !important;
-}
-
-.experience-description p {
-    margin: 0;
-    line-height: 1.6;
-    text-decoration: none !important;
-}
-
-.experience-piece-jointe {
-    margin-top: 12px;
-    padding: 10px;
-    background-color: #e8f5e9;
-    border-radius: 5px;
-    text-decoration: none !important;
-}
-
-.experience-piece-jointe a {
-    color: #2e7d32;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.experience-piece-jointe a:hover {
-    text-decoration: underline;
-}
-
-.validation-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    margin-top: 10px;
-    background-color: #d4edda;
-    color: #155724;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: 600;
-    text-decoration: none !important;
-}
-
-.experience-resultats {
-    margin-top: 12px;
-    padding: 10px;
-    background-color: #fff3cd;
-    border-radius: 5px;
-    cursor: pointer;
-    text-decoration: none !important;
-}
-
-.experience-resultats summary {
-    font-weight: 600;
-    color: #856404;
-    cursor: pointer;
-    user-select: none;
-    text-decoration: none !important;
-}
-
-.experience-resultats summary:hover {
-    color: #533f03;
-}
-
-.experience-resultats p {
-    margin-top: 10px;
-    color: #555;
-    font-size: 14px;
-    line-height: 1.6;
-    text-decoration: none !important;
-}
-
-/* Badge statut */
-.status {
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    white-space: nowrap;
-    text-decoration: none !important;
-}
-
-.status-en_attente {
-    background-color: #fff3cd;
-    color: #856404;
-}
-
-.status-termine {
-    background-color: #d4edda;
-    color: #155724;
-}
-
-.status-en_cours {
-    background-color: #d1ecf1;
-    color: #0c5460;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .project-main {
-        grid-template-columns: 1fr;
-    }
-    
-    .project-title {
-        font-size: 24px;
-    }
-    
-    .experience-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-}
-
-/* Message d'erreur/vide */
-.empty-message {
-    text-align: center;
-    padding: 40px;
-    color: #7f8c8d;
-    font-style: italic;
-}
-
-/* Styles pour les liens d'expérience - SOLUTION DÉFINITIVE */
-a.experience-link {
-    all: unset;
-    display: block;
-    text-decoration: none !important;
-    color: inherit !important;
-    cursor: pointer;
-}
-
-/* Message d'erreur */
+/* Error */
 .error-message {
     padding: 20px;
     background-color: #fee;
@@ -324,46 +116,49 @@ a.experience-link {
     max-width: 600px;
 }
 
-/* Indicateur visuel que la carte est cliquable */
-.experience-card::after {
-    content: "→";
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    color: #3498db;
-    font-weight: bold;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+/* Responsive */
+@media (max-width: 768px) {
+    .project-main {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Carte expérience améliorée */
+.experience-card {
+    display: block;
+    background: #fff;
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin-bottom: 18px;
+
+    text-decoration: none;
+    color: #333;
+
+    border: 1px solid #ddd;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.08);
+
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Titre */
+.experience-card h4 {
     font-size: 18px;
+    color: #2c3e50;
+    margin-bottom: 6px;
+    text-decoration: none;
 }
 
-/* S'assurer que tous les textes dans la carte n'ont pas de style de lien */
-.experience-card h4,
-.experience-card p,
-.experience-card span,
-.experience-card .experience-date,
-.experience-card .experience-description,
-.experience-card .validation-badge,
-.experience-card .status {
-    text-decoration: none !important;
-    border-bottom: none !important;
-}
-
-/* Style spécifique pour la date */
-.experience-date {
-    color: #666;
-    font-size: 14px;
-    margin: 8px 0;
-}
-
-/* Style spécifique pour la description */
-.experience-description {
+/* Description */
+.experience-card p {
+    margin: 5px 0;
     color: #555;
     font-size: 14px;
-    margin-top: 12px;
-    padding: 12px;
-    background-color: #f8f9fa;
-    border-left: 3px solid #3498db;
-    border-radius: 4px;
-    text-decoration: none !important;
+}
+
+
+/* Hover effet */
+.experience-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.12);
+    background: #fafafa;
 }
