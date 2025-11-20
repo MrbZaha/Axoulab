@@ -120,7 +120,7 @@ body{
 }
 
 /* Affichage quand checkbox coché */
-#Notif input#notif_toggle:checked + .overlay {
+#Notif input#notif_toggle:checked ~ .overlay {
     display: flex;
 }
 
@@ -137,6 +137,8 @@ body{
 
 #Notif .notif_case small {
     display:block;
+    text-decoration: none;      /* enlève le souligné */
+    color: inherit;             /* garde la couleur du texte normal */
     margin-top:6px;
     color:#777;
     font-size:12px;
@@ -152,6 +154,15 @@ body{
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
+}
+
+#Notif .notif_case:visited {
+    color: inherit;             /* évite le violet */
+}
+
+#Notif .notif_case:hover {
+    background: #ededed;        /* petit effet au survol (optionnel) */
+    cursor: pointer;
 }
 
 #Notif .close_overlay:hover {

@@ -93,11 +93,13 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                         if (empty($notifications)) {
                             echo "<p>Aucune notification pour le moment.</p>";
                         } else {
-                            foreach ($notifications as $notif): ?>
-                                <div class="notif_case">
+                            foreach ($notifications as $notif):
+                             ?>
+        
+                                <a class="notif_case" href="<?= htmlspecialchars($notif['link']) ?>">
                                     <?= htmlspecialchars($notif['texte']) ?><br>
                                     <small><?= htmlspecialchars($notif['date']) ?></small>
-                                </div>
+                            </a>
                         <?php endforeach; } ?>
 
                         <label for="notif_toggle" class="close_overlay">Fermer</label>
@@ -154,7 +156,9 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
             np.Type_notif, 
             np.Date_envoi, 
             p.Nom_projet,
-            NULL AS Nom_experience
+            NULL AS Nom_experience,
+            p.ID_projet,
+            NULL AS ID_experience
         FROM notification_projet AS np
         JOIN projet AS p ON np.ID_projet = p.ID_projet
         JOIN compte AS Ce ON np.ID_compte_envoyeur = Ce.ID_compte
@@ -165,12 +169,14 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
     // Notifications expériences
     $notif_experience = $bdd->prepare("
         SELECT 
-            Ce.Nom AS Nom_envoyeur, 
+            Ce.Nom AS Nom_envoyeur,
             Ce.Prenom AS Prenom_envoyeur,
-            ne.Type_notif, 
-            ne.Date_envoi, 
+            ne.Type_notif,
+            ne.Date_envoi,
             NULL AS Nom_projet,
-            e.Nom
+            e.Nom AS Nom_experience,
+            NULL AS ID_projet,
+            e.ID_experience
         FROM notification_experience AS ne
         JOIN experience AS e ON ne.ID_experience = e.ID_experience
         JOIN compte AS Ce ON ne.ID_compte_envoyeur = Ce.ID_compte
@@ -178,18 +184,21 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
     ");
     $notif_experience->execute([$IDuser]);
 
-    $tab_projets = $notif_projet->fetchAll(PDO::FETCH_ASSOC);
-    $tab_experiences = $notif_experience->fetchAll(PDO::FETCH_ASSOC);
+    // Fusion
+    $tab_notifications = array_merge(
+        $notif_projet->fetchAll(PDO::FETCH_ASSOC),
+        $notif_experience->fetchAll(PDO::FETCH_ASSOC)
+    );
 
-    $tab_notifications = array_merge($tab_projets, $tab_experiences);
-
+    // Tri par date décroissante
     usort($tab_notifications, function($a, $b) {
         return strtotime($b['Date_envoi']) - strtotime($a['Date_envoi']);
     });
 
+    // Limite au nombre demandé
     $notifications = array_slice($tab_notifications, 0, $limit);
 
-    // Tableau des textes
+    // Textes
     $texte_notifications = [
         'type1'  => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer l\'expérience {Nom_experience}',
         'type2'  => '{Nom_envoyeur} {Prenom_envoyeur} a validé l\'experience {Nom_experience}',
@@ -200,35 +209,49 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
         'type12' => '{Nom_envoyeur} {Prenom_envoyeur} a validé le projet {Nom_projet}',
         'type13' => '{Nom_envoyeur} {Prenom_envoyeur} a refusé le projet {Nom_projet}',
         'type14' => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier le projet {Nom_projet}',
-        'type15' => '{Nom_projet} a été modifiée par {Nom_envoyeur} {Prenom_envoyeur}'
+        'type15' => '{Nom_projet} a été modifié par {Nom_envoyeur} {Prenom_envoyeur}'
     ];
 
-    // Formater toutes les notifications
+    // Construction finale
     $result = [];
+
     foreach ($notifications as $notif) {
-        $texte = $texte_notifications['type'.$notif['Type_notif']] ?? 'Notification inconnue';
+
+        $type = 'type'.$notif['Type_notif'];
+        $texte = $texte_notifications[$type] ?? 'Notification inconnue';
+
+        // Construction du lien
         if ($notif['Type_notif'] >= 1 && $notif['Type_notif'] <= 5) {
+            // Expériences
+            $link = "experience.php?id_projet=".$notif['ID_projet']."&id_experience=".$notif['ID_experience'];
             $texte = str_replace(
-                ['{Nom_envoyeur}','{Prenom_envoyeur}','{Nom_experience}'],
-                [$notif['Nom_envoyeur'],$notif['Prenom_envoyeur'],$notif['Nom']],
+                ['{Nom_envoyeur}', '{Prenom_envoyeur}', '{Nom_experience}'],
+                [$notif['Nom_envoyeur'], $notif['Prenom_envoyeur'], $notif['Nom_experience']],
                 $texte
             );
+
         } elseif ($notif['Type_notif'] >= 11 && $notif['Type_notif'] <= 15) {
+            // Projets
+            $link = "projet.php?id_projet=".$notif['ID_projet'];
             $texte = str_replace(
-                ['{Nom_envoyeur}','{Prenom_envoyeur}','{Nom_projet}'],
-                [$notif['Nom_envoyeur'],$notif['Prenom_envoyeur'],$notif['Nom_projet']],
+                ['{Nom_envoyeur}', '{Prenom_envoyeur}', '{Nom_projet}'],
+                [$notif['Nom_envoyeur'], $notif['Prenom_envoyeur'], $notif['Nom_projet']],
                 $texte
             );
+        } else {
+            $link = "#"; // fallback
         }
 
         $result[] = [
             'texte' => $texte,
-            'date'  => $notif['Date_envoi']
+            'date'  => $notif['Date_envoi'],
+            'link'  => $link
         ];
     }
 
     return $result;
 }
+
 
 // =======================  INSÉRER UN UTILISATEUR =======================
 /* Insère un nouvel utilisateur dans la base de données
