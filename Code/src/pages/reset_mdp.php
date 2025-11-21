@@ -46,7 +46,7 @@ elseif (isset($_GET['token'])) {
         <head>
             <meta charset="UTF-8">
             <title>Réinitialiser le mot de passe</title>
-            <link rel="stylesheet" href="page_reset_mdp_style.css">
+            <link rel="stylesheet" href="page_reset_mdp.css">
         </head>
         <body>
             <h2>Réinitialisation du mot de passe</h2>

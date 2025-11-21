@@ -120,7 +120,7 @@ if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["
 <head>
     <meta charset="UTF-8">
     <title>Page d'inscription</title>
-    <link rel="stylesheet" href="../css/page_d'inscription_style.css">
+    <link rel="stylesheet" href="../css/page_d'inscription.css">
 </head>
 <body>
    <form action="" method="post" autocomplete="off">
