@@ -84,7 +84,7 @@ function get_info_experience(PDO $bdd, int $id_experience): ?array {
             e.Heure_fin,
             e.Validation,
             e.Resultat,
-            e.Fin_experience,
+            e.Statut_experience,
             p.ID_projet,
             p.Nom_projet
         FROM experience e
@@ -198,8 +198,8 @@ function afficher_experience(array $experience, array $experimentateurs, array $
                         <p><strong>Horaires :</strong> <?= substr($experience['Heure_debut'], 0, 5) ?> - <?= substr($experience['Heure_fin'], 0, 5) ?></p>
                         
                         <p><strong>Statut :</strong> 
-                            <span class="badge <?= $experience['Fin_experience'] ? 'badge-termine' : 'badge-en-cours' ?>">
-                                <?= $experience['Fin_experience'] ? 'Terminée' : 'En cours' ?>
+                            <span class="badge <?= $experience['Statut_experience'] ? 'badge-termine' : 'badge-en-cours' ?>">
+                                <?= $experience['Statut_experience'] ? 'Terminée' : 'En cours' ?>
                             </span>
                         </p>
                         
@@ -255,9 +255,9 @@ function maj_bdd_experience(PDO $bdd) {
         SELECT ID_experience, 
         Date_reservation, 
         Heure_fin, 
-        Fin_experience
+        Statut_experience
         FROM experience
-        WHERE Fin_experience = 0
+        WHERE Statut_experience = 0
     ";
     $stmt = $bdd->prepare($sql);
     $stmt->execute();
@@ -277,13 +277,13 @@ function maj_bdd_experience(PDO $bdd) {
 function modifie_value_exp(PDO $bdd, int $id, int $value) {
     $sql_maj_bdd = "
         UPDATE experience
-        SET Fin_experience = :Fin_experience
+        SET Statut_experience = :Statut_experience
         WHERE ID_experience = :id
     ";
 
     $stmt = $bdd->prepare($sql_maj_bdd);
     $stmt->execute([
-        ':Fin_experience' => $value,
+        ':Statut_experience' => $value,
         ':id' => $id
     ]);
 }

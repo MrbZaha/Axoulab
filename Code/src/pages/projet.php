@@ -233,7 +233,7 @@ function get_experiences(PDO $bdd, int $id_projet): array {
             e.Validation,
             e.Resultat,
             e.Nom,
-            e.Fin_experience
+            e.Statut_experience
         FROM experience e
         INNER JOIN projet_experience pe ON e.ID_experience = pe.ID_experience
         WHERE pe.ID_projet = :id_projet

@@ -17,7 +17,7 @@ function get_mes_experiences_complets(PDO $bdd, int $id_compte): array {
             e.Heure_debut,
             e.Heure_fin,
             e.Resultat,
-            e.Fin_experience,
+            e.Statut_experience,
             s.Salle,
             p.Nom_projet,
             p.ID_projet
@@ -129,8 +129,8 @@ $id_compte = $_SESSION['ID_compte'];
 $experiences = get_mes_experiences_complets($bdd, $id_compte);
 
 // Séparation en deux listes
-$experiences_a_venir = array_filter($experiences, fn($e) => $e['Fin_experience'] == 0);
-$experiences_terminees = array_filter($experiences, fn($e) => $e['Fin_experience'] == 1);
+$experiences_a_venir = array_filter($experiences, fn($e) => $e['Statut_experience'] == 0);
+$experiences_terminees = array_filter($experiences, fn($e) => $e['Statut_experience'] == 1);
 
 // Réindexation des tableaux
 $experiences_a_venir = array_values($experiences_a_venir);
