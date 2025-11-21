@@ -163,7 +163,8 @@ if ($page_termines > $total_pages_termines) $page_termines = $total_pages_termin
 <body>
 <?php afficher_Bandeau_Haut($bdd, $id_compte)?>
 <h1>Mes projets</h1>
-
+<form action= "page_creation_projet.php" method= "post">
+    <input type= "submit" value= "Créer un projet" />
 <div class="projets">
     <section class="section-projets">
         <h2>Projets en cours (<?= count($projets_en_cours) ?>)</h2>

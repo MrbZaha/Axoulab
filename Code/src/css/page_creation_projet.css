@@ -1,27 +1,29 @@
 /* ======================= STYLE GÉNÉRAL ======================= */
 body {
-    font-family: Arial, sans-serif; /* Police principale de toute la page */
-    background-color: #f3f3f3;      /* Fond gris clair pour tout le body */
-    margin: 0;                      /* Supprime les marges par défaut du navigateur */
-    padding: 0;                     /* Supprime les paddings par défaut */
-    display: flex;                  /* Active Flexbox pour centrer le contenu */
-    justify-content: center;        /* Centre horizontalement le contenu */
-    align-items: center;            /* Centre verticalement le contenu */
-    min-height: 100vh;              /* Hauteur minimale = 100% de la fenêtre */
+    font-family: Arial, sans-serif;
+    background-color: #f3f3f3;
+    margin: 0;
+    padding: 0;
+    /* SUPPRIMER display: flex et les propriétés de centrage */
+    min-height: 100vh;
 }
 
 /* ======================= CONTAINER PRINCIPAL ======================= */
 .project-box {
-   background-color: #ffffff;
-    padding: 40px;        /*espace interne autour du contenue*/
-    border-radius: 12px;      /*coin arrondi*/
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); /*ombre*/
-    width: 400px;             /*largeur du formulaire*/
-    max-width: 90%;    
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    max-width: 90%;
+    margin: 50px auto; /* Centre horizontalement seulement */
+    display: block; /* S'assurer que c'est en block */
+}
+
+/* ======================= FORMULAIRE ======================= */
+form {
     display: flex;
-   /* place-items: center;     /* horizontal + vertical */
-   /* min-height: 300px;*/
-   flex-direction: column;  /* ✅ Change en flex-direction: column */
+    flex-direction: column;
 }
 
 /* ======================= TITRE ======================= */
@@ -29,12 +31,6 @@ body {
     text-align: center;             /* Centre le titre horizontalement */
     color: #374693;                 /* Couleur bleu foncé */
     margin-bottom: 20px;            /* Espace sous le titre */
-}
-
-/* ======================= FORMULAIRE ======================= */
-form {
-    display: flex;                  /* Flexbox pour les champs du formulaire */
-    flex-direction: column;         /* Empile les champs verticalement */
 }
 
 /* Labels des champs */
