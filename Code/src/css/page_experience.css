@@ -9,20 +9,23 @@
     padding: 0;
     box-sizing: border-box;
 }
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f6f8;
-    color: #333;
-    line-height: 1.6;
-    padding: 20px;
-    margin: 0;
+.link-projet{
+    color: #2b5f7e;
+    text-decoration: none;
 }
-
+.link-projet:hover {
+    color: #9a2666; /* bleu plus foncé au survol */
+}
 /* Nouveau wrapper principal */
 .experience-page {
     width: 100%;
     max-width: 1100px;
+    margin: 10 auto;
+    padding: 20px;
+}
+
+.experiences {
+    max-width: 900px;
     margin: 0 auto;
     padding: 20px;
 }
