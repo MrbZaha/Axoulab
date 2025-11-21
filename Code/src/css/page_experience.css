@@ -1,5 +1,10 @@
-/* Reset et base */
-* {
+/* Reset sélectif - UNIQUEMENT pour le contenu, pas le bandeau */
+.projets,
+.project-container,
+.project-main,
+.section-projets,
+.materiel-list,
+.materiel-card {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -11,21 +16,25 @@ body {
     color: #333;
     line-height: 1.6;
     padding: 20px;
+    margin: 0;
 }
 
-/* Container principal */
-.projets {
-    max-width: 900px;
+/* Nouveau wrapper principal */
+.experience-page {
+    width: 100%;
+    max-width: 1100px;
     margin: 0 auto;
     padding: 20px;
 }
 
-.project-container {
-    max-width: 1000px;
-    margin: 0 auto;
+h1 {
+    text-align: center;
+    color: #1a1a1a;
+    font-size: 2rem;
+    margin: 30px 0;
 }
 
-/* Sections */
+/* Titres */
 .section-projets {
     margin-bottom: 30px;
 }
@@ -39,15 +48,7 @@ body {
     border-bottom: 3px solid #2b5f7e;
 }
 
-.section-projets h3 {
-    color: #2c3e50;
-    font-size: 1.3rem;
-    margin-bottom: 15px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #ecf0f1;
-}
-
-/* Layout principal (description + info) */
+/* Layout */
 .project-main {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -55,74 +56,27 @@ body {
     margin-bottom: 35px;
 }
 
-/* Carte description */
-.project-description {
-    background-color: #fff;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.project-description h3 {
-    color: #2c3e50;
-    font-size: 20px;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #ecf0f1;
-}
-
-.project-description p {
-    color: #555;
-    font-size: 15px;
-    line-height: 1.7;
-    margin-bottom: 12px;
-}
-
-/* Carte informations */
+/* Cartes */
+.project-description,
 .project-info {
     background-color: #fff;
     padding: 25px;
     border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-.project-info h3 {
-    color: #2c3e50;
-    font-size: 20px;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #ecf0f1;
-}
-
-.project-info h4 {
-    color: #34495e;
-    font-size: 16px;
-    margin-top: 20px;
-    margin-bottom: 8px;
-    font-weight: 600;
-}
-
+.project-description p,
 .project-info p {
-    margin: 10px 0;
-    font-size: 14px;
+    font-size: 15px;
     color: #555;
 }
 
-.project-info p strong {
-    color: #2c3e50;
-    display: inline-block;
-    min-width: 120px;
-    font-weight: 600;
-}
-
-/* Badges de statut */
+/* Badges */
 .badge {
-    display: inline-block;
     padding: 4px 12px;
     border-radius: 12px;
     font-size: 13px;
     font-weight: 600;
-    text-transform: uppercase;
 }
 
 .badge-en-cours {
@@ -130,32 +84,17 @@ body {
     color: #856404;
     border: 1px solid #ffc107;
 }
-
 .badge-termine {
     background-color: #d4edda;
     color: #155724;
     border: 1px solid #28a745;
 }
 
-/* Lien vers projet */
-.link-projet {
-    color: #2b5f7e;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s ease;
-}
-
-.link-projet:hover {
-    color: #1a4d6b;
-    text-decoration: underline;
-}
-
-/* Liste de matériel */
+/* Matériel */
 .materiel-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
     gap: 15px;
-    margin-top: 15px;
 }
 
 .materiel-card {
@@ -163,108 +102,30 @@ body {
     padding: 18px;
     border-radius: 8px;
     border: 1px solid #e0e0e0;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-    transition: all 0.2s ease;
+    transition: .2s;
 }
-
 .materiel-card:hover {
     border-color: #2b5f7e;
-    box-shadow: 0 3px 8px rgba(43, 95, 126, 0.12);
     transform: translateY(-2px);
 }
 
-.materiel-card p {
-    margin: 6px 0;
-    font-size: 14px;
-    color: #555;
-}
-
-.materiel-card p:first-child {
-    color: #2c3e50;
-    font-size: 15px;
-    margin-bottom: 10px;
-}
-
-.materiel-card strong {
-    color: #2c3e50;
-    font-weight: 600;
-}
-
-/* Message d'erreur */
+/* Erreur */
 .error-message {
     padding: 20px;
     background-color: #fee;
     border: 1px solid #fcc;
-    border-radius: 8px;
     color: #c00;
+    border-radius: 8px;
     text-align: center;
-    margin: 20px auto;
     max-width: 600px;
-    font-size: 16px;
+    margin: 30px auto;
 }
 
-/* Titre principal de la page */
-h1 {
-    text-align: center;
-    color: #1a1a1a;
-    font-size: 2rem;
-    margin: 30px 0;
-}
 
 /* Responsive */
 @media (max-width: 768px) {
     .project-main {
         grid-template-columns: 1fr;
     }
-    
-    .materiel-list {
-        grid-template-columns: 1fr;
-    }
-    
-    .projets {
-        padding: 15px;
-    }
-    
-    .project-description,
-    .project-info {
-        padding: 20px;
-    }
-    
-    .section-projets h2 {
-        font-size: 1.5rem;
-    }
-    
-    body {
-        padding: 10px;
-    }
 }
 
-/* Amélioration visuelle des sections */
-.project-description,
-.project-info,
-.materiel-card {
-    animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Style pour les listes dans la description */
-.project-description ul,
-.project-description ol {
-    margin-left: 20px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
-.project-description li {
-    margin: 5px 0;
-}

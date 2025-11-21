@@ -11,7 +11,7 @@
 }
 
 body{
- margin: 0px;
+ margin: 0;
 }
 
 /* Conteneur global de la searchbar */
@@ -168,7 +168,3 @@ body{
 #Notif .close_overlay:hover {
     background: #d3d3d3;
 }
-
-
-
-

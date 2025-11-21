@@ -1,164 +1,128 @@
-/* Reset et base */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f6f8;
-    color: #333;
-    line-height: 1.6;
-    padding: 20px;
-}
-
-/* Container principal */
-.project-container {
+/* —— CONTAINER ———————————————————————— */
+.projets {
     max-width: 1000px;
-    margin: 0 auto;
-}
-
-/* Layout principal (description + info) */
-.project-main {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 25px;
-    margin-bottom: 35px;
-}
-
-/* Carte description */
-.project-description {
-    background-color: #fff;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.project-description h3 {
-    color: #2c3e50;
-    font-size: 20px;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #ecf0f1;
-}
-
-.project-description p {
-    color: #555;
-    font-size: 15px;
-    line-height: 1.7;
-}
-
-/* Carte informations */
-.project-info {
-    background-color: #fff;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.project-info h3 {
-    color: #2c3e50;
-    font-size: 20px;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #ecf0f1;
-}
-
-.project-info h4 {
-    color: #34495e;
-    font-size: 15px;
-    margin-top: 20px;
-    margin-bottom: 8px;
-}
-
-.project-info p {
-    margin: 10px 0;
-    font-size: 14px;
-    color: #555;
-}
-
-.project-info p strong {
-    color: #2c3e50;
-    display: inline-block;
-    min-width: 120px;
-}
-
-/* Section expériences */
-.experiences {
-    margin-top: 30px;
-}
-
-.experiences h3 {
-    font-size: 24px;
-    color: #2c3e50;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #3498db;
-}
-
-/* Style spécifique pour la date */
-.experience-date {
-    color: #666;
-    font-size: 14px;
-    margin: 8px 0;
-}
-
-/* Error */
-.error-message {
-    padding: 20px;
-    background-color: #fee;
-    border: 1px solid #fcc;
-    border-radius: 8px;
-    color: #c00;
-    text-align: center;
-    margin: 20px auto;
-    max-width: 600px;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .project-main {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Carte expérience améliorée */
-.experience-card {
-    display: block;
-    background: #fff;
-    border-radius: 10px;
-    padding: 18px 22px;
-    margin-bottom: 18px;
-
-    text-decoration: none;
-    color: #333;
-
-    border: 1px solid #ddd;
-    box-shadow: 0px 2px 6px rgba(0,0,0,0.08);
-
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    margin: 40px auto;
+    padding: 10px 20px;
+    font-family: "Inter", sans-serif;
 }
 
 /* Titre */
-.experience-card h4 {
-    font-size: 18px;
-    color: #2c3e50;
-    margin-bottom: 6px;
+h1 {
+    text-align: center;
+    font-size: 2.3rem;
+    margin-bottom: 40px;
+    font-family: "Georgia", serif;
+    color: #1c1c1c;
+}
+
+/* —— LAYOUT DESCRIPTION + INFO ———————————————————————— */
+.project-main {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+/* —— CARDS ———————————————————————— */
+.project-description,
+.project-info,
+.experience-card {
+    background: #ffffff;
+    border: 1px solid #e8e8e8;
+    border-radius: 14px;
+    padding: 25px 30px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+}
+
+/* —— TITRES DE SECTION ———————————————————————— */
+.project-description h3,
+.project-info h3,
+.experiences h3 {
+    font-size: 1.4rem;
+    font-family: "Georgia", serif;
+    color: #1d3c5a;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e9eef4;
+}
+
+/* Sous-titres */
+.project-info h4 {
+    font-size: 1rem;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    font-weight: 700;
+    color: #143049;
+}
+
+/* Paragraphes */
+.project-description p,
+.project-info p {
+    color: #4a4a4a;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Labels d'informations */
+.project-info p strong {
+    min-width: 130px;
+    display: inline-block;
+    color: #1d3c5a;
+}
+
+/* —— EXPÉRIENCES LIST ———————————————————————— */
+.experiences {
+    margin-top: 50px;
+}
+
+.experiences h3 {
+    margin-bottom: 25px;
+}
+
+/* —— EXPÉRIENCE CARD ———————————————————————— */
+.experience-card {
+    display: block;
+    margin-bottom: 20px;
     text-decoration: none;
+    color: #333;
+    transition: 0.2s ease;
 }
 
-/* Description */
-.experience-card p {
-    margin: 5px 0;
-    color: #555;
-    font-size: 14px;
-}
-
-
-/* Hover effet */
 .experience-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.12);
-    background: #fafafa;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+}
+
+/* Titre expérience */
+.experience-card h4 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    color: #1d3c5a;
+    font-family: "Georgia", serif;
+}
+
+/* Texte */
+.experience-card p {
+    font-size: 0.9rem;
+    color: #505050;
+    margin-bottom: 6px;
+}
+
+/* —— ERREURS ———————————————————————— */
+.error-message {
+    background: #fdeaea;
+    border: 1px solid #f5bcbc;
+    color: #b30000;
+    border-radius: 12px;
+    padding: 20px;
+    font-size: 1rem;
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* —— RESPONSIVE ———————————————————————— */
+@media (max-width: 850px) {
+    .project-main {
+        grid-template-columns: 1fr;
+    }
 }

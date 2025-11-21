@@ -105,9 +105,6 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                     </div>
                 </li>
 
-
-
-
                 <!-- Icône utilisateur -->
                 <li id="User">
                     <a href="mon_profil.php" class="user_logo">

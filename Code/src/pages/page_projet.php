@@ -27,60 +27,11 @@ function afficher_erreur(string $erreur): void {
     <?php
 }
 
-function afficher_description_projet(array $projet): void {
-    ?>
-    <div class="project-description">
-        <h3>Description</h3>
-        <p><?= nl2br(htmlspecialchars($projet['Description'])) ?></p>
-    </div>
-    <?php
-}
-
-function afficher_informations_projet(array $projet, array $gestionnaires, array $collaborateurs): void {
-    ?>
-    <div class="project-info">
-        <h3>Informations</h3>
-        <p><strong>Confidentiel :</strong> <?= $projet['Confidentiel'] ? "Oui" : "Non" ?></p>
-        <p><strong>Validation :</strong> <?= $projet['Validation'] ? "Validé" : "En attente" ?></p>
-        <p><strong>Votre rôle :</strong> <?= $projet['Statut'] == 1 ? "Gestionnaire" : ($projet['Statut'] == 2 ? "Collaborateur" : "Aucun") ?></p>
-        <p><strong>Date de création :</strong> <?= date('d/m/Y', strtotime($projet['Date_de_creation'])) ?></p>
-        
-        <h4>Gestionnaire(s)</h4>
-        <p><?= !empty($gestionnaires) ? htmlspecialchars(implode(', ', $gestionnaires)) : "Aucun" ?></p>
-        
-        <h4>Collaborateur(s)</h4>
-        <p><?= !empty($collaborateurs) ? htmlspecialchars(implode(', ', $collaborateurs)) : "Aucun" ?></p>
-    </div>
-    <?php
-}
 
 function afficher_experiences(array $experiences): void {
-    ?>
-    <div class="experiences">
-        <h3>Expériences liées au projet</h3>
-        <?php foreach ($experiences as $exp): ?>
-            <?php afficher_carte_experience($exp); ?>
-        <?php endforeach; ?>
-    </div>
-    <?php
-}
-
-function afficher_carte_experience(array $exp): void {
-    $id = htmlspecialchars($exp['ID_experience']);
-    $nom = htmlspecialchars($exp['Nom']);
-    $description = $exp['Description'];
-    $desc = strlen($description) > 200 
-        ? htmlspecialchars(substr($description, 0, 200)) . '…'
-        : htmlspecialchars($description);
-    $date = htmlspecialchars($exp['Date_reservation']);
-
-    ?>
-    <a class="experience-card" href="experience.php?id_experience=<?= $id ?>">
-        <h3><?= $nom ?></h3>
-        <p><?= $desc ?></p>
-        <p><strong>Date :</strong> <?= $date ?></p>
-    </a>
-    <?php
+    foreach ($experiences as $exp): ?>
+        <?php afficher_carte_experience($exp); ?>
+    <?php endforeach;
 }
 
 function verifier_confidentialite(PDO $bdd, int $id_compte, int $id_projet): bool {
@@ -114,38 +65,79 @@ function verifier_confidentialite(PDO $bdd, int $id_compte, int $id_projet): boo
     // Projet confidentiel → accessible UNIQUEMENT aux gestionnaires
     return isset($result['Statut']) && (int)$result['Statut'] === 1;
 }
-
 function afficher_projet(array $projet, array $gestionnaires, array $collaborateurs, array $experiences): void {
     ?>
     <div class="projets">
 
-        <!-- Section unique pour le projet -->
-        <section class="section-projets">
-            <h2><?= htmlspecialchars($projet['Nom_projet']) ?></h2>
+        <h2 class="project-title"><?= htmlspecialchars($projet['Nom_projet']) ?></h2>
 
-            <div class="project-container">
+        <div class="project-main">
+            <?php afficher_description_projet($projet); ?>
+            <?php afficher_informations_projet($projet, $gestionnaires, $collaborateurs); ?>
+        </div>
 
-                <div class="project-main">
-                    <!-- Description -->
-                    <?php afficher_description_projet($projet); ?>
+        <div class="experiences">
+            <h3>Expériences liées au projet (<?= count($experiences) ?>)</h3>
 
-                    <!-- Informations générales -->
-                    <?php afficher_informations_projet($projet, $gestionnaires, $collaborateurs); ?>
-                </div>
+            <?php if (!empty($experiences)): ?>
+                <?php foreach ($experiences as $exp): ?>
+                    <?php afficher_carte_experience($exp); ?>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>Aucune expérience liée.</p>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php
+}
 
-                <!-- Expériences reliées -->
-                <?php if (!empty($experiences)): ?>
-                    <div class="section-projets">
-                        <h3>Expériences liées (<?= count($experiences) ?>)</h3>
-                        <?php afficher_experiences($experiences); ?>
-                    </div>
-                <?php else: ?>
-                    <p>Aucune expérience liée à ce projet.</p>
-                <?php endif; ?>
+function afficher_informations_projet(array $projet, array $gestionnaires, array $collaborateurs): void {
+    ?>
+    <div class="project-info card">
+        <h3>Informations générales</h3>
 
-            </div>
-        </section>
+        <p><strong>Confidentiel :</strong> <?= $projet['Confidentiel'] ? "Oui" : "Non" ?></p>
+        <p><strong>Validation :</strong> <?= $projet['Validation'] ? "Validé" : "En attente" ?></p>
+        <p><strong>Votre rôle :</strong> 
+            <?= $projet['Statut'] == 1 ? "Gestionnaire" : ($projet['Statut'] == 2 ? "Collaborateur" : "Aucun") ?>
+        </p>
+        <p><strong>Date de création :</strong> <?= date("d/m/Y", strtotime($projet['Date_de_creation'])) ?></p>
 
+        <h4>Gestionnaire(s)</h4>
+        <p><?= !empty($gestionnaires) ? implode(", ", $gestionnaires) : "Aucun" ?></p>
+
+        <h4>Collaborateur(s)</h4>
+        <p><?= !empty($collaborateurs) ? implode(", ", $collaborateurs) : "Aucun" ?></p>
+    </div>
+    <?php
+}
+function afficher_carte_experience(array $exp): void {
+    $id = htmlspecialchars($exp['ID_experience']);
+    $nom = htmlspecialchars($exp['Nom']);
+    $desc = htmlspecialchars(substr($exp['Description'], 0, 180)) . "…";
+    $date = htmlspecialchars($exp['Date_reservation']);
+    $heure = htmlspecialchars($exp['Heure_debut']) . " - " . htmlspecialchars($exp['Heure_fin']);
+    $salle = isset($exp['Salle']) ? htmlspecialchars($exp['Salle']) : "Non spécifié";
+
+    ?>
+    <a class="experience-card card" href="page_experience.php?id_experience=<?= $id ?>">
+        <h4><?= $nom ?></h4>
+        <p><?= $desc ?></p>
+
+        <hr>
+
+        <p><strong>Date :</strong> <?= $date ?></p>
+        <p><strong>Horaire :</strong> <?= $heure ?></p>
+        <p><strong>Salle :</strong> <?= $salle ?></p>
+    </a>
+    <?php
+}
+
+function afficher_description_projet(array $projet): void {
+    ?>
+    <div class="project-description card">
+        <h3>Description</h3>
+        <p><?= nl2br(htmlspecialchars($projet['Description'])) ?></p>
     </div>
     <?php
 }
@@ -320,13 +312,14 @@ $page_title = $projet ? htmlspecialchars($projet['Nom_projet']) : "Projet";
 </head>
 <body>
 <?php afficher_Bandeau_Haut($bdd, $id_compte); ?>
+<h1>Mes projets</h1>
+
 
 <?php if ($erreur): ?>
     <?php afficher_erreur($erreur); ?>
 <?php else: ?>
     <?php afficher_projet($projet, $gestionnaires, $collaborateurs, $experiences); ?>
 <?php endif; ?>
-
 
 <?php afficher_Bandeau_Bas(); ?>
 </body>
