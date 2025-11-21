@@ -78,7 +78,7 @@ function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1
                 $id_projet = htmlspecialchars($exp['ID_projet']);
                 ?>
                 
-                <a class='experience-card' href='experience.php?id_projet=<?= $id_projet ?>&id_experience=<?= $id_experience ?>'>
+                <a class='experience-card' href='page_experience.php?id_projet=<?= $id_projet ?>&id_experience=<?= $id_experience ?>'>
                     <div class="experience-header">
                         <h3><?= $nom ?></h3>
                         <span class="projet-badge"><?= $nom_projet ?></span>
@@ -154,7 +154,7 @@ if ($page_terminees > $total_pages_terminees) $page_terminees = $total_pages_ter
 <head>
     <meta charset="UTF-8">
     <title>Mes expériences</title>
-    <link rel="stylesheet" href="../css/mes_experiences.css">
+    <link rel="stylesheet" href="../css/page_mes_experiences.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">

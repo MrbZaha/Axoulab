@@ -210,7 +210,7 @@ function afficher_experience(array $experience, array $experimentateurs, array $
                         <?php if (!empty($experience['Nom_projet'])): ?>
                             <h4>Projet lié</h4>
                             <p>
-                                <a href="projet.php?id_projet=<?= $experience['ID_projet'] ?>" class="link-projet">
+                                <a href="page_projet.php?id_projet=<?= $experience['ID_projet'] ?>" class="link-projet">
                                     <?= htmlspecialchars($experience['Nom_projet']) ?>
                                 </a>
                             </p>
@@ -348,7 +348,7 @@ $page_title = $experience ? htmlspecialchars($experience['Nom']) : "Expérience"
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?></title>
-    <link rel="stylesheet" href="../css/experience.css">
+    <link rel="stylesheet" href="../css/page_experience.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">

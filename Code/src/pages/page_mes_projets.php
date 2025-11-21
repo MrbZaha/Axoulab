@@ -85,7 +85,7 @@ function afficher_projets_pagines(array $projets, int $page_actuelle = 1, int $i
                 $role = $p['Statut'] ? "Gestionnaire" : "Collaborateur";
                 ?>
                 
-                <a class='projet-card' href='projet.php?id_projet=<?= $id ?>'>
+                <a class='projet-card' href='page_projet.php?id_projet=<?= $id ?>'>
                     <h3><?= $nom ?></h3>
                     <p><?= $desc ?></p>
                     <p><strong>Date de création :</strong> <?= $date ?></p>
@@ -155,7 +155,7 @@ if ($page_termines > $total_pages_termines) $page_termines = $total_pages_termin
 <head>
     <meta charset="UTF-8">
     <title>Mes projets</title>
-    <link rel="stylesheet" href="../css/mes_projets.css">
+    <link rel="stylesheet" href="../css/page_mes_projets.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">

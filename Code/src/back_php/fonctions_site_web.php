@@ -67,13 +67,13 @@ function afficher_Bandeau_Haut($bdd, $userID) {
         <div id="site_nav_links">
             <ul class="liste_links">
                 <li class="main_links">
-                    <a href="Page_explorer.php" class="Links">Explorer</a>
+                    <a href="page_explorer.php" class="Links">Explorer</a>
                 </li>
                 <li class="main_links">
-                    <a href="mes_experiences.php" class="Links">Mes expériences</a>
+                    <a href="page_mes_experiences.php" class="Links">Mes expériences</a>
                 </li>
                 <li class="main_links">
-                    <a href="mes_projets.php" class="Links">Mes projets</a>
+                    <a href="page_mes_projets.php" class="Links">Mes projets</a>
                 </li>
 
                 <!-- Icône notification -->
@@ -95,7 +95,6 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                         } else {
                             foreach ($notifications as $notif):
                              ?>
-        
                                 <a class="notif_case" href="<?= htmlspecialchars($notif['link']) ?>">
                                     <?= htmlspecialchars($notif['texte']) ?><br>
                                     <small><?= htmlspecialchars($notif['date']) ?></small>
