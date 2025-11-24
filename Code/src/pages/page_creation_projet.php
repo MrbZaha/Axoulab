@@ -19,36 +19,44 @@ function verifier_champs_projet($nom_projet, $description) {
     return $erreurs;
 }
 
+// ======================= RÉCUPÉRER LISTE PERSONNES DISPONIBLES =======================
+function get_personnes_disponibles($bdd, $ids_exclus = [], $seulement_non_etudiants = false) {
+    $sql = "SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE validation = 1";
+    
+    if ($seulement_non_etudiants) {
+        $sql .= " AND Etat > 1";
+    }
+    
+    if (!empty($ids_exclus)) {
+        $placeholders = implode(',', array_fill(0, count($ids_exclus), '?'));
+        $sql .= " AND ID_compte NOT IN ($placeholders)";
+    }
+    
+    $sql .= " ORDER BY Nom, Prenom";
+    
+    $stmt = $bdd->prepare($sql);
+    $stmt->execute($ids_exclus);
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 // ======================= INSERER UN NOUVEAU PROJET =======================
 function creer_projet($bdd, $nom_projet, $description, $confidentialite, $id_compte) {
-    $date_creation = date('Y-m-d H:i:s');
+    $date_creation = date('Y-m-d');
     
     // Vérifier le type de compte
     $stmt = $bdd->prepare("SELECT Etat FROM compte WHERE ID_compte = ?");
     $stmt->execute([$id_compte]);
     $etat = $stmt->fetchColumn();
     // Si c'est un étudiant => projet non validé
-    $valide = ($etat == 1) ? 0 : 1; // Correction: == au lieu de =
+    $valide = ($etat == 1) ? 0 : 1;
 
     $sql = $bdd->prepare("
-        INSERT INTO projet (ID_projet, Nom_projet, Description, Confidentiel, Date_de_creation, Date_de_modification)
+        INSERT INTO projet (Nom_projet, Description, Confidentiel, Validation, Date_de_creation, Date_de_modification)
         VALUES (?, ?, ?, ?, ?, ?)
     ");
 
-    return $sql->execute([$nom_projet, $description, $confidentialite, $date_creation, $id_compte, $valide]);
-}
-
-// ======================= TROUVER ID COMPTE PAR NOM =======================
-function trouver_id_par_nom($bdd, $nom_complet) {
-    $parts = explode(' ', $nom_complet, 2);
-    if (count($parts) < 2) return null;
-    
-    $prenom = trim($parts[0]);
-    $nom = trim($parts[1]);
-    
-    $stmt = $bdd->prepare("SELECT ID_compte FROM compte WHERE Prenom = ? AND Nom = ?");
-    $stmt->execute([$prenom, $nom]);
-    return $stmt->fetchColumn();
+    return $sql->execute([$nom_projet, $description, $confidentialite, $valide, $date_creation, $date_creation]);
 }
 
 // ======================= AJOUTER PARTICIPANTS =======================
@@ -58,50 +66,91 @@ function ajouter_participants($bdd, $id_projet, $gestionnaires, $collaborateurs)
         VALUES (?, ?, ?)
     ");
 
-    foreach ($gestionnaires as $nom_complet) {
-        $id_compte = trouver_id_par_nom($bdd, $nom_complet);
-        if ($id_compte) {
-            $sql->execute([$id_projet, $id_compte, 'gestionnaire']);
-        }
+    foreach ($gestionnaires as $id_compte) {
+        $sql->execute([$id_projet, $id_compte, 1]); // 1 = gestionnaire
     }
 
-    foreach ($collaborateurs as $nom_complet) {
-        $id_compte = trouver_id_par_nom($bdd, $nom_complet);
-        if ($id_compte) {
-            $sql->execute([$id_projet, $id_compte, 'collaborateur']);
-        }
+    foreach ($collaborateurs as $id_compte) {
+        $sql->execute([$id_projet, $id_compte, 0]); // 0 = collaborateur
     }
 }
 
-// ======================= Récupérer tous les comptes valides =======================
-$stmt = $bdd->query("SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE Etat > 1 ORDER BY Nom, Prenom");
-$utilisateurs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-$message = "";
+// ======================= TROUVER ID PAR NOM COMPLET =======================
+function trouver_id_par_nom_complet($bdd, $nom_complet) {
+    $parts = explode(' ', trim($nom_complet), 2);
+    if (count($parts) < 2) return null;
+    
+    $prenom = trim($parts[0]);
+    $nom = trim($parts[1]);
+    
+    $stmt = $bdd->prepare("SELECT ID_compte FROM compte WHERE Prenom = ? AND Nom = ? AND validation = 1");
+    $stmt->execute([$prenom, $nom]);
+    return $stmt->fetchColumn();
+}
 
-if (isset($_POST["nom_projet"], $_POST["description"], $_POST["confidentialite"])) {
+$message = "";
+$gestionnaires_selectionnes = [];
+$collaborateurs_selectionnes = [];
+
+// Gestion des actions (ajout/retrait)
+if (isset($_POST['action'])) {
+    // Récupérer les listes actuelles
+    $gestionnaires_selectionnes = isset($_POST["gestionnaires_ids"]) ? array_filter(array_map('intval', explode(',', $_POST["gestionnaires_ids"]))) : [];
+    $collaborateurs_selectionnes = isset($_POST["collaborateurs_ids"]) ? array_filter(array_map('intval', explode(',', $_POST["collaborateurs_ids"]))) : [];
+    
+    switch ($_POST['action']) {
+        case 'ajouter_gestionnaire':
+            if (!empty($_POST['nom_gestionnaire'])) {
+                $id = trouver_id_par_nom_complet($bdd, $_POST['nom_gestionnaire']);
+                if ($id && !in_array($id, $gestionnaires_selectionnes) && !in_array($id, $collaborateurs_selectionnes)) {
+                    // Vérifier que ce n'est pas un étudiant
+                    $stmt = $bdd->prepare("SELECT Etat FROM compte WHERE ID_compte = ?");
+                    $stmt->execute([$id]);
+                    $etat = $stmt->fetchColumn();
+                    if ($etat > 1) {
+                        $gestionnaires_selectionnes[] = $id;
+                    } else {
+                        $message = "<p style='color:orange;'>Un étudiant ne peut pas être gestionnaire.</p>";
+                    }
+                }
+            }
+            break;
+            
+        case 'retirer_gestionnaire':
+            if (isset($_POST['id_retirer'])) {
+                $gestionnaires_selectionnes = array_diff($gestionnaires_selectionnes, [$_POST['id_retirer']]);
+            }
+            break;
+            
+        case 'ajouter_collaborateur':
+            if (!empty($_POST['nom_collaborateur'])) {
+                $id = trouver_id_par_nom_complet($bdd, $_POST['nom_collaborateur']);
+                if ($id && !in_array($id, $collaborateurs_selectionnes) && !in_array($id, $gestionnaires_selectionnes)) {
+                    $collaborateurs_selectionnes[] = $id;
+                }
+            }
+            break;
+            
+        case 'retirer_collaborateur':
+            if (isset($_POST['id_retirer'])) {
+                $collaborateurs_selectionnes = array_diff($collaborateurs_selectionnes, [$_POST['id_retirer']]);
+            }
+            break;
+    }
+}
+
+// Traitement de la création du projet
+if (isset($_POST["creer_projet"])) {
     $nom_projet = trim($_POST["nom_projet"]);
     $description = trim($_POST["description"]);
-    $confidentialite = $_POST["confidentialite"];
+    $confidentialite = $_POST["confidentialite"] === 'oui' ? 1 : 0;
     
-    // Gestion des tableaux pour participants (maintenant avec noms complets)
-    $gestionnaires = isset($_POST["gestionnaires"]) ? array_filter(array_map('trim', (array)$_POST["gestionnaires"])) : [];
-    $collaborateurs = isset($_POST["collaborateurs"]) ? array_filter(array_map('trim', (array)$_POST["collaborateurs"])) : [];
+    // Récupérer les IDs des participants
+    $gestionnaires_selectionnes = isset($_POST["gestionnaires_ids"]) ? array_filter(array_map('intval', explode(',', $_POST["gestionnaires_ids"]))) : [];
+    $collaborateurs_selectionnes = isset($_POST["collaborateurs_ids"]) ? array_filter(array_map('intval', explode(',', $_POST["collaborateurs_ids"]))) : [];
 
     // Vérifier tailles des champs
     $erreurs = verifier_champs_projet($nom_projet, $description);
-    
-    // Vérifier que les noms des participants existent
-    foreach ($gestionnaires as $nom) {
-        if (!trouver_id_par_nom($bdd, $nom)) {
-            $erreurs[] = "Le gestionnaire '$nom' n'existe pas dans la base de données.";
-        }
-    }
-    
-    foreach ($collaborateurs as $nom) {
-        if (!trouver_id_par_nom($bdd, $nom)) {
-            $erreurs[] = "Le collaborateur '$nom' n'existe pas dans la base de données.";
-        }
-    }
 
     if (!empty($erreurs)) {
         $message = "<p style='color:red;'>" . implode("<br>", $erreurs) . "</p>";
@@ -111,14 +160,40 @@ if (isset($_POST["nom_projet"], $_POST["description"], $_POST["confidentialite"]
             $id_projet = $bdd->lastInsertId();
             
             // Enregistrer les participants
-            ajouter_participants($bdd, $id_projet, $gestionnaires, $collaborateurs);
+            ajouter_participants($bdd, $id_projet, $gestionnaires_selectionnes, $collaborateurs_selectionnes);
             $message = "<p style='color:green;'>Projet créé avec succès!</p>";
+            
+            // Réinitialiser les listes après succès
+            $gestionnaires_selectionnes = [];
+            $collaborateurs_selectionnes = [];
         } else {
             $message = "<p style='color:red;'>Erreur lors de la création du projet.</p>";
         }
     }
 }
 
+// Récupérer les listes de personnes disponibles
+$tous_ids_selectionnes = array_merge($gestionnaires_selectionnes, $collaborateurs_selectionnes);
+$personnes_gestionnaires = get_personnes_disponibles($bdd, $tous_ids_selectionnes, true);
+$personnes_collaborateurs = get_personnes_disponibles($bdd, $tous_ids_selectionnes, false);
+
+// Récupérer les infos des personnes déjà sélectionnées
+$gestionnaires_info = [];
+$collaborateurs_info = [];
+
+if (!empty($gestionnaires_selectionnes)) {
+    $placeholders = implode(',', array_fill(0, count($gestionnaires_selectionnes), '?'));
+    $stmt = $bdd->prepare("SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE ID_compte IN ($placeholders)");
+    $stmt->execute($gestionnaires_selectionnes);
+    $gestionnaires_info = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+if (!empty($collaborateurs_selectionnes)) {
+    $placeholders = implode(',', array_fill(0, count($collaborateurs_selectionnes), '?'));
+    $stmt = $bdd->prepare("SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE ID_compte IN ($placeholders)");
+    $stmt->execute($collaborateurs_selectionnes);
+    $collaborateurs_info = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
 ?>
 <!DOCTYPE html>
@@ -128,18 +203,19 @@ if (isset($_POST["nom_projet"], $_POST["description"], $_POST["confidentialite"]
     <title>Page de création de projet</title>
     <link rel="stylesheet" href="../css/page_creation_projet.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
+
 </head>
 <body>
-    <?php afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);?>
+    <?php afficher_Bandeau_Haut($bdd, $_SESSION["ID_compte"]); ?>
     <div class="project-box">
         <h2>Créer un projet</h2>
 
-        <?php
-        // Affiche le message si présent
-        if (!empty($message)) echo $message;
-        ?>
+        <?php if (!empty($message)) echo $message; ?>
 
-        <form action="" method="post" autocomplete="off">
+        <form action="" method="post" id="form-projet">
+            <input type="hidden" name="gestionnaires_ids" value="<?= implode(',', $gestionnaires_selectionnes) ?>">
+            <input type="hidden" name="collaborateurs_ids" value="<?= implode(',', $collaborateurs_selectionnes) ?>">
+            
             <label for="nom_projet">Nom du projet :</label>
             <input type="text" id="nom_projet" name="nom_projet" value="<?= htmlspecialchars($_POST['nom_projet'] ?? '') ?>" required>
 
@@ -155,27 +231,98 @@ if (isset($_POST["nom_projet"], $_POST["description"], $_POST["confidentialite"]
                 <label for="non">Non</label>
             </div>
 
-            <label for="gestionnaires">Gestionnaires :</label>
-            <input type="text" id="gestionnaires" name="gestionnaires[]" list="liste_comptes" 
-                   placeholder="Tapez le nom d'un gestionnaire..." 
-                   value="<?= htmlspecialchars($_POST['gestionnaires'][0] ?? '') ?>">
+            <!-- GESTIONNAIRES -->
+            <div class="participants-section">
+                <label>Gestionnaires :</label>
+                <p class="info-text">Seuls les professeurs/chercheurs et administrateurs peuvent être gestionnaires</p>
+                
+                <div class="selection-container">
+                    <input type="text" 
+                           name="nom_gestionnaire" 
+                           list="liste-gestionnaires-disponibles" 
+                           placeholder="Rechercher un gestionnaire..."
+                           autocomplete="off">
+                    <button type="submit" name="action" value="ajouter_gestionnaire" class="btn-ajouter">Ajouter</button>
+                </div>
+                
+                <datalist id="liste-gestionnaires-disponibles">
+                    <?php foreach ($personnes_gestionnaires as $personne): ?>
+                        <option value="<?= htmlspecialchars($personne['Prenom'] . ' ' . $personne['Nom']) ?>">
+                            <?= $personne['Etat'] == 3 ? 'ADMIN' : 'Chercheur' ?>
+                        </option>
+                    <?php endforeach; ?>
+                </datalist>
+                
+                <div class="liste-selectionnes">
+                    <?php if (empty($gestionnaires_info)): ?>
+                        <div class="liste-vide">Aucun gestionnaire ajouté</div>
+                    <?php else: ?>
+                        <?php foreach ($gestionnaires_info as $gest): ?>
+                            <span class="tag-personne <?= $gest['Etat'] == 3 ? 'tag-admin' : 'tag-chercheur' ?>">
+                                <?= htmlspecialchars($gest['Prenom'] . ' ' . $gest['Nom']) ?>
+                                <button type="submit" name="action" value="retirer_gestionnaire" class="btn-croix" 
+                                        onclick="document.getElementById('id_retirer').value='<?= $gest['ID_compte'] ?>'">
+                                    ×
+                                </button>
+                            </span>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
 
-            <label for="collaborateurs">Collaborateurs :</label>
-            <input type="text" id="collaborateurs" name="collaborateurs[]" list="liste_comptes" 
-                   placeholder="Tapez le nom d'un collaborateur..." 
-                   value="<?= htmlspecialchars($_POST['collaborateurs'][0] ?? '') ?>">
+            <!-- COLLABORATEURS -->
+            <div class="participants-section">
+                <label>Collaborateurs :</label>
+                <p class="info-text">Tous les utilisateurs validés peuvent être collaborateurs</p>
+                
+                <div class="selection-container">
+                    <input type="text" 
+                           name="nom_collaborateur" 
+                           list="liste-collaborateurs-disponibles" 
+                           placeholder="Rechercher un collaborateur..."
+                           autocomplete="off">
+                    <button type="submit" name="action" value="ajouter_collaborateur" class="btn-ajouter">Ajouter</button>
+                </div>
+                
+                <datalist id="liste-collaborateurs-disponibles">
+                    <?php foreach ($personnes_collaborateurs as $personne): ?>
+                        <option value="<?= htmlspecialchars($personne['Prenom'] . ' ' . $personne['Nom']) ?>">
+                            <?php 
+                                if ($personne['Etat'] == 1) echo 'Étudiant';
+                                elseif ($personne['Etat'] == 2) echo 'Chercheur';
+                                else echo 'ADMIN';
+                            ?>
+                        </option>
+                    <?php endforeach; ?>
+                </datalist>
+                
+                <div class="liste-selectionnes">
+                    <?php if (empty($collaborateurs_info)): ?>
+                        <div class="liste-vide">Aucun collaborateur ajouté</div>
+                    <?php else: ?>
+                        <?php foreach ($collaborateurs_info as $collab): ?>
+                            <span class="tag-personne <?php 
+                                if ($collab['Etat'] == 1) echo 'tag-etudiant';
+                                elseif ($collab['Etat'] == 2) echo 'tag-chercheur';
+                                else echo 'tag-admin';
+                            ?>">
+                                <?= htmlspecialchars($collab['Prenom'] . ' ' . $collab['Nom']) ?>
+                                <button type="submit" name="action" value="retirer_collaborateur" class="btn-croix"
+                                        onclick="document.getElementById('id_retirer').value='<?= $collab['ID_compte'] ?>'">
+                                    ×
+                                </button>
+                            </span>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
 
-            <!-- Datalist avec tous les utilisateurs -->
-            <datalist id="liste_comptes">
-            <?php foreach ($utilisateurs as $user): ?>
-                <option value="<?= htmlspecialchars($user['Prenom'] . ' ' . $user['Nom']) ?>">
-            <?php endforeach; ?>
-            </datalist>
-            <input type="submit" value="Créer le projet">
+            <!-- Champ caché pour l'ID à retirer -->
+            <input type="hidden" id="id_retirer" name="id_retirer">
+
+            <input type="submit" name="creer_projet" value="Créer le projet">
         </form>
     </div>
-   <?php
-    afficher_Bandeau_Bas();
-    ?>
 </body>
+<?php afficher_Bandeau_Bas(); ?>
 </html>
