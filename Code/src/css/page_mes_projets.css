@@ -148,6 +148,7 @@ h1 {
 .create-projet input[type="submit"]:hover { /* Corrigé le sélecteur */
     background-color: darkorange;
 }
+
 /* Responsive */
 @media (max-width: 768px) {
     .projets {

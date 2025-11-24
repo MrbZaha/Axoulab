@@ -120,6 +120,28 @@ h1 {
     margin-top: 30px;
 }
 
+.create-experience {
+    max-width: 900px; /* Même largeur que .projets */
+    margin: 20px auto; /* Centré comme .projets */
+    text-align: right; /* Bouton à droite */
+    padding: 0 20px; /* Même padding que .projets */
+}
+
+.create-experience input[type="submit"] {
+    background-color: orange;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.create-experience input[type="submit"]:hover { /* Corrigé le sélecteur */
+    background-color: darkorange;
+}
+
 /* —— RESPONSIVE ———————————————————————— */
 @media (max-width: 850px) {
     .project-main {
