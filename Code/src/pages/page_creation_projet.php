@@ -93,81 +93,84 @@ $gestionnaires_selectionnes = [];
 $collaborateurs_selectionnes = [];
 
 // Gestion des actions (ajout/retrait)
-if (isset($_POST['action'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Récupérer les listes actuelles
     $gestionnaires_selectionnes = isset($_POST["gestionnaires_ids"]) ? array_filter(array_map('intval', explode(',', $_POST["gestionnaires_ids"]))) : [];
     $collaborateurs_selectionnes = isset($_POST["collaborateurs_ids"]) ? array_filter(array_map('intval', explode(',', $_POST["collaborateurs_ids"]))) : [];
     
-    switch ($_POST['action']) {
-        case 'ajouter_gestionnaire':
-            if (!empty($_POST['nom_gestionnaire'])) {
-                $id = trouver_id_par_nom_complet($bdd, $_POST['nom_gestionnaire']);
-                if ($id && !in_array($id, $gestionnaires_selectionnes) && !in_array($id, $collaborateurs_selectionnes)) {
-                    // Vérifier que ce n'est pas un étudiant
-                    $stmt = $bdd->prepare("SELECT Etat FROM compte WHERE ID_compte = ?");
-                    $stmt->execute([$id]);
-                    $etat = $stmt->fetchColumn();
-                    if ($etat > 1) {
-                        $gestionnaires_selectionnes[] = $id;
-                    } else {
-                        $message = "<p style='color:orange;'>Un étudiant ne peut pas être gestionnaire.</p>";
+    if (isset($_POST['action'])) {
+        switch ($_POST['action']) {
+            case 'ajouter_gestionnaire':
+                if (!empty($_POST['nom_gestionnaire'])) {
+                    $id = trouver_id_par_nom_complet($bdd, $_POST['nom_gestionnaire']);
+                    if ($id && !in_array($id, $gestionnaires_selectionnes) && !in_array($id, $collaborateurs_selectionnes)) {
+                        // Vérifier que ce n'est pas un étudiant
+                        $stmt = $bdd->prepare("SELECT Etat FROM compte WHERE ID_compte = ?");
+                        $stmt->execute([$id]);
+                        $etat = $stmt->fetchColumn();
+                        if ($etat > 1) {
+                            $gestionnaires_selectionnes[] = $id;
+                        } else {
+                            $message = "<p style='color:orange;'>Un étudiant ne peut pas être gestionnaire.</p>";
+                        }
                     }
                 }
-            }
-            break;
-            
-        case 'retirer_gestionnaire':
-            if (isset($_POST['id_retirer'])) {
-                $gestionnaires_selectionnes = array_diff($gestionnaires_selectionnes, [$_POST['id_retirer']]);
-            }
-            break;
-            
-        case 'ajouter_collaborateur':
-            if (!empty($_POST['nom_collaborateur'])) {
-                $id = trouver_id_par_nom_complet($bdd, $_POST['nom_collaborateur']);
-                if ($id && !in_array($id, $collaborateurs_selectionnes) && !in_array($id, $gestionnaires_selectionnes)) {
-                    $collaborateurs_selectionnes[] = $id;
+                break;
+                
+            case 'retirer_gestionnaire':
+                if (isset($_POST['id_retirer']) && !empty($_POST['id_retirer'])) {
+                    $id_a_retirer = intval($_POST['id_retirer']);
+                    $gestionnaires_selectionnes = array_diff($gestionnaires_selectionnes, [$id_a_retirer]);
                 }
-            }
-            break;
-            
-        case 'retirer_collaborateur':
-            if (isset($_POST['id_retirer'])) {
-                $collaborateurs_selectionnes = array_diff($collaborateurs_selectionnes, [$_POST['id_retirer']]);
-            }
-            break;
+                break;
+                
+            case 'ajouter_collaborateur':
+                if (!empty($_POST['nom_collaborateur'])) {
+                    $id = trouver_id_par_nom_complet($bdd, $_POST['nom_collaborateur']);
+                    if ($id && !in_array($id, $collaborateurs_selectionnes) && !in_array($id, $gestionnaires_selectionnes)) {
+                        $collaborateurs_selectionnes[] = $id;
+                    }
+                }
+                break;
+                
+            case 'retirer_collaborateur':
+                if (isset($_POST['id_retirer']) && !empty($_POST['id_retirer'])) {
+                    $id_a_retirer = intval($_POST['id_retirer']);
+                    $collaborateurs_selectionnes = array_diff($collaborateurs_selectionnes, [$id_a_retirer]);
+                }
+                break;
+        }
     }
-}
 
-// Traitement de la création du projet
-if (isset($_POST["creer_projet"])) {
-    $nom_projet = trim($_POST["nom_projet"]);
-    $description = trim($_POST["description"]);
-    $confidentialite = $_POST["confidentialite"] === 'oui' ? 1 : 0;
-    
-    // Récupérer les IDs des participants
-    $gestionnaires_selectionnes = isset($_POST["gestionnaires_ids"]) ? array_filter(array_map('intval', explode(',', $_POST["gestionnaires_ids"]))) : [];
-    $collaborateurs_selectionnes = isset($_POST["collaborateurs_ids"]) ? array_filter(array_map('intval', explode(',', $_POST["collaborateurs_ids"]))) : [];
+    // Traitement de la création du projet
+    if (isset($_POST["creer_projet"])) {
+        $nom_projet = trim($_POST["nom_projet"]);
+        $description = trim($_POST["description"]);
+        $confidentialite = $_POST["confidentialite"] === 'oui' ? 1 : 0;
+        
+        // Récupérer les IDs des participants
+        $gestionnaires_selectionnes = isset($_POST["gestionnaires_ids"]) ? array_filter(array_map('intval', explode(',', $_POST["gestionnaires_ids"]))) : [];
+        $collaborateurs_selectionnes = isset($_POST["collaborateurs_ids"]) ? array_filter(array_map('intval', explode(',', $_POST["collaborateurs_ids"]))) : [];
 
-    // Vérifier tailles des champs
-    $erreurs = verifier_champs_projet($nom_projet, $description);
+        // Vérifier tailles des champs
+        $erreurs = verifier_champs_projet($nom_projet, $description);
 
-    if (!empty($erreurs)) {
-        $message = "<p style='color:red;'>" . implode("<br>", $erreurs) . "</p>";
-    } else {
-        // Enregistrer le projet
-        if (creer_projet($bdd, $nom_projet, $description, $confidentialite, $_SESSION["ID_compte"])) {
-            $id_projet = $bdd->lastInsertId();
-            
-            // Enregistrer les participants
-            ajouter_participants($bdd, $id_projet, $gestionnaires_selectionnes, $collaborateurs_selectionnes);
-            $message = "<p style='color:green;'>Projet créé avec succès!</p>";
-            
-            // Réinitialiser les listes après succès
-            $gestionnaires_selectionnes = [];
-            $collaborateurs_selectionnes = [];
+        if (!empty($erreurs)) {
+            $message = "<p style='color:red;'>" . implode("<br>", $erreurs) . "</p>";
         } else {
-            $message = "<p style='color:red;'>Erreur lors de la création du projet.</p>";
+            // Enregistrer le projet
+            if (creer_projet($bdd, $nom_projet, $description, $confidentialite, $_SESSION["ID_compte"])) {
+                $id_projet = $bdd->lastInsertId();
+                
+                // Enregistrer les participants
+                ajouter_participants($bdd, $id_projet, $gestionnaires_selectionnes, $collaborateurs_selectionnes);
+                
+                // Redirection vers la page du projet créé
+                header("Location: page_projet.php?id_projet=" . $id_projet);
+                exit();
+            } else {
+                $message = "<p style='color:red;'>Erreur lors de la création du projet.</p>";
+            }
         }
     }
 }
@@ -212,6 +215,7 @@ if (!empty($collaborateurs_selectionnes)) {
 
         <?php if (!empty($message)) echo $message; ?>
 
+        <!-- CORRECTION : action vide pour soumettre au même script -->
         <form action="" method="post" id="form-projet">
             <input type="hidden" name="gestionnaires_ids" value="<?= implode(',', $gestionnaires_selectionnes) ?>">
             <input type="hidden" name="collaborateurs_ids" value="<?= implode(',', $collaborateurs_selectionnes) ?>">
@@ -260,8 +264,9 @@ if (!empty($collaborateurs_selectionnes)) {
                         <?php foreach ($gestionnaires_info as $gest): ?>
                             <span class="tag-personne <?= $gest['Etat'] == 3 ? 'tag-admin' : 'tag-chercheur' ?>">
                                 <?= htmlspecialchars($gest['Prenom'] . ' ' . $gest['Nom']) ?>
+                                <!-- CORRECTION : utilisation d'un bouton avec onclick pour définir l'ID -->
                                 <button type="submit" name="action" value="retirer_gestionnaire" class="btn-croix" 
-                                        onclick="document.getElementById('id_retirer').value='<?= $gest['ID_compte'] ?>'">
+                                        onclick="this.form.id_retirer.value=<?= $gest['ID_compte'] ?>; return true;">
                                     ×
                                 </button>
                             </span>
@@ -307,8 +312,9 @@ if (!empty($collaborateurs_selectionnes)) {
                                 else echo 'tag-admin';
                             ?>">
                                 <?= htmlspecialchars($collab['Prenom'] . ' ' . $collab['Nom']) ?>
+                                <!-- CORRECTION : utilisation d'un bouton avec onclick pour définir l'ID -->
                                 <button type="submit" name="action" value="retirer_collaborateur" class="btn-croix"
-                                        onclick="document.getElementById('id_retirer').value='<?= $collab['ID_compte'] ?>'">
+                                        onclick="this.form.id_retirer.value=<?= $collab['ID_compte'] ?>; return true;">
                                     ×
                                 </button>
                             </span>
@@ -318,7 +324,7 @@ if (!empty($collaborateurs_selectionnes)) {
             </div>
 
             <!-- Champ caché pour l'ID à retirer -->
-            <input type="hidden" id="id_retirer" name="id_retirer">
+            <input type="hidden" id="id_retirer" name="id_retirer" value="">
 
             <input type="submit" name="creer_projet" value="Créer le projet">
         </form>
