@@ -203,7 +203,7 @@ if (!empty($collaborateurs_selectionnes)) {
     <title>Page de création de projet</title>
     <link rel="stylesheet" href="../css/page_creation_projet.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
-
+    <link rel="stylesheet" href="../css/Bandeau_bas.css">
 </head>
 <body>
     <?php afficher_Bandeau_Haut($bdd, $_SESSION["ID_compte"]); ?>
