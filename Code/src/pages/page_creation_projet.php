@@ -20,24 +20,19 @@ function verifier_champs_projet($nom_projet, $description) {
 }
 
 // ======================= INSERER UN NOUVEAU PROJET =======================
-function creer_projet($bdd, $nom_projet, $description, $confidentialite) {
+function creer_projet($bdd, $nom_projet, $description, $confidentialite, $id_compte) {
     $date_creation = date('Y-m-d H:i:s');
     
     // Vérifier le type de compte
     $stmt = $bdd->prepare("SELECT Etat FROM compte WHERE ID_compte = ?");
-    $stmt->execute([$id_createur]);
+    $stmt->execute([$id_compte]);
     $etat= $stmt->fetchColumn();
     // Si c'est un étudiant => projet non validé
-    $valide = ($type_compte = 1) ? 0 : 1;
+    $valide = ($etat = 1) ? 0 : 1;
 
     $sql = $bdd->prepare("
-<<<<<<< HEAD
         INSERT INTO projets (Nom_projet, Description, Confidentiel, Date_de_creation)
         VALUES (?, ?, ?, ?)
-=======
-        INSERT INTO projet (Nom_projet, Description, Confidentiel, Date_de_creation )
-        VALUES (?, ?, ?,?)
->>>>>>> 51c21da (ajout de page profil (manque que de changer la pdp)
     ");
 
     return $sql->execute([$nom_projet, $description, $confidentialite, $date_creation]);
@@ -64,7 +59,6 @@ $stmt = $bdd->query("SELECT ID_compte, Nom, Prenom FROM compte ORDER BY Nom, Pre
 $utilisateurs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $message = "";
 
-<<<<<<< HEAD
 if (isset($_POST["nom_projet"], $_POST["description"], $_POST["confidentialite"])) {
     $nom_projet = trim($_POST["nom_projet"]);
     $description = trim($_POST["description"]);
@@ -75,38 +69,16 @@ if (isset($_POST["nom_projet"], $_POST["description"], $_POST["confidentialite"]
     $collaborateurs = isset($_POST["collaborateurs"]) ? (array)$_POST["collaborateurs"] : [];
 
     // Vérifier tailles des champs
-=======
-$id_createur= $_SESSION["ID_compte"];
-
-if (isset($_POST["nom_projet"],$_POST["description"], $_POST["confidentialite"],$_POST["gestionnaires"], $_POST["collaborateurs"])){
-    $nom_projet=trim($_POST["nom_projet"]);
-    $description=trim($_POST["description"]);
-    $confidentialite=$_POST["confidentialite"];
-    $gestionnaires = $_POST["gestionnaires"] ?? [];
-    $collaborateurs = $_POST["collaborateurs"] ?? [];
-
-
-     //  Vérifier tailles des champs
->>>>>>> 51c21da (ajout de page profil (manque que de changer la pdp)
     $erreurs = verifier_champs_projet($nom_projet, $description);
     if (!empty($erreurs)) {
         $message = "<p style='color:red;'>" . implode("<br>", $erreurs) . "</p>";
     } else {
-<<<<<<< HEAD
         // Enregistrer le projet
         if (creer_projet($bdd, $nom_projet, $description, $confidentialite)) {
             $id_projet = $bdd->lastInsertId();
             
             // Enregistrer les participants
-=======
-         // Enregistrer le projet
-        if (creer_projet($bdd, $nom_projet, $description, $confidentialite)) {
-
-            $id_projet = $bdd->lastInsertId(); #permet de connaitre l'id du projet qu'on vient d'ajouter dans la bdd
-            //enregistrer les participants
->>>>>>> 51c21da (ajout de page profil (manque que de changer la pdp)
             ajouter_participants($bdd, $id_projet, $gestionnaires, $collaborateurs);
-            
             $message = "<p style='color:green;'>Projet créé avec succès!</p>";
         } else {
             $message = "<p style='color:red;'>Erreur lors de la création du projet.</p>";
@@ -114,24 +86,16 @@ if (isset($_POST["nom_projet"],$_POST["description"], $_POST["confidentialite"],
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Page de création de projet</title>
+    <title> Page de création de projet</title>
     <link rel="stylesheet" href="../css/page_creation_projet.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
 </head>
-<?php afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);?>
 <body>
-<<<<<<< HEAD
-=======
-      <?php
-    afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);
-    ?>
-    <div class="page-formulaire">
->>>>>>> 51c21da (ajout de page profil (manque que de changer la pdp)
+    <?php afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);?>
     <div class="project-box">
         <h2>Créer un projet</h2>
 
@@ -180,7 +144,6 @@ if (isset($_POST["nom_projet"],$_POST["description"], $_POST["confidentialite"],
             <input type="submit" value="Créer le projet">
         </form>
     </div>
-</div>
    <?php
     afficher_Bandeau_Bas();
     ?>
