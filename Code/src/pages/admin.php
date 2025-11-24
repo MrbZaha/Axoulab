@@ -4,21 +4,9 @@ include_once '../back_php/fonctions_site_web.php';
 session_start();
 
 $bdd = connectBDD();
-
 ?>
 
 <!--                            FONCTIONS                          -->
-
-<!-- Afficher le dashboard en bandeau, créer une fonction-->
-<?php
-function bandeau_page($texte, $is_admin) {
-    ?>
-    <div class=bandeau>
-        <p> <?php echo $texte; ?></p>
-    </div> 
-<?php
-}
-?>
 
 
 
@@ -39,7 +27,12 @@ function bandeau_page($texte, $is_admin) {
 <!-- import du header de la page -->
     <?php
     afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);
-    bandeau_page("Dashboard", true)?>
+    #bandeau_page("Dashboard", true)
+    ?>
+<!-- Afficher le titre de la page en bandeau-->
+    <div class=bandeau>
+        <p> <?php echo "Dashboard"; ?></p>
+    </div> 
 
 
 <!-- Crée un grand div qui aura des bords arrondis et sera un peu gris-->
