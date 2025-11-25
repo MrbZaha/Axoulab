@@ -1,342 +1,428 @@
 -- ========================================
--- Script de test pour la base de données
--- RÈGLE IMPORTANTE : Projets confidentiels = UNIQUEMENT des gestionnaires (Statut = 1)
---                    Projets non confidentiels = Gestionnaires (1) et Collaborateurs (0)
+-- INSERTION DES COMPTES (20 personnes)
 -- ========================================
-
--- Nettoie les données existantes (optionnel, décommentez si nécessaire)
-DELETE FROM notification_experience;
-DELETE FROM notification_projet;
-DELETE FROM salle_experience;
-DELETE FROM projet_experience;
-DELETE FROM experience_experimentateur;
-DELETE FROM experience;
-DELETE FROM projet_collaborateur_gestionnaire;
-DELETE FROM projet;
-DELETE FROM compte;
-DELETE FROM salle_materiel;
-
--- ========================================
--- INSERTION DES COMPTES (utilisateurs)
--- ========================================
-INSERT INTO compte (ID_compte, Nom, Prenom, Date_de_naissance, Email, Mdp, Etat, Validation) VALUES
-(1, 'Dupont', 'Marie', '1990-05-15', 'marie.dupont@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
-(2, 'Martin', 'Pierre', '1988-03-22', 'pierre.martin@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
-(3, 'Bernard', 'Sophie', '1992-11-08', 'sophie.bernard@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
-(4, 'Dubois', 'Lucas', '1995-07-30', 'lucas.dubois@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
-(5, 'Thomas', 'Emma', '1991-02-14', 'emma.thomas@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
-(6, 'Robert', 'Hugo', '1989-09-25', 'hugo.robert@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
-(7, 'Petit', 'Léa', '1993-12-03', 'lea.petit@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
-(8, 'Moreau', 'Antoine', '1987-06-18', 'antoine.moreau@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
-(9, 'Leroy', 'Camille', '1994-04-12', 'camille.leroy@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
-(10, 'Girard', 'Thomas', '1986-08-30', 'thomas.girard@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 3, 1);
-
--- ========================================
--- INSERTION DES SALLES
--- ========================================
-INSERT INTO salle_materiel (ID_salle, Salle, Materiel) VALUES
-(1, 'A101', 'Microscopes'),
-(2, 'A101', 'Pipettes'),
-(3, 'A102', 'Centrifugeuse'),
-(4, 'A102', 'pH-mètre'),
-(5, 'B201', 'Spectrophotomètre'),
-(6, 'B202', 'Chromatographe'),
-(7, 'C301', 'Hotte chimique'),
-(8, 'C301', 'Balance'),
-(9, 'C302', 'PCR'),
-(10,'C302', 'Thermocycleur');
+-- Etat: 1=étudiant, 2=professeur/chercheur, 3=ADMIN
+-- Validation: 1=Validé, 0=Non validé
+INSERT INTO compte (Nom, Prenom, Date_de_naissance, Email, Mdp, Etat, validation) VALUES
+('Dubois', 'Marie', '1988-03-15', 'marie.dubois@lab.fr', 'hash123', 2, 1),
+('Martin', 'Pierre', '1992-07-22', 'pierre.martin@lab.fr', 'hash456', 1, 1),
+('Bernard', 'Sophie', '1985-11-08', 'sophie.bernard@lab.fr', 'hash789', 2, 1),
+('Petit', 'Lucas', '1990-05-12', 'lucas.petit@lab.fr', 'hash101', 1, 1),
+('Robert', 'Emma', '1987-09-30', 'emma.robert@lab.fr', 'hash102', 2, 1),
+('Richard', 'Thomas', '1995-01-18', 'thomas.richard@lab.fr', 'hash103', 1, 1),
+('Durand', 'Léa', '1989-12-25', 'lea.durand@lab.fr', 'hash104', 2, 1),
+('Leroy', 'Hugo', '1993-04-07', 'hugo.leroy@lab.fr', 'hash105', 1, 1),
+('Moreau', 'Chloé', '1986-08-14', 'chloe.moreau@lab.fr', 'hash106', 2, 1),
+('Simon', 'Alexandre', '1991-06-19', 'alexandre.simon@lab.fr', 'hash107', 1, 1),
+('Laurent', 'Camille', '1994-02-28', 'camille.laurent@lab.fr', 'hash108', 1, 1),
+('Lefebvre', 'Nathan', '1988-10-03', 'nathan.lefebvre@lab.fr', 'hash109', 2, 1),
+('Michel', 'Julie', '1990-07-16', 'julie.michel@lab.fr', 'hash110', 1, 1),
+('Garcia', 'Antoine', '1987-03-22', 'antoine.garcia@lab.fr', 'hash111', 2, 1),
+('David', 'Manon', '1992-11-09', 'manon.david@lab.fr', 'hash112', 1, 1),
+('Bertrand', 'Maxime', '1989-05-27', 'maxime.bertrand@lab.fr', 'hash113', 2, 1),
+('Roux', 'Laura', '1991-09-14', 'laura.roux@lab.fr', 'hash114', 1, 1),
+('Vincent', 'Nicolas', '1986-12-01', 'nicolas.vincent@lab.fr', 'hash115', 2, 1),
+('Fournier', 'Sarah', '1993-08-20', 'sarah.fournier@lab.fr', 'hash116', 1, 1),
+('Girard', 'Julien', '1990-04-11', 'julien.girard@lab.fr', 'hash117', 3, 1);
 
 -- ========================================
 -- INSERTION DES PROJETS
 -- ========================================
-INSERT INTO projet (ID_projet, Nom_projet, Description, Confidentiel, Validation, Date_de_creation, Date_de_modification) VALUES
--- Projets NON confidentiels (peuvent avoir des collaborateurs)
-(1, 'Étude Microbiologie', 'Analyse de la résistance bactérienne aux antibiotiques. Ce projet vise à identifier de nouvelles souches résistantes et à comprendre les mécanismes de résistance.', 0, 1, '2024-01-15', '2024-01-15'),
-(2, 'Analyse Environnementale', 'Étude de la pollution des eaux par les microplastiques dans la région. Mesures et analyses sur plusieurs sites pendant 6 mois.', 0, 1, '2024-03-10', '2024-03-10'),
-(3, 'Chimie des Matériaux', 'Développement de nouveaux polymères biodégradables pour remplacer les plastiques traditionnels.', 0, 1, '2024-05-20', '2024-05-20'),
-(4, 'Toxicologie', 'Évaluation de la toxicité de nouveaux pesticides sur les organismes aquatiques.', 0, 1, '2024-07-08', '2024-07-08'),
-(5, 'Biochimie Métabolique', 'Étude du métabolisme lipidique chez les patients diabétiques.', 0, 1, '2024-09-01', '2024-09-01'),
-
--- Projets CONFIDENTIELS (UNIQUEMENT des gestionnaires, PAS de collaborateurs)
-(6, 'Synthèse Organique', 'Développement de nouvelles molécules pharmaceutiques pour le traitement du cancer. Projet en collaboration avec plusieurs laboratoires internationaux.', 1, 1, '2024-02-01', '2024-02-01'),
-(7, 'Recherche Génétique', 'Étude des mutations génétiques liées aux maladies rares. Projet confidentiel financé par un consortium européen.', 1, 0, '2024-04-05', '2024-04-05'),
-(8, 'Biotechnologie Appliquée', 'Production d\"enzymes industrielles par fermentation. Optimisation des conditions de culture.', 1, 1, '2024-06-12', '2024-06-12'),
-(9, 'Nanotechnologie', 'Synthèse de nanoparticules pour applications médicales. Projet hautement confidentiel.', 1, 0, '2024-08-15', '2024-08-15'),
-(10, 'Pharmacologie', 'Tests précliniques de nouveaux médicaments anti-inflammatoires.', 1, 1, '2024-10-10', '2024-10-10');
+-- Confidentiel: 0=non, 1=oui
+-- Validation: 0=non validé, 1=validé
+INSERT INTO projet (Nom_projet, Description, Confidentiel, Validation, Date_de_creation, Date_de_modification) VALUES
+('Nanotechnologie Médicale', 'Développement de nanoparticules pour le traitement ciblé du cancer. Collaboration avec le CHU local.', 1, 1, '2024-01-15', '2024-11-20'),
+('Intelligence Artificielle Prédictive', 'Système de prédiction basé sur le machine learning pour l''analyse de données climatiques.', 0, 1, '2024-02-01', '2024-11-15'),
+('Bioplastiques Innovants', 'Recherche sur des polymères biodégradables à partir de déchets agricoles.', 0, 1, '2024-01-20', '2024-10-30'),
+('Optique Quantique', 'Étude des propriétés quantiques de la lumière pour des applications en cryptographie.', 1, 1, '2024-03-10', '2024-11-18'),
+('Robotique Collaborative', 'Développement de robots collaboratifs pour l''assistance aux personnes âgées.', 0, 1, '2024-02-15', '2024-11-10'),
+('Énergie Solaire 3G', 'Amélioration du rendement des cellules photovoltaïques par nanostructuration.', 0, 1, '2024-01-05', '2024-11-22'),
+('Neurosciences Cognitives', 'Étude des mécanismes cérébraux de la mémoire par imagerie fonctionnelle.', 1, 1, '2024-03-01', '2024-11-12'),
+('Matériaux Supraconducteurs', 'Recherche de nouveaux composés supraconducteurs à haute température critique.', 1, 1, '2024-02-20', '2024-11-08'),
+('Microbiome Intestinal', 'Analyse de l''impact du microbiome sur les maladies inflammatoires chroniques.', 0, 1, '2024-01-25', '2024-11-05'),
+('Systèmes Embarqués IoT', 'Conception de capteurs ultra-basse consommation pour l''Internet des Objets.', 0, 1, '2024-03-15', '2024-11-20');
 
 -- ========================================
--- ASSIGNATION DES GESTIONNAIRES ET COLLABORATEURS
--- Statut : 0 = Collaborateur, 1 = Gestionnaire
--- RÈGLE : Projets confidentiels = UNIQUEMENT Statut 1
+-- INSERTION DES SALLES ET MATÉRIEL
 -- ========================================
+INSERT INTO salle_materiel (Salle, Materiel, Nombre) VALUES
+-- Salle A101 - Chimie
+('A101', 'Microscope optique', 5),
+('A101', 'Bécher 500ml', 20),
+('A101', 'Pipette automatique', 10),
+('A101', 'Centrifugeuse', 2),
+('A101', 'Balance de précision', 3),
 
--- Projet 1 (NON confidentiel): Marie (gestionnaire), Pierre et Sophie (collaborateurs)
-INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
-(1, 1, 1), -- Marie = Gestionnaire
-(1, 2, 0), -- Pierre = Collaborateur
-(1, 3, 0); -- Sophie = Collaborateur
+-- Salle A102 - Biologie
+('A102', 'Microscope électronique', 2),
+('A102', 'Incubateur', 4),
+('A102', 'Autoclave', 1),
+('A102', 'Hotte à flux laminaire', 3),
+('A102', 'Congélateur -80°C', 2),
 
--- Projet 2 (NON confidentiel): Sophie (gestionnaire), Emma, Hugo et Camille (collaborateurs)
-INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
-(2, 3, 1), -- Sophie = Gestionnaire
-(2, 5, 0), -- Emma = Collaborateur
-(2, 6, 0), -- Hugo = Collaborateur
-(2, 9, 0); -- Camille = Collaborateur
+-- Salle B201 - Physique
+('B201', 'Oscilloscope', 8),
+('B201', 'Générateur de signaux', 6),
+('B201', 'Multimètre', 15),
+('B201', 'Alimentation stabilisée', 10),
+('B201', 'Spectromètre', 2),
 
--- Projet 3 (NON confidentiel): Emma (gestionnaire), Léa, Antoine et Thomas (collaborateurs)
-INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
-(3, 5, 1),  -- Emma = Gestionnaire
-(3, 7, 0),  -- Léa = Collaborateur
-(3, 8, 0),  -- Antoine = Collaborateur
-(3, 10, 0); -- Thomas = Collaborateur
+-- Salle B202 - Électronique
+('B202', 'Station de soudage', 12),
+('B202', 'Analyseur de spectre', 3),
+('B202', 'Fer à souder', 20),
+('B202', 'Plaque de prototypage', 30),
+('B202', 'Imprimante 3D', 2),
 
--- Projet 4 (NON confidentiel): Léa (gestionnaire), Pierre et Sophie (collaborateurs)
-INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
-(4, 7, 1), -- Léa = Gestionnaire
-(4, 2, 0), -- Pierre = Collaborateur
-(4, 3, 0); -- Sophie = Collaborateur
+-- Salle C301 - Informatique
+('C301', 'Serveur calcul haute performance', 5),
+('C301', 'Station de travail GPU', 10),
+('C301', 'Oscilloscope numérique', 4),
+('C301', 'Analyseur logique', 3),
+('C301', 'Switch réseau', 6),
 
--- Projet 5 (NON confidentiel): Marie (gestionnaire), Emma et Lucas (collaborateurs)
-INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
-(5, 1, 1), -- Marie = Gestionnaire
-(5, 5, 0), -- Emma = Collaborateur
-(5, 4, 0); -- Lucas = Collaborateur
+-- Salle C302 - Robotique
+('C302', 'Bras robotique', 3),
+('C302', 'Capteur LIDAR', 5),
+('C302', 'Caméra haute vitesse', 4),
+('C302', 'Plateforme mobile', 2),
+('C302', 'Contrôleur Arduino', 25),
 
--- Projet 6 (CONFIDENTIEL): Pierre et Lucas (co-gestionnaires uniquement)
-INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
-(6, 2, 1), -- Pierre = Gestionnaire
-(6, 4, 1); -- Lucas = Gestionnaire (pas de collaborateurs!)
+-- Salle D401 - Optique
+('D401', 'Laser He-Ne', 6),
+('D401', 'Table optique', 4),
+('D401', 'Spectrophotomètre', 3),
+('D401', 'Fibre optique (rouleaux)', 10),
+('D401', 'Détecteur CCD', 2),
 
--- Projet 7 (CONFIDENTIEL): Lucas (gestionnaire seul)
-INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
-(7, 4, 1); -- Lucas = Gestionnaire
-
--- Projet 8 (CONFIDENTIEL): Hugo et Antoine (co-gestionnaires)
-INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
-(8, 6, 1), -- Hugo = Gestionnaire
-(8, 8, 1); -- Antoine = Gestionnaire
-
--- Projet 9 (CONFIDENTIEL): Antoine, Camille et Thomas (co-gestionnaires)
-INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
-(9, 8, 1),  -- Antoine = Gestionnaire
-(9, 9, 1),  -- Camille = Gestionnaire
-(9, 10, 1); -- Thomas = Gestionnaire
-
--- Projet 10 (CONFIDENTIEL): Pierre, Emma et Hugo (co-gestionnaires)
-INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
-(10, 2, 1), -- Pierre = Gestionnaire
-(10, 5, 1), -- Emma = Gestionnaire
-(10, 6, 1); -- Hugo = Gestionnaire
+-- Salle D402 - Matériaux
+('D402', 'Four haute température', 2),
+('D402', 'Machine de traction', 1),
+('D402', 'Duromètre', 5),
+('D402', 'Microscope MEB', 1),
+('D402', 'Broyeur à billes', 3);
 
 -- ========================================
 -- INSERTION DES EXPÉRIENCES
 -- ========================================
+-- Validation: 0=non validée, 1=validée
+-- Statut_experience: 0=non commencé, 1=en cours, 2=terminée
+INSERT INTO experience (Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Statut_experience) VALUES
+-- Expériences du Projet 1
+('Synthèse de nanoparticules d''or', 1, 'Production de nanoparticules d''or par réduction chimique pour tests de ciblage cellulaire.', '2024-11-25', '09:00:00', '12:00:00', 'Nanoparticules de 20nm obtenues avec succès. Rendement: 85%.', 2),
+('Test de cytotoxicité in vitro', 1, 'Évaluation de la toxicité des nanoparticules sur lignées cellulaires cancéreuses.', '2024-11-26', '14:00:00', '18:00:00', NULL, 1),
+('Imagerie par microscopie électronique', 1, 'Caractérisation morphologique des nanoparticules synthétisées.', '2024-11-27', '10:00:00', '13:00:00', NULL, 0),
 
--- Expériences pour Projet 1 (NON confidentiel - 5 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Statut_experience) VALUES
-(1, 'Test de sensibilité aux antibiotiques', 1, 'Test de sensibilité aux antibiotiques sur E.coli. Méthode de diffusion en gélose avec 8 antibiotiques différents.', '2024-11-10', '09:00:00', '12:00:00', 'Résistance observée à l\"ampicilline. Sensibilité maintenue pour la ciprofloxacine.', 1),
-(2, 'Culture bactérienne et isolation', 1, 'Culture bactérienne en milieu liquide puis isolation sur gélose nutritive. Purification par repiquages successifs.', '2024-11-12', '14:00:00', '17:00:00', 'Colonies isolées avec succès. Pureté confirmée par coloration de Gram.', 1),
-(3, 'Analyse génétique des souches', 0, 'Séquençage du gène de résistance par méthode Sanger. Extraction d\"ADN et PCR des régions d\"intérêt.', '2024-11-15', '10:00:00', '16:00:00', NULL, 0),
-(4, 'Test CMI', 1, 'Détermination de la concentration minimale inhibitrice par dilution en bouillon pour 5 antibiotiques.', '2024-11-18', '08:30:00', '11:30:00', 'CMI déterminée : 8 µg/mL pour la tétracycline.', 1),
-(5, 'Validation PCR', 0, 'Validation des résultats par PCR quantitative. Amplification des gènes de résistance identifiés.', '2024-11-20', '13:00:00', '18:00:00', NULL, 0);
+-- Expériences du Projet 2
+('Collecte de données climatiques', 1, 'Récupération et nettoyage des données météorologiques sur 20 ans.', '2024-11-25', '08:00:00', '17:00:00', 'Dataset de 2 millions d''entrées préparé et validé.', 2),
+('Entraînement modèle ML', 1, 'Formation d''un réseau de neurones pour la prédiction de températures.', '2024-11-28', '09:00:00', '16:00:00', NULL, 1),
 
--- Expériences pour Projet 2 (NON confidentiel - 4 expériences) 
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Statut_experience) VALUES
-(6, 'Prélèvement Site A', 1, 'Prélèvement d\"eau à la rivière principale. Filtration sur membrane 0.45µm et conservation à 4°C.', '2024-11-01', '09:00:00', '11:00:00', 'Concentration en microplastiques : 450 particules/L', 1),
-(7, 'Prélèvement Site B', 1, 'Prélèvement à la confluence. Triple prélèvement pour validation statistique.', '2024-11-03', '09:00:00', '11:00:00', 'Concentration en microplastiques : 680 particules/L', 1),
-(8, 'Analyse spectroscopique', 1, 'Identification des polymères par spectroscopie infrarouge FTIR.', '2024-11-06', '14:00:00', '18:00:00', 'Identification : 65% polyéthylène, 25% polypropylène, 10% autres.', 1),
-(9, 'Prélèvement Site C', 0, 'Prélèvement en zone urbaine à proximité d\"une station d\"épuration.', '2024-11-25', '09:00:00', '11:00:00', NULL, 0);
+-- Expériences du Projet 3
+('Extraction de cellulose', 1, 'Isolement de cellulose à partir de paille de blé.', '2024-11-24', '13:00:00', '17:00:00', 'Rendement d''extraction: 72%. Pureté satisfaisante.', 2),
+('Polymérisation enzymatique', 1, 'Synthèse de bioplastique par catalyse enzymatique.', '2024-11-29', '09:00:00', '15:00:00', NULL, 1),
+('Tests de biodégradabilité', 0, 'Mesure du taux de dégradation en conditions de compostage.', '2024-12-01', '10:00:00', '12:00:00', NULL, 0),
 
--- Expériences pour Projet 3 (NON confidentiel - 6 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Statut_experience) VALUES
-(10, 'Polymérisation PLA modifié', 1, 'Polymérisation du PLA avec ajout de plastifiants biosourcés. Contrôle strict température et pression.', '2024-10-20', '10:00:00', '14:00:00', 'Masse molaire Mw = 85 000 g/mol. Indice de polydispersité = 1.8', 1),
-(11, 'Test biodégradabilité', 1, 'Test de biodégradabilité en milieu aqueux selon norme ISO 14851. Suivi pendant 30 jours.', '2024-10-25', '09:00:00', '12:00:00', 'Dégradation de 45% après 30 jours.', 1),
-(12, 'Analyse thermogravimétrique', 1, 'Caractérisation thermique par ATG sous azote. Rampe de température 10°C/min.', '2024-10-28', '13:00:00', '16:00:00', 'Td = 285°C. Stabilité thermique satisfaisante.', 1),
-(13, 'Test résistance mécanique', 1, 'Essai de traction sur éprouvettes normalisées. Machine universelle Instron.','2024-11-02', '10:00:00', '13:00:00', 'Module de Young = 1.2 GPa. Élongation à la rupture = 8%.', 1),
-(14, 'Optimisation formulation', 0, 'Tests de différentes proportions de plastifiants pour améliorer les propriétés.', '2024-11-16', '08:00:00', '15:00:00', NULL, 0),
-(15, 'Test compostage industriel', 0, 'Essai de compostabilité selon norme EN 13432. Conditions industrielles simulées.', '2024-11-24', '09:00:00', '12:00:00', NULL, 0);
+-- Expériences du Projet 4
+('Configuration intrication quantique', 1, 'Mise en place d''un système de paires de photons intriqués.', '2024-11-26', '08:30:00', '12:30:00', NULL, 1),
+('Test de cryptographie quantique', 1, 'Validation du protocole BB84 sur fibre optique.', '2024-11-30', '14:00:00', '18:00:00', NULL, 0),
 
--- Expériences pour Projet 4 (NON confidentiel - 4 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Statut_experience) VALUES
-(16, 'Test aigu Daphnia', 1, 'Test de toxicité aiguë sur Daphnia magna selon norme OCDE 202.', '2024-10-15', '09:00:00', '17:00:00', 'CL50 (48h) = 12 mg/L. Toxicité modérée.', 1),
-(17, 'Test chronique poissons', 1, 'Test chronique sur embryons de poissons zèbre. Exposition pendant 96h.', '2024-10-22', '08:00:00', '16:00:00', 'NOEC = 2 mg/L. Effets sur la reproduction observés.', 1),
-(18, 'Bioaccumulation', 0, 'Étude de bioaccumulation dans les tissus musculaires et hépatiques.', '2024-11-19', '10:00:00', '15:00:00', NULL, 0),
-(19, 'Analyse métabolites', 0, 'Identification des métabolites par chromatographie liquide couplée à la spectrométrie de masse.', '2024-11-27', '09:00:00', '14:00:00', NULL, 0);
+-- Expériences du Projet 5
+('Programmation comportement robot', 1, 'Développement d''algorithmes d''évitement d''obstacles.', '2024-11-25', '10:00:00', '16:00:00', 'Navigation autonome fonctionnelle dans environnement contrôlé.', 2),
+('Interface homme-machine', 1, 'Conception d''une interface tactile intuitive pour seniors.', '2024-11-27', '13:00:00', '17:00:00', NULL, 1),
+('Tests en conditions réelles', 0, 'Validation du système en résidence pour personnes âgées.', '2024-12-02', '09:00:00', '12:00:00', NULL, 0),
 
--- Expériences pour Projet 5 (NON confidentiel - 3 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Statut_experience) VALUES
-(20, 'Dosage triglycérides', 1, 'Dosage enzymatique des triglycérides plasmatiques sur 50 patients.', '2024-10-18', '09:00:00', '12:00:00', 'Moyenne patients diabétiques : 2.8 mmol/L vs contrôle : 1.2 mmol/L', 1),
-(21, 'Chromatographie acides gras', 1, 'Analyse du profil en acides gras par chromatographie en phase gazeuse.', '2024-10-25', '13:00:00', '17:00:00', 'Profil lipidique altéré : augmentation des AG saturés.', 1),
-(22, 'Western blot enzymes', 0, 'Détection des enzymes du métabolisme lipidique par Western blot.', '2024-11-23', '08:00:00', '15:00:00', NULL, 0);
+-- Expériences du Projet 6
+('Dépôt couches minces', 1, 'Fabrication de cellules solaires par pulvérisation cathodique.', '2024-11-24', '09:00:00', '14:00:00', 'Couches uniformes obtenues. Épaisseur: 500nm.', 2),
+('Mesure de rendement photovoltaïque', 1, 'Caractérisation IV des cellules sous illumination standard.', '2024-11-28', '11:00:00', '15:00:00', NULL, 1),
 
--- Expériences pour Projet 6 (CONFIDENTIEL - 3 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Statut_experience) VALUES
-(23, 'Synthèse composé XY-247', 1, 'Synthèse multi-étapes du composé principal. Purification par chromatographie sur colonne.','2024-11-05', '09:00:00', '15:00:00', 'Rendement de 78%. Pureté > 99% confirmée par HPLC.', 1),
-(24, 'Test cytotoxicité in vitro', 1, 'Évaluation de la cytotoxicité sur 5 lignées cellulaires cancéreuses.','2024-11-08', '10:00:00', '14:00:00', 'IC50 = 2.3 µM sur cellules cancéreuses HeLa.', 1),
-(25, 'Optimisation conditions', 0, 'Optimisation des conditions de réaction pour améliorer le rendement.',  '2024-11-22', '08:00:00', '12:00:00', NULL, 0);
+-- Expériences du Projet 7
+('IRM fonctionnelle sujets témoins', 1, 'Acquisition d''images cérébrales pendant tâches mémorielles.', '2024-11-26', '09:00:00', '17:00:00', NULL, 1),
+('Analyse activation hippocampique', 1, 'Traitement des données d''imagerie et analyse statistique.', '2024-11-29', '10:00:00', '18:00:00', NULL, 0),
 
--- Expériences pour Projet 7 (CONFIDENTIEL - 2 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Statut_experience) VALUES
-(26, 'Séquençage patient 001', 0, 'Séquençage génomique complet par technologie NGS Illumina.', '2024-11-14', '08:00:00', '17:00:00', NULL, 0),
-(27, 'Analyse mutations', 0, 'Analyse comparative des mutations entre patients et groupes témoins.', '2024-11-28', '09:00:00', '16:00:00', NULL, 0);
+-- Expériences du Projet 8
+('Synthèse composés cuprates', 1, 'Production de cuprates supraconducteurs par voie solide.', '2024-11-25', '08:00:00', '16:00:00', 'Composé YBa2Cu3O7 obtenu. Phase pure confirmée par DRX.', 2),
+('Mesure température critique', 1, 'Détermination de Tc par mesure de résistivité électrique.', '2024-11-27', '09:00:00', '13:00:00', NULL, 1),
 
--- Expériences pour Projet 8 (CONFIDENTIEL - 1 expérience)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Statut_experience) VALUES
-(28, 'Fermentation E.coli recombinant', 1, 'Fermentation en batch avec suivi en ligne de la biomasse et de l\"activité enzymatique.', '2024-11-07', '08:00:00', '18:00:00', 'Production enzyme : 2.5 g/L. Activité spécifique : 450 U/mg.', 1);
+-- Expériences du Projet 9
+('Séquençage ADN 16S', 1, 'Identification des espèces bactériennes présentes dans échantillons.', '2024-11-24', '10:00:00', '18:00:00', 'Séquençage de 50 échantillons complété. Profondeur satisfaisante.', 2),
+('Analyse bio-informatique', 1, 'Traitement des données de séquençage et analyse de diversité.', '2024-11-28', '09:00:00', '17:00:00', NULL, 1),
 
--- Expériences pour Projet 9 (CONFIDENTIEL - 2 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description,  Date_reservation, Heure_debut, Heure_fin, Resultat, Statut_experience) VALUES
-(29, 'Synthèse nanoparticules or', 0, 'Synthèse de nanoparticules d_or par réduction chimique. Contrôle de la taille par spectroscopie UV-Vis.', '2024-11-11', '09:00:00', '13:00:00', NULL, 0),
-(30, 'Fonctionnalisation surface', 0, 'Fonctionnalisation des nanoparticules avec des ligands bioactifs.', '2024-11-21', '10:00:00', '16:00:00', NULL, 0);
-
--- Expériences pour Projet 10 (CONFIDENTIEL - 5 expériences)
-INSERT INTO experience (ID_experience, Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Statut_experience) VALUES
-(31, 'Test in vivo 10mg/kg', 1, 'Évaluation sur modèle murin d\"inflammation aiguë. Administration par voie orale.', '2024-10-12', '08:00:00', '18:00:00', 'Réduction de l\"inflammation de 65%. Aucun effet secondaire.', 1),
-(32, 'Test in vivo 50mg/kg', 1, 'Test à dose élevée pour évaluation de la toxicité potentielle.', '2024-10-19', '08:00:00', '18:00:00', 'Réduction de l\"inflammation de 85%. Légère toxicité hépatique.', 1),
-(33, 'Pharmacocinétique', 1, 'Étude de l\"absorption, distribution, métabolisme et excrétion (ADME).', '2024-10-26', '09:00:00', '16:00:00', 'Tmax = 2h. Biodisponibilité = 78%. Demi-vie = 6h.', 1),
-(34, 'Toxicité répétée 28 jours', 0, 'Étude de toxicité subchronique selon directive OCDE 407.', '2024-11-17', '08:00:00', '17:00:00', NULL,  0),
-(35, 'Évaluation génotoxicité', 0, 'Tests d\"Ames et test du micronoyau sur lymphocytes humains.', '2024-11-26', '10:00:00', '15:00:00', NULL, 0);
+-- Expériences du Projet 10
+('Conception PCB capteur', 1, 'Design du circuit imprimé pour capteur température/humidité.', '2024-11-25', '13:00:00', '18:00:00', 'PCB dessiné et envoyé en fabrication. Délai: 10 jours.', 2),
+('Test consommation énergétique', 1, 'Mesure de la consommation en différents modes de fonctionnement.', '2024-11-29', '10:00:00', '14:00:00', NULL, 1);
 
 -- ========================================
--- LIAISON PROJETS-EXPÉRIENCES
+-- ATTRIBUTION DES GESTIONNAIRES ET COLLABORATEURS
+-- ========================================
+-- Statut: 0=collaborateur, 1=gestionnaire
+-- Projet 1: Marie (gestionnaire), Pierre, Sophie, Lucas (collaborateurs)
+INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
+(1, 1, 1), (1, 2, 0), (1, 3, 0), (1, 4, 0);
+
+-- Projet 2: Emma (gestionnaire), Thomas, Léa, Hugo (collaborateurs)
+INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
+(2, 5, 1), (2, 6, 0), (2, 7, 0), (2, 8, 0);
+
+-- Projet 3: Chloé (gestionnaire), Alexandre, Camille (collaborateurs)
+INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
+(3, 9, 1), (3, 10, 0), (3, 11, 0);
+
+-- Projet 4: Nathan (gestionnaire), Julie, Antoine, Manon (collaborateurs)
+INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
+(4, 12, 1), (4, 13, 0), (4, 14, 0), (4, 15, 0);
+
+-- Projet 5: Maxime (gestionnaire), Laura, Nicolas (collaborateurs)
+INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
+(5, 16, 1), (5, 17, 0), (5, 18, 0);
+
+-- Projet 6: Sarah (gestionnaire), Julien, Marie, Pierre (collaborateurs)
+INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
+(6, 19, 1), (6, 20, 0), (6, 1, 0), (6, 2, 0);
+
+-- Projet 7: Sophie (gestionnaire), Lucas, Emma, Thomas (collaborateurs)
+INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
+(7, 3, 1), (7, 4, 0), (7, 5, 0), (7, 6, 0);
+
+-- Projet 8: Léa (gestionnaire), Hugo, Chloé (collaborateurs)
+INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
+(8, 7, 1), (8, 8, 0), (8, 9, 0);
+
+-- Projet 9: Alexandre (gestionnaire), Camille, Nathan, Julie (collaborateurs)
+INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
+(9, 10, 1), (9, 11, 0), (9, 12, 0), (9, 13, 0);
+
+-- Projet 10: Antoine (gestionnaire), Manon, Maxime, Laura (collaborateurs)
+INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) VALUES
+(10, 14, 1), (10, 15, 0), (10, 16, 0), (10, 17, 0);
+
+-- ========================================
+-- ASSOCIATION EXPÉRIENCES - EXPÉRIMENTATEURS
+-- ========================================
+-- Expérience 1 (Projet 1)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(1, 1), (1, 2), (1, 3);
+
+-- Expérience 2 (Projet 1)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(2, 1), (2, 4);
+
+-- Expérience 3 (Projet 1)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(3, 2), (3, 3);
+
+-- Expérience 4 (Projet 2)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(4, 5), (4, 6);
+
+-- Expérience 5 (Projet 2)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(5, 5), (5, 7), (5, 8);
+
+-- Expérience 6 (Projet 3)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(6, 9), (6, 10);
+
+-- Expérience 7 (Projet 3)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(7, 9), (7, 11);
+
+-- Expérience 8 (Projet 3)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(8, 10), (8, 11);
+
+-- Expérience 9 (Projet 4)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(9, 12), (9, 13), (9, 14);
+
+-- Expérience 10 (Projet 4)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(10, 12), (10, 15);
+
+-- Expérience 11 (Projet 5)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(11, 16), (11, 17);
+
+-- Expérience 12 (Projet 5)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(12, 16), (12, 18);
+
+-- Expérience 13 (Projet 5)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(13, 17), (13, 18);
+
+-- Expérience 14 (Projet 6)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(14, 19), (14, 20);
+
+-- Expérience 15 (Projet 6)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(15, 19), (15, 1);
+
+-- Expérience 16 (Projet 7)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(16, 3), (16, 4), (16, 5);
+
+-- Expérience 17 (Projet 7)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(17, 3), (17, 6);
+
+-- Expérience 18 (Projet 8)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(18, 7), (18, 8);
+
+-- Expérience 19 (Projet 8)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(19, 7), (19, 9);
+
+-- Expérience 20 (Projet 9)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(20, 10), (20, 11), (20, 12);
+
+-- Expérience 21 (Projet 9)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(21, 10), (21, 13);
+
+-- Expérience 22 (Projet 10)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(22, 14), (22, 15);
+
+-- Expérience 23 (Projet 10)
+INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
+(23, 14), (23, 16);
+
+-- ========================================
+-- ASSOCIATION PROJETS - EXPÉRIENCES
 -- ========================================
 INSERT INTO projet_experience (ID_projet, ID_experience) VALUES
--- Projet 1
-(1, 1), (1, 2), (1, 3), (1, 4), (1, 5),
--- Projet 2
-(2, 6), (2, 7), (2, 8), (2, 9),
--- Projet 3
-(3, 10), (3, 11), (3, 12), (3, 13), (3, 14), (3, 15),
--- Projet 4
-(4, 16), (4, 17), (4, 18), (4, 19),
--- Projet 5
-(5, 20), (5, 21), (5, 22),
--- Projet 6
-(6, 23), (6, 24), (6, 25),
--- Projet 7
-(7, 26), (7, 27),
--- Projet 8
-(8, 28),
--- Projet 9
-(9, 29), (9, 30),
--- Projet 10
-(10, 31), (10, 32), (10, 33), (10, 34), (10, 35);
+(1, 1), (1, 2), (1, 3),
+(2, 4), (2, 5),
+(3, 6), (3, 7), (3, 8),
+(4, 9), (4, 10),
+(5, 11), (5, 12), (5, 13),
+(6, 14), (6, 15),
+(7, 16), (7, 17),
+(8, 18), (8, 19),
+(9, 20), (9, 21),
+(10, 22), (10, 23);
 
 -- ========================================
--- LIAISON EXPÉRIENCES-EXPÉRIMENTATEURS
+-- ASSOCIATION SALLES - EXPÉRIENCES
 -- ========================================
-
--- Projet 1 - Expériences (Marie gestionnaire, Pierre et Sophie collaborateurs)
-INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
-(1, 1), (1, 2),    -- Exp 1: Marie et Pierre
-(2, 3), (2, 2),    -- Exp 2: Sophie et Pierre
-(3, 1),            -- Exp 3: Marie
-(4, 2), (4, 3),    -- Exp 4: Pierre et Sophie
-(5, 1), (5, 3);    -- Exp 5: Marie et Sophie
-
--- Projet 2 - Expériences (Sophie gestionnaire, Emma, Hugo et Camille collaborateurs)
-INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
-(6, 3), (6, 5),    -- Exp 6: Sophie et Emma
-(7, 5), (7, 6),    -- Exp 7: Emma et Hugo
-(8, 3), (8, 9),    -- Exp 8: Sophie et Camille
-(9, 6);            -- Exp 9: Hugo
-
--- Projet 3 - Expériences (Emma gestionnaire, Léa, Antoine et Thomas collaborateurs)
-INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
-(10, 5), (10, 7),  -- Exp 10: Emma et Léa
-(11, 7), (11, 8),  -- Exp 11: Léa et Antoine
-(12, 5),           -- Exp 12: Emma
-(13, 8), (13, 10), -- Exp 13: Antoine et Thomas
-(14, 7), (14, 10), -- Exp 14: Léa et Thomas
-(15, 5), (15, 8);  -- Exp 15: Emma et Antoine
-
--- Projet 4 - Expériences (Léa gestionnaire, Pierre et Sophie collaborateurs)
-INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
-(16, 7), (16, 2),  -- Exp 16: Léa et Pierre
-(17, 3), (17, 7),  -- Exp 17: Sophie et Léa
-(18, 2),           -- Exp 18: Pierre
-(19, 3);           -- Exp 19: Sophie
-
--- Projet 5 - Expériences (Marie gestionnaire, Emma et Lucas collaborateurs)
-INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
-(20, 1), (20, 5),  -- Exp 20: Marie et Emma
-(21, 5), (21, 4),  -- Exp 21: Emma et Lucas
-(22, 1);           -- Exp 22: Marie
-
--- Projet 6 - Expériences CONFIDENTIEL (Pierre et Lucas gestionnaires)
-INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
-(23, 2), (23, 4),  -- Exp 23: Pierre et Lucas
-(24, 4),           -- Exp 24: Lucas
-(25, 2);           -- Exp 25: Pierre
-
--- Projet 7 - Expériences CONFIDENTIEL (Lucas gestionnaire seul)
-INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
-(26, 4),           -- Exp 26: Lucas
-(27, 4);           -- Exp 27: Lucas
-
--- Projet 8 - Expériences CONFIDENTIEL (Hugo et Antoine gestionnaires)
-INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
-(28, 6), (28, 8);  -- Exp 28: Hugo et Antoine
-
--- Projet 9 - Expériences CONFIDENTIEL (Antoine, Camille et Thomas gestionnaires)
-INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
-(29, 8), (29, 9),  -- Exp 29: Antoine et Camille
-(30, 9), (30, 10); -- Exp 30: Camille et Thomas
-
--- Projet 10 - Expériences CONFIDENTIEL (Pierre, Emma et Hugo gestionn
--- Projet 10 - Expériences CONFIDENTIEL (Pierre, Emma et Hugo gestionnaires)
-INSERT INTO experience_experimentateur (ID_experience, ID_compte) VALUES
-(31, 2), (31, 5),  -- Exp 31: Pierre et Emma
-(32, 5), (32, 6),  -- Exp 32: Emma et Hugo
-(33, 2), (33, 6),  -- Exp 33: Pierre et Hugo
-(34, 2), (34, 5),  -- Exp 34: Pierre et Emma
-(35, 5), (35, 6);  -- Exp 35: Emma et Hugo
-
--- ========================================
--- LIAISON SALLES-EXPÉRIENCES
--- ========================================
+-- Expérience 1: Salle A101 (chimie)
 INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
--- Salle A101 (Microscopes, Pipettes)
-(1, 1), (2, 1), (13, 1), (16, 1), (17, 1), (22, 1), (31, 1), (32, 1), (34, 1),
--- Salle A102 (Centrifugeuse, pH-mètre)
-(4, 2), (11, 2), (15, 2), (18, 2), (20, 2), (24, 2), (28, 2),
--- Salle B201 (Spectrophotomètre)
-(3, 3), (5, 3), (8, 3), (19, 3), (35, 3),
--- Salle B202 (Chromatographe)
-(6, 4), (7, 4), (12, 4), (21, 4), (33, 4),
--- Salle C301 (Hotte chimique, Balance)
-(10, 5), (14, 5), (23, 5), (25, 5), (29, 5), (30, 5),
--- Salle C302 (PCR, Thermocycleur)
-(26, 6), (27, 6);
+(1, 1), (1, 2), (1, 3);
+
+-- Expérience 2: Salle A102 (biologie)
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(2, 6), (2, 7), (2, 8);
+
+-- Expérience 3: Salle A102
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(3, 6);
+
+-- Expérience 4: Salle C301 (informatique)
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(4, 21), (4, 22);
+
+-- Expérience 5: Salle C301
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(5, 21), (5, 22);
+
+-- Expérience 6: Salle A101
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(6, 1), (6, 2), (6, 4);
+
+-- Expérience 7: Salle A101
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(7, 1), (7, 4);
+
+-- Expérience 8: Salle A102
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(8, 7), (8, 10);
+
+-- Expérience 9: Salle D401 (optique)
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(9, 31), (9, 32), (9, 34);
+
+-- Expérience 10: Salle D401
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(10, 31), (10, 34);
+
+-- Expérience 11: Salle C302 (robotique)
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(11, 26), (11, 27), (11, 30);
+
+-- Expérience 12: Salle C302
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(12, 26), (12, 28);
+
+-- Expérience 13: Salle C302
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(13, 26), (13, 29);
+
+-- Expérience 14: Salle D402 (matériaux)
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(14, 36), (14, 37);
+
+-- Expérience 15: Salle D401
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(15, 33), (15, 35);
+
+-- Expérience 16: Salle A102
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(16, 6), (16, 7);
+
+-- Expérience 17: Salle C301
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(17, 21), (17, 22);
+
+-- Expérience 18: Salle D402
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(18, 36), (18, 40);
+
+-- Expérience 19: Salle D402
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(19, 36), (19, 39);
+
+-- Expérience 20: Salle A102
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(20, 6), (20, 8), (20, 10);
+
+-- Expérience 21: Salle C301
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(21, 21), (21, 22);
+
+-- Expérience 22: Salle B202 (électronique)
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(22, 16), (22, 18), (22, 19), (22, 20);
+
+-- Expérience 23: Salle B201 (physique)
+INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+(23, 11), (23, 13);
 
 -- ========================================
--- INSERTION DES NOTIFICATIONS EXPÉRIENCES
+-- INSERTION DES NOTIFICATIONS
 -- ========================================
+-- Notifications pour expériences
 INSERT INTO notification_experience (ID_compte_envoyeur, ID_compte_receveur, ID_experience, Type_notif, Date_envoi) VALUES
--- Notifications pour expériences en attente de validation
-(1, 2, 3, 1, '2024-11-15 16:30:00'),  -- Marie notifie Pierre pour validation exp 3
-(5, 3, 9, 2, '2024-11-25 11:30:00'),  -- Emma notifie Sophie pour validation exp 9
-(7, 5, 14, 3, '2024-11-16 15:45:00'), -- Léa notifie Emma pour validation exp 14
-(2, 7, 18, 1, '2024-11-19 15:20:00'), -- Pierre notifie Léa pour validation exp 18
-(1, 5, 22, 5, '2024-11-23 15:10:00'), -- Marie notifie Emma pour validation exp 22
-(4, 2, 25, 1, '2024-11-22 12:15:00'), -- Lucas notifie Pierre pour validation exp 25
-(4, 6, 26, 1, '2024-11-14 17:30:00'), -- Lucas notifie Hugo pour validation exp 26
-(8, 9, 29, 2, '2024-11-11 13:25:00'), -- Antoine notifie Camille pour validation exp 29
-(9, 10, 30, 1, '2024-11-21 16:40:00'),-- Camille notifie Thomas pour validation exp 30
-(2, 6, 34, 4, '2024-11-17 17:15:00'), -- Pierre notifie Hugo pour validation exp 34
-(5, 2, 35, 1, '2024-11-26 15:30:00'); -- Emma notifie Pierre pour validation exp 35
+(1, 2, 1, 1, '2024-11-20 09:15:00'),
+(2, 3, 1, 2, '2024-11-20 14:30:00'),
+(5, 6, 4, 1, '2024-11-21 10:00:00'),
+(9, 10, 6, 3, '2024-11-22 11:45:00'),
+(12, 13, 9, 1, '2024-11-23 08:30:00'),
+(16, 17, 11, 2, '2024-11-23 15:20:00'),
+(3, 4, 16, 1, '2024-11-24 09:00:00'),
+(7, 8, 18, 3, '2024-11-24 13:45:00');
 
--- ========================================
--- INSERTION DES NOTIFICATIONS PROJETS
--- ========================================
+-- Notifications pour projets
 INSERT INTO notification_projet (ID_compte_envoyeur, ID_compte_receveur, ID_projet, Type_notif, Date_envoi) VALUES
--- Notifications pour projets en attente de validation
-(3, 1, 2, 11, '2024-03-10 14:20:00'),   -- Sophie notifie Marie pour validation projet 2
-(5, 3, 3, 13, '2024-05-20 11:15:00'),   -- Emma notifie Sophie pour validation projet 3
-(7, 5, 4, 12, '2024-07-08 09:45:00'),   -- Léa notifie Emma pour validation projet 4
-(1, 7, 5, 12, '2024-09-01 10:30:00'),   -- Marie notifie Léa pour validation projet 5
-(2, 4, 6, 14, '2024-02-01 16:25:00'),   -- Pierre notifie Lucas pour validation projet 6
-(4, 6, 7, 14, '2024-04-05 13:40:00'),   -- Lucas notifie Hugo pour validation projet 7
-(6, 8, 8, 11, '2024-06-12 15:20:00'),   -- Hugo notifie Antoine pour validation projet 8
-(8, 10, 9, 15, '2024-08-15 11:10:00'),  -- Antoine notifie Thomas pour validation projet 9
-(2, 5, 10, 12, '2024-10-10 14:50:00'); -- Pierre notifie Emma pour validation projet 10
+(1, 2, 1, 1, '2024-11-15 10:30:00'),
+(1, 3, 1, 1, '2024-11-15 10:31:00'),
+(5, 6, 2, 2, '2024-11-16 14:00:00'),
+(9, 10, 3, 1, '2024-11-17 09:15:00'),
+(12, 13, 4, 3, '2024-11-18 11:30:00'),
+(16, 17, 5, 1, '2024-11-19 08:45:00'),
+(19, 20, 6, 2, '2024-11-20 15:00:00'),
+(3, 4, 7, 1, '2024-11-21 10:20:00'),
+(10, 11, 9, 3, '2024-11-22 13:00:00'),
+(14, 15, 10, 1, '2024-11-23 09:30:00');
