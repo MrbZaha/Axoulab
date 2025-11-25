@@ -56,13 +56,6 @@ function get_mes_projets_complets(PDO $bdd, int $id_compte): array {
     return $projets;
 }
 
-function create_page(array $items, int $items_par_page = 6): int {
-    $total_items = count($items);
-    if ($total_items == 0) {
-        return 1;
-    }
-    return (int)ceil($total_items / $items_par_page);
-}
 
 function afficher_projets_pagines(array $projets, int $page_actuelle = 1, int $items_par_page = 6): void {
     $debut = ($page_actuelle - 1) * $items_par_page;
@@ -97,33 +90,6 @@ function afficher_projets_pagines(array $projets, int $page_actuelle = 1, int $i
     <?php
 }
 
-function afficher_pagination(int $page_actuelle, int $total_pages, string $type = 'en_cours'): void {
-    if ($total_pages <= 1) return;
-    
-    // Préserver l'autre paramètre de page dans l'URL
-    $autre_type = ($type === 'en_cours') ? 'termines' : 'en_cours';
-    $autre_page = isset($_GET["page_$autre_type"]) ? (int)$_GET["page_$autre_type"] : 1;
-    
-    ?>
-    <div class="pagination">
-        <?php if ($page_actuelle > 1): ?>
-            <a href="?page_<?= $type ?>=<?= $page_actuelle - 1 ?>&page_<?= $autre_type ?>=<?= $autre_page ?>" class="page-btn">« Précédent</a>
-        <?php endif; ?>
-        
-        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-            <?php if ($i == $page_actuelle): ?>
-                <span class="page-btn active"><?= $i ?></span>
-            <?php else: ?>
-                <a href="?page_<?= $type ?>=<?= $i ?>&page_<?= $autre_type ?>=<?= $autre_page ?>" class="page-btn"><?= $i ?></a>
-            <?php endif; ?>
-        <?php endfor; ?>
-        
-        <?php if ($page_actuelle < $total_pages): ?>
-            <a href="?page_<?= $type ?>=<?= $page_actuelle + 1 ?>&page_<?= $autre_type ?>=<?= $autre_page ?>" class="page-btn">Suivant »</a>
-        <?php endif; ?>
-    </div>
-    <?php
-}
 
 // Récupération et filtrage des projets
 $id_compte = $_SESSION['ID_compte'];

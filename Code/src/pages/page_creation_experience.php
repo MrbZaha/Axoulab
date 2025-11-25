@@ -5,11 +5,11 @@ $bdd = connectBDD();
 $_SESSION["ID_compte"] = 3;
 
 // ======================= VERIFIER TAILLES DES CHAMPS =======================
-function verifier_champs_projet($nom_projet, $description) {
+function verifier_champs_experience($nom_experience, $description) {
     $erreurs = [];
 
-    if (strlen($nom_projet) < 3 || strlen($nom_projet) > 100) {
-        $erreurs[] = "Le nom du projet doit contenir entre 3 et 100 caractères."; 
+    if (strlen($nom_experience) < 3 || strlen($nom_experience) > 100) {
+        $erreurs[] = "Le nom de l'experience doit contenir entre 3 et 100 caractères."; 
     }
 
     if (strlen($description) < 10 || strlen($description) > 2000) {
@@ -19,40 +19,40 @@ function verifier_champs_projet($nom_projet, $description) {
     return $erreurs;
 }
 
-// ======================= INSERER UN NOUVEAU PROJET =======================
-function creer_projet($bdd, $nom_projet, $description, $confidentialite) {
-    $date_creation = date('Y-m-d H:i:s');
-    
+// ======================= INSERER UNE NOUVELLE EXPERIENCE =======================
+function creer_experience($bdd, $nom_experience, $validation, $description, $date_reservation, $heure_debut, $heure_fin, $statut_experiecnce = 0) {
     $sql = $bdd->prepare("
-        INSERT INTO projets (Nom_projet, Description, Confidentiel, Date_de_creation)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO experience (Nom, Validation, Description, Date_de_reservation, Heure_debut, Heure_fin, Statut_experience)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     ");
 
-    return $sql->execute([$nom_projet, $description, $confidentialite, $date_creation]);
+    return $sql->execute([$nom_experience, $validation, $description, $date_reservation, $heure_debut, $heure_fin, $statut_experiecnce = 0]);
 }
 
 // ======================= AJOUTER PARTICIPANTS =======================
-function ajouter_participants($bdd, $id_projet, $gestionnaires, $collaborateurs) {
+function ajouter_participants($bdd, $id_experience, $id_experimentateurs) {
     $sql = $bdd->prepare("
-        INSERT INTO projet_collaborateur_gestionnaire (Id_projet, Id_compte, Statut)
-        VALUES (?, ?, ?)
+        INSERT INTO experience_experimentataire (Id_experience, Id_compte)
+        VALUES (?, ?)
     ");
 
-    foreach ($gestionnaires as $id_compte) {
-        $sql->execute([$id_projet, $id_compte, 'gestionnaire']);
-    }
-
-    foreach ($collaborateurs as $id_compte) {
-        $sql->execute([$id_projet, $id_compte, 'collaborateur']);
+    foreach ($id_experimentateurs as $id_compte) {
+        $sql->execute([$id_projet, $id_compte]);
     }
 }
 
 $message = "";
 
-if (isset($_POST["nom_projet"], $_POST["description"], $_POST["confidentialite"])) {
-    $nom_projet = trim($_POST["nom_projet"]);
+if (isset($_POST["nom_experience"], $_POST["validation"], 
+          $_POST["description"], $_POST["date_reservation"], 
+          $_POST["heure_debut"], $_POST["heure_fin"], $_POST["statut_experience"])) {
+    $nom_experience = trim($_POST["nom_experience"]);
+    $validation = $_POST["validation"];
     $description = trim($_POST["description"]);
-    $confidentialite = $_POST["confidentialite"];
+    $date_reservation = $_POST["date_reservation"];
+    $heure_debut = $_POST["heure_debut"];
+    $heure_fin = $_POST["heure_fin"];
+    $statut_experiecnce = $_POST["statut_experience"];
     
     // Gestion des tableaux pour participants
     $gestionnaires = isset($_POST["gestionnaires"]) ? (array)$_POST["gestionnaires"] : [];
