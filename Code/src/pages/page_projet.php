@@ -11,7 +11,7 @@ $id_projet = isset($_GET['id_projet']) ? (int)$_GET['id_projet'] : 0;
 $erreur = null;
 
 if ($id_projet === 0) {
-    $erreur = "❌ ID de projet manquant.";
+    $erreur = "ID de projet manquant.";
 }
 
 
@@ -246,7 +246,7 @@ function charger_donnees_projet(PDO $bdd, int $id_compte, int $id_projet): array
     
     if (!$stmt->fetch()) {
         return [
-            'erreur' => "❌ Désolé, ce projet n'existe pas.",
+            'erreur' => "Désolé, ce projet n'existe pas.",
             'projet' => null,
             'gestionnaires' => [],
             'collaborateurs' => [],
@@ -259,7 +259,7 @@ function charger_donnees_projet(PDO $bdd, int $id_compte, int $id_projet): array
     
     if ($projet === null) {
         return [
-            'erreur' => "⛔ Il s'agit d'un projet confidentiel auquel vous n'avez pas accès.",
+            'erreur' => "Il s'agit d'un projet confidentiel auquel vous n'avez pas accès.",
             'projet' => null,
             'gestionnaires' => [],
             'collaborateurs' => [],
@@ -279,7 +279,7 @@ function charger_donnees_projet(PDO $bdd, int $id_compte, int $id_projet): array
 
 // Récupération des données
 if ($id_projet === 0) {
-    $erreur = "❌ ID de projet manquant.";
+    $erreur = "ID de projet manquant.";
     $projet = null;
     $gestionnaires = [];
     $collaborateurs = [];
