@@ -3,7 +3,6 @@ require_once __DIR__ . '/../back_php/init_DB.php';
 require __DIR__ . '/../back_php/fonctions_site_web.php';
 
 $bdd = connectBDD();
-$_SESSION['ID_compte'] = 3; // TEMPORAIRE pour test
 
 function get_mes_projets_complets(PDO $bdd, int $id_compte): array {
     $sql_projets = "

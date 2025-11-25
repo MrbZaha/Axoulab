@@ -2,7 +2,6 @@
 
 include_once "../back_php/fonctions_site_web.php";
 $bdd = connectBDD();
-$_SESSION["ID_compte"] = 4;
 $user_ID = $_SESSION["ID_compte"];
 
 // ======================= FONCTION MODIFIER MDP =======================
