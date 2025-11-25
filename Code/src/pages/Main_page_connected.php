@@ -4,7 +4,6 @@ include_once '../back_php/fonctions_site_web.php';
 session_start();
 
 $bdd = connectBDD();
-
 ?>
 
 <!DOCTYPE html>
@@ -52,11 +51,8 @@ $bdd = connectBDD();
 
     <h1 style="text-align:center; color:#003366;">Derniers Projets</h1>
 
-    <!-- Doit être plus loin dans le code mais la section suivante fais planter le script -->
-    <?php afficher_Bandeau_Bas(); ?>
-
-
     <div class="grille-projets">
+
     <?php while ($donnees = $reponse->fetch()) { ?>
         <div class="projet">
             <h2><?= htmlspecialchars($donnees['Nom_du_projet']) ?></h2>
@@ -66,10 +62,11 @@ $bdd = connectBDD();
     <?php } 
         ?>
     </div>
+    <!-- Ne pas oublier d'ajouter les "ils nous soutiennent" -->
 
     <?php
     $reponse->closeCursor();
-?>
+    afficher_Bandeau_Bas(); ?>
 
 </body>
 </html>
