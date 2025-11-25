@@ -1,8 +1,7 @@
 <?php
 session_start();
-include_once "../back_php/fonctions_site_web.php";
+require "../back_php/fonctions_site_web.php";
 $bdd = connectBDD();
-$_SESSION["ID_compte"] = 3;
 
 // ======================= VERIFIER TAILLES DES CHAMPS =======================
 function verifier_champs_projet($nom_projet, $description) {
