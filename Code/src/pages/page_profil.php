@@ -67,27 +67,44 @@ if (isset($_POST['valider_mdp'])) {
     }
 }
 
-
 function modifier_photo_de_profil($user_ID) {
-    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
-        $tmp = $_FILES['photo']['tmp_name'];
-        $path = "../assets/profile_pictures/" . $user_ID . ".jpg";
-
-        // Vérifier le type MIME (jpeg ou png)
-        $allowed_types = ['image/jpeg', 'image/png'];
-        if (!in_array($_FILES['photo']['type'], $allowed_types)) {
-            echo "Type de fichier non autorisé !";
-            return;
-        }
-
-        move_uploaded_file($tmp, $path);
+    if (!isset($_FILES['photo']) || $_FILES['photo']['error'] !== UPLOAD_ERR_OK) {
+        return;
     }
+
+    $tmp = $_FILES['photo']['tmp_name'];
+    $type = exif_imagetype($tmp);
+    if (!in_array($type, [IMAGETYPE_JPEG, IMAGETYPE_PNG])) {
+        echo "Type de fichier non supporté. Seuls JPEG et PNG sont autorisés.";
+        return;
+    }
+
+    switch ($type) {
+        case IMAGETYPE_JPEG:
+            $image = imagecreatefromjpeg($tmp);
+            break;
+        case IMAGETYPE_PNG:
+            $image = imagecreatefrompng($tmp);
+            break;
+    }
+
+    if (!$image) return;
+
+    $destination = "../assets/profile_pictures/" . $user_ID . ".png";
+    imagepng($image, $destination);
+    imagedestroy($image);
+
+    $path = "../assets/profile_pictures/" . $user_ID . ".png";
 }
+
 
 // Vérifie si le formulaire a été soumis
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     modifier_photo_de_profil($user_ID);
+    $path = "../assets/profile_pictures/" . $user_ID . ".png";
+
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -101,21 +118,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <div class="profil-box">
     <!-- Section photo de profil -->
     <div class="avatar-section">
-      <form method="post" enctype="multipart/form-data">
-        <label for="photo">
-          <?php
-            $path = "../assets/profile_pictures/" . $user_ID . ".jpg";
-            if (!file_exists($path)) {
-                $path = "../assets/profile_pictures/model.jpg";
-            }
-            ?>
-          <img src="<?= $path ?>" alt="Photo de profil" class="avatar" />
-        </label>
-        <input type="file" name="photo" id="photo" onchange="this.form.submit()" hidden>
-            <?php modifier_photo_de_profil($user_ID);
-            ?>
-      </form>
-      <span class="role">Étudiant(e)</span>
+      <form method="post" enctype="multipart/form-data"> 
+    <label for="photo"> 
+      <?php
+      $path = "../assets/profile_pictures/" . $user_ID . ".png";
+      if (!file_exists($path)) {
+          $path = "../assets/profile_pictures/model.jpg";
+      }
+        ?> 
+        <img src="<?= $path . '?t=' . time() ?>" alt="Photo de profil" class="avatar" /> </label> <input type="file" name="photo" id="photo" onchange="this.form.submit()" hidden> <?php modifier_photo_de_profil($user_ID); ?> </form>      <span class="role">Étudiant(e)</span>
     </div>
     
     <!-- Infos personnelles -->

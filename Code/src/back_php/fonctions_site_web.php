@@ -109,7 +109,7 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                 <li id="User">
                     <a href="page_profil.php" class="user_logo">
                         <?php
-                        $path = "../assets/profile_pictures/" . $userID . ".jpg";
+                        $path = "../assets/profile_pictures/" . $userID . ".png";
                         if (!file_exists($path)) {
                             $path = "../assets/profile_pictures/model.jpg";
                         }
