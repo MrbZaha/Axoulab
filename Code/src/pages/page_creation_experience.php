@@ -82,14 +82,15 @@ if (isset($_POST["nom_projet"], $_POST["description"], $_POST["confidentialite"]
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Page de création de projet</title>
-    <link rel="stylesheet" href="../css/page_creation_projet.css">
+    <title>Page de création d'expérience</title>
+    <link rel="stylesheet" href="../css/page_creation_experience.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
+    <link rel="stylesheet" href="../css/Bandeau_bas.css">
 </head>
 <?php afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);?>
 <body>
     <div class="project-box">
-        <h2>Créer un projet</h2>
+        <h2>Créer une expérience</h2>
 
         <?php
         // Affiche le message si présent
@@ -97,28 +98,16 @@ if (isset($_POST["nom_projet"], $_POST["description"], $_POST["confidentialite"]
         ?>
 
         <form action="" method="post" autocomplete="off">
-            <label for="nom_projet">Nom du projet :</label>
-            <input type="text" id="nom_projet" name="nom_projet" value="<?= htmlspecialchars($_POST['nom_projet'] ?? '') ?>">
+            <label for="nom_experience">Nom de l'expérience :</label>
+            <input type="text" id="nom_experience" name="nom_experience" value="<?= htmlspecialchars($_POST['nom_experience'] ?? '') ?>">
 
             <label for="description">Description :</label>
             <textarea id="description" name="description"><?= htmlspecialchars($_POST['description'] ?? '') ?></textarea>
 
-            <label>Confidentiel :</label>
-            <div class="user-type">
-                <input type="radio" name="confidentialite" value="oui" id="oui" required <?= (($_POST['confidentialite'] ?? '') === 'oui') ? 'checked' : '' ?>>
-                <label for="oui">Oui</label>
+            <label for="experimentateur">Expérimentateur :</label>
+            <input type="text" id="experimentateur" name="experimentateur" value="<?= htmlspecialchars($_POST['experimentateur']?? '') ?>">
 
-                <input type="radio" name="confidentialite" value="non" id="non" required <?= (($_POST['confidentialite'] ?? '') === 'non') ? 'checked' : '' ?>>
-                <label for="non">Non</label>
-            </div>
-
-            <label for="gestionnaires">Gestionnaires :</label>
-            <input type="text" id="gestionnaires" name="gestionnaires[]" value="<?= htmlspecialchars($_POST['gestionnaires'][0] ?? '') ?>">
-
-            <label for="collaborateurs">Collaborateurs :</label>
-            <input type="text" id="collaborateurs" name="collaborateurs[]" value="<?= htmlspecialchars($_POST['collaborateurs'][0] ?? '') ?>">
-
-            <input type="submit" value="Créer le projet">
+            <input type="submit" value="Créer l'expérience">
         </form>
     </div>
 </body>

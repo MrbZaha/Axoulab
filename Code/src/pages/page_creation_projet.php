@@ -19,9 +19,30 @@ function verifier_champs_projet($nom_projet, $description) {
     return $erreurs;
 }
 
+// ======================= RÉCUPÉRER LISTE PERSONNES DISPONIBLES =======================
+function get_personnes_disponibles($bdd, $ids_exclus = [], $seulement_non_etudiants = false) {
+    $sql = "SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE validation = 1";
+    
+    if ($seulement_non_etudiants) {
+        $sql .= " AND Etat > 1";
+    }
+    
+    if (!empty($ids_exclus)) {
+        $placeholders = implode(',', array_fill(0, count($ids_exclus), '?'));
+        $sql .= " AND ID_compte NOT IN ($placeholders)";
+    }
+    
+    $sql .= " ORDER BY Nom, Prenom";
+    
+    $stmt = $bdd->prepare($sql);
+    $stmt->execute($ids_exclus);
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 // ======================= INSERER UN NOUVEAU PROJET =======================
 function creer_projet($bdd, $nom_projet, $description, $confidentialite, $id_compte) {
-    $date_creation = date('Y-m-d H:i:s');
+    $date_creation = date('Y-m-d');
     
     $stmt = $bdd->prepare("SELECT Etat FROM compte WHERE ID_compte = ?");
     $stmt->execute([$id_compte]);
@@ -29,7 +50,7 @@ function creer_projet($bdd, $nom_projet, $description, $confidentialite, $id_com
     $valide = ($etat == 1) ? 0 : 1;
 
     $sql = $bdd->prepare("
-        INSERT INTO projet (ID_projet, Nom_projet, Description, Confidentiel, Date_de_creation, Date_de_modification)
+        INSERT INTO projet (Nom_projet, Description, Confidentiel, Validation, Date_de_creation, Date_de_modification)
         VALUES (?, ?, ?, ?, ?, ?)
     ");
 
@@ -69,10 +90,22 @@ function ajouter_participants($bdd, $id_projet, $gestionnaires, $collaborateurs)
     }
 }
 
-// ======================= Récupérer tous les comptes valides =======================
-$stmt = $bdd->query("SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE Etat > 1 ORDER BY Nom, Prenom");
-$utilisateurs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// ======================= TROUVER ID PAR NOM COMPLET =======================
+function trouver_id_par_nom_complet($bdd, $nom_complet) {
+    $parts = explode(' ', trim($nom_complet), 2);
+    if (count($parts) < 2) return null;
+    
+    $prenom = trim($parts[0]);
+    $nom = trim($parts[1]);
+    
+    $stmt = $bdd->prepare("SELECT ID_compte FROM compte WHERE Prenom = ? AND Nom = ? AND validation = 1");
+    $stmt->execute([$prenom, $nom]);
+    return $stmt->fetchColumn();
+}
+
 $message = "";
+$gestionnaires_selectionnes = [];
+$collaborateurs_selectionnes = [];
 
 // Gérer la sélection des participants
 $gestionnaires_selectionnes = [];
@@ -137,7 +170,19 @@ if (isset($_POST["creer_projet"])) {
             $gestionnaires_selectionnes = [];
             $collaborateurs_selectionnes = [];
         } else {
-            $message = "<p style='color:red;'>Erreur lors de la création du projet.</p>";
+            // Enregistrer le projet
+            if (creer_projet($bdd, $nom_projet, $description, $confidentialite, $_SESSION["ID_compte"])) {
+                $id_projet = $bdd->lastInsertId();
+                
+                // Enregistrer les participants
+                ajouter_participants($bdd, $id_projet, $gestionnaires_selectionnes, $collaborateurs_selectionnes);
+                
+                // Redirection vers la page du projet créé
+                header("Location: page_projet.php?id_projet=" . $id_projet);
+                exit();
+            } else {
+                $message = "<p style='color:red;'>Erreur lors de la création du projet.</p>";
+            }
         }
     }
 }
@@ -243,7 +288,7 @@ function obtenir_nom_utilisateur($bdd, $id_compte) {
     </style>
 </head>
 <body>
-    <?php afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);?>
+    <?php afficher_Bandeau_Haut($bdd, $_SESSION["ID_compte"]); ?>
     <div class="project-box">
         <h2>Créer un projet</h2>
 
@@ -348,4 +393,5 @@ function obtenir_nom_utilisateur($bdd, $id_compte) {
     </div>
     <?php afficher_Bandeau_Bas(); ?>
 </body>
+<?php afficher_Bandeau_Bas(); ?>
 </html>

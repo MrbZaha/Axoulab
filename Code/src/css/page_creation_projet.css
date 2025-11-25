@@ -4,7 +4,6 @@ body {
     background-color: #f3f3f3;
     margin: 0;
     padding: 0;
-    /* SUPPRIMER display: flex et les propriétés de centrage */
     min-height: 100vh;
 }
 
@@ -14,10 +13,10 @@ body {
     padding: 40px;
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    width: 400px;
+    width: 600px;
     max-width: 90%;
-    margin: 50px auto; /* Centre horizontalement seulement */
-    display: block; /* S'assurer que c'est en block */
+    margin: 50px auto;
+    display: block;
 }
 
 /* ======================= FORMULAIRE ======================= */
@@ -28,132 +27,250 @@ form {
 
 /* ======================= TITRE ======================= */
 .project-box h2 {
-    text-align: center;             /* Centre le titre horizontalement */
-    color: #374693;                 /* Couleur bleu foncé */
-    margin-bottom: 20px;            /* Espace sous le titre */
+    text-align: center;
+    color: #374693;
+    margin-bottom: 20px;
 }
 
 /* Labels des champs */
 .project-box form label {
-    margin-top: 10px;               /* Espace au-dessus du label */
-    font-weight: bold;              /* Texte en gras pour les labels */
+    margin-top: 10px;
+    font-weight: bold;
 }
+
 /* Champs texte, date, textarea, select */
 .project-box input[type="text"],
 .project-box input[type="date"],
 .project-box textarea,
 .project-box select {
-    padding: 10px;                  /* Espacement interne à l’intérieur du champ */
-    margin-top: 5px;                /* Petit espace entre label et champ */
-    border: 1px solid #ccc;         /* Bordure grise autour du champ */
-    border-radius: 6px;             /* Coins légèrement arrondis */
-    font-size: 14px;                /* Taille de texte lisible */
-     box-sizing: border-box;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
 }
 
 /* Textarea pour la description */
 .project-box textarea {
-    resize: vertical;               /* L’utilisateur peut redimensionner verticalement */
-    min-height: 80px;               /* Hauteur minimale */
+    resize: vertical;
+    min-height: 80px;
 }
 
-/* ======================= BOUTON SUBMIT ======================= */
-.project-box input[type="submit"],.project-box button {
-    margin-top: 20px;               /* Espace au-dessus du bouton */
-    padding: 12px 20px;             /* Espacement interne du bouton */
-    background-color: #374693;      /* Couleur de fond bleu */
-    color: white;                   /* Texte blanc */
-    border: none;                   /* Supprime la bordure par défaut */
-    border-radius: 8px;             /* Coins arrondis */
-    font-size: 14px;                /* Taille du texte */
-    font-weight: bold;              /* Texte en gras */
-    cursor: pointer;                /* Curseur en forme de main au survol */
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Animation fluide */
+/* ======================= BOUTONS ======================= */
+.project-box input[type="submit"],
+.project-box button {
+    margin-top: 20px;
+    padding: 12px 20px;
+    background-color: #374693;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-/* Hover sur bouton */
-i.project-box input[type="submit"]:hover, .project-box button:hover {
-    background-color: #0462c6;      /* Change le fond en bleu plus foncé */
-    transform: scale(1.03);         /* Légère mise en avant du bouton */
+/* Hover sur bouton principal */
+.project-box input[type="submit"]:hover,
+.project-box button:hover {
+    background-color: #0462c6;
+    transform: scale(1.03);
 }
 
 /* ======================= RADIO BUTTONS ======================= */
 .project-box .user-type {
-    margin-top: 10px;               /* Espace au-dessus de la section radio */
+    margin-top: 10px;
 }
 
 .project-box .user-type input[type="radio"] {
-    margin-right: 5px;              /* Espace entre le bouton radio et le texte */
+    margin-right: 5px;
 }
 
 /* ======================= MESSAGES ======================= */
 .project-box .message-success {
-    color: #155724;                 /* Texte vert foncé */
-    background-color: #d4edda;      /* Fond vert clair */
-    padding: 12px;                   /* Espacement interne */
-    border-radius: 5px;              /* Coins arrondis */
-    border: 1px solid #c3e6cb;      /* Bordure verte claire */
-    margin-top: 15px;                /* Espace au-dessus du message */
-    text-align: center;              /* Centré horizontalement */
+    color: #155724;
+    background-color: #d4edda;
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid #c3e6cb;
+    margin-top: 15px;
+    text-align: center;
 }
 
 .project-box .message-error {
-    color: #721c24;                 /* Texte rouge foncé */
-    background-color: #f8d7da;      /* Fond rose clair */
-    padding: 12px;                   /* Espacement interne */
-    border-radius: 5px;              /* Coins arrondis */
-    border: 1px solid #f5c6cb;      /* Bordure rose */
-    margin-top: 15px;                /* Espace au-dessus du message */
-    text-align: center;              /* Centré horizontalement */
+    color: #721c24;
+    background-color: #f8d7da;
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid #f5c6cb;
+    margin-top: 15px;
+    text-align: center;
 }
 
-/* ======================= FLEX COLONNES ======================= */
-.project-box .form-columns {
-    display: flex;                  /* Flexbox pour diviser en colonnes */
-    gap: 20px;                      /* Espace entre les colonnes */
+/* ======================= SECTIONS PARTICIPANTS ======================= */
+.participants-section {
+    margin: 20px 0;
 }
 
-.project-box .colonne1, .colonne2 {
-    flex: 1;                        /* Chaque colonne prend la moitié */
-    display: flex;                  /* Flexbox interne pour aligner les champs */
-    flex-direction: column;         /* Empile les champs verticalement */
+.selection-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
 }
 
-.user-input-container {
-            margin-bottom: 20px;
-        }
-        .user-tag {
-            display: inline-block;
-            background: #e9ecef;
-            padding: 5px 10px;
-            border-radius: 15px;
-            margin: 5px 5px 5px 0;
-            font-size: 14px;
-        }
-        .user-tag button {
-            margin-left: 8px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .user-list {
-            min-height: 40px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 8px;
-            margin-top: 5px;
-            background: #f8f9fa;
-        }
-        .add-user-form {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .add-user-form input {
-            flex: 1;
-        }
+.selection-container input[type="text"] {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.btn-ajouter {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 0 !important;
+    transform: none !important;
+}
+
+.btn-ajouter:hover {
+    background-color: #45a049;
+    transform: none !important;
+}
+
+/* ======================= LISTE DES PERSONNES SÉLECTIONNÉES ======================= */
+.liste-selectionnes {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    min-height: 100px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+/* ======================= TAGS PERSONNES ======================= */
+.tag-personne {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: white;
+    font-weight: 500;
+    gap: 8px;
+    transition: opacity 0.2s ease;
+}
+
+.tag-personne:hover {
+    opacity: 0.9;
+}
+
+.tag-admin {
+    background-color: #ff5722;
+}
+
+.tag-chercheur {
+    background-color: #2196F3;
+}
+
+.tag-etudiant {
+    background-color: #9E9E9E;
+}
+
+/* ======================= BOUTON CROIX DE SUPPRESSION ======================= */
+.btn-croix {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    margin: 0 !important;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+    transform: none !important;
+}
+
+.btn-croix:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+    transform: none !important;
+}
+
+/* ======================= TEXTE INFORMATIF ======================= */
+.info-text {
+    color: #666;
+    font-size: 13px;
+    font-style: italic;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+/* ======================= LISTE VIDE ======================= */
+.liste-vide {
+    color: #999;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+}
+
+/* ======================= ANCIENNES CLASSES (GARDÉES POUR COMPATIBILITÉ) ======================= */
+.badge {
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 8px;
+}
+
+.badge-admin {
+    background-color: #ff5722;
+    color: white;
+}
+
+.badge-chercheur {
+    background-color: #2196F3;
+    color: white;
+}
+
+.badge-etudiant {
+    background-color: #9E9E9E;
+    color: white;
+}
+
+/* ======================= RESPONSIVE ======================= */
+@media (max-width: 768px) {
+    .project-box {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    .selection-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .btn-ajouter {
+        width: 100%;
+    }
+    
+    .tag-personne {
+        font-size: 12px;
+        padding: 5px 10px;
+    }
+}
