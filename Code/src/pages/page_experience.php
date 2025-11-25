@@ -204,7 +204,7 @@ function afficher_experience(array $experience, array $experimentateurs, array $
                         </p>
                         
                         <p><strong>Validation :</strong> 
-                            <?= $experience['Validation'] ? '✅ Validée' : '⏳ En attente' ?>
+                            <?= $experience['Validation'] ? 'Validée' : 'En attente' ?>
                         </p>
                         
                         <?php if (!empty($experience['Nom_projet'])): ?>
@@ -298,7 +298,7 @@ function charger_donnees_experience(PDO $bdd, int $id_compte, int $id_experience
     
     if (!$stmt->fetch()) {
         return [
-            'erreur' => "❌ Désolé, cette expérience n'existe pas.",
+            'erreur' => "Désolé, cette expérience n'existe pas.",
             'experience' => null,
             'experimentateurs' => [],
             'salles_materiel' => []
@@ -308,7 +308,7 @@ function charger_donnees_experience(PDO $bdd, int $id_compte, int $id_experience
     // Vérifier l'accès
     if (!verifier_acces_experience($bdd, $id_compte, $id_experience)) {
         return [
-            'erreur' => "⛔ Vous n'avez pas accès à cette expérience.",
+            'erreur' => "Vous n'avez pas accès à cette expérience.",
             'experience' => null,
             'experimentateurs' => [],
             'salles_materiel' => []
@@ -327,7 +327,7 @@ function charger_donnees_experience(PDO $bdd, int $id_compte, int $id_experience
 // ========== EXÉCUTION ==========
 
 if ($id_experience === 0) {
-    $erreur = "❌ ID d'expérience manquant.";
+    $erreur = "ID d'expérience manquant.";
     $experience = null;
     $experimentateurs = [];
     $salles_materiel = [];

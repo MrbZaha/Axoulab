@@ -6,7 +6,7 @@ session_start();
 include_once '../back_php/fonctions_site_web.php';
 
 //fonction utilisée dans cette page
-// ======================= 2. VÉRIFICATION FORCE DU MOT DE PASSE =======================
+// ======================= VÉRIFICATION FORCE DU MOT DE PASSE =======================
 /* Vérifie que le mot de passe respecte les règles de sécurité :
    - Au moins 8 caractères
    - Au moins une majuscule
@@ -24,13 +24,13 @@ function verifier_mdp($mdp) {
     return $erreurs;
 }
 
-// ======================= 4. COMPARAISON DE MOT DE PASSE =======================
+// ======================= COMPARAISON DE MOT DE PASSE =======================
 /* Vérifie si deux mots de passe sont identiques (mot de passe et "réécrire mot de passe") */
 function mot_de_passe_identique($mdp1, $mdp2) {
     return $mdp1 === $mdp2;
 }
 
-// ======================= 5. VALIDATION EMAIL AXOULAB =======================
+// =======================  VALIDATION EMAIL AXOULAB =======================
 /* Vérifie que l'email est au format prenom.nom@axoulab.fr
    Retourne true si le format est correct, false sinon */
 function verifier_email_axoulab($email) {

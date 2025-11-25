@@ -107,7 +107,7 @@ function afficher_Bandeau_Haut($bdd, $userID) {
 
                 <!-- Icône utilisateur -->
                 <li id="User">
-                    <a href="mon_profil.php" class="user_logo">
+                    <a href="page_profil.php" class="user_logo">
                         <?php
                         $path = "../assets/profile_pictures/" . $userID . ".jpg";
                         if (!file_exists($path)) {
