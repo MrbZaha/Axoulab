@@ -5,10 +5,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0px 20px;
+    padding: 0px 0px;
     border-radius: 0px; 
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin : 0px 0px 60px 0px;                    /* On met de l'espace entre le bandeau et le dessous du bandeau */
+    margin : 0px 0px 0px 0px;                    /* On met de l'espace entre le bandeau et le dessous du bandeau */
     border-top: 3px solid rgb(244, 224, 127);
 
     /* background: -webkit-linear-gradient (right , black, blue );
@@ -16,6 +16,11 @@
     background: -moz-linear-gradient (right , blue , white , red );
     background: -ms-linear-gradient (to right , blue , white , red);
     background: linear-gradient (to right , blue , white , red); */
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
 }
 
 .titre {

@@ -84,7 +84,7 @@ function get_info_experience(PDO $bdd, int $id_experience): ?array {
             e.Heure_fin,
             e.Validation,
             e.Resultat,
-            e.Fin_experience,
+            e.Statut_experience,
             p.ID_projet,
             p.Nom_projet
         FROM experience e
@@ -198,8 +198,8 @@ function afficher_experience(array $experience, array $experimentateurs, array $
                         <p><strong>Horaires :</strong> <?= substr($experience['Heure_debut'], 0, 5) ?> - <?= substr($experience['Heure_fin'], 0, 5) ?></p>
                         
                         <p><strong>Statut :</strong> 
-                            <span class="badge <?= $experience['Fin_experience'] ? 'badge-termine' : 'badge-en-cours' ?>">
-                                <?= $experience['Fin_experience'] ? 'Terminée' : 'En cours' ?>
+                            <span class="badge <?= $experience['Statut_experience'] ? 'badge-termine' : 'badge-en-cours' ?>">
+                                <?= $experience['Statut_experience'] ? 'Terminée' : 'En cours' ?>
                             </span>
                         </p>
                         
@@ -210,7 +210,7 @@ function afficher_experience(array $experience, array $experimentateurs, array $
                         <?php if (!empty($experience['Nom_projet'])): ?>
                             <h4>Projet lié</h4>
                             <p>
-                                <a href="projet.php?id_projet=<?= $experience['ID_projet'] ?>" class="link-projet">
+                                <a href="page_projet.php?id_projet=<?= $experience['ID_projet'] ?>" class="link-projet">
                                     <?= htmlspecialchars($experience['Nom_projet']) ?>
                                 </a>
                             </p>
@@ -246,7 +246,48 @@ function afficher_experience(array $experience, array $experimentateurs, array $
     </div>
     <?php
 }
+function maj_bdd_experience(PDO $bdd) {
+    $now = new DateTime();
+    $now_datetime = new DateTime($now->format('Y-m-d H:i'));
 
+    // Sélection uniquement des expériences non terminées
+    $sql = "
+        SELECT ID_experience, 
+        Date_reservation, 
+        Heure_fin, 
+        Statut_experience
+        FROM experience
+        WHERE Statut_experience = 0
+    ";
+    $stmt = $bdd->prepare($sql);
+    $stmt->execute();
+    $experiences = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($experiences as $exp) {
+        // Création d'un DateTime complet pour la fin de l'expérience
+        $exp_datetime_fin = new DateTime($exp['Date_reservation'] . ' ' . $exp['Heure_fin']);
+
+        // Mise à jour uniquement si l'expérience est passée
+        if ($exp_datetime_fin < $now_datetime) {
+            modifie_value_exp($bdd, $exp["ID_experience"], 1);
+        }
+    }
+}
+
+function modifie_value_exp(PDO $bdd, int $id, int $value) {
+    $sql_maj_bdd = "
+        UPDATE experience
+        SET Statut_experience = :Statut_experience
+        WHERE ID_experience = :id
+    ";
+
+    $stmt = $bdd->prepare($sql_maj_bdd);
+    $stmt->execute([
+        ':Statut_experience' => $value,
+        ':id' => $id
+    ]);
+}
+// METTRE CES FONCTIONS DANS TOUTES LES PAGES RELATIVES AUX EXP2RIENCE
 // ========== CHARGEMENT DES DONNÉES ==========
 
 function charger_donnees_experience(PDO $bdd, int $id_compte, int $id_experience): array {
@@ -307,20 +348,22 @@ $page_title = $experience ? htmlspecialchars($experience['Nom']) : "Expérience"
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?></title>
-    <link rel="stylesheet" href="../css/experience.css">
+    <link rel="stylesheet" href="../css/page_experience.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body>
 <?php afficher_Bandeau_Haut($bdd, $id_compte); ?>
-
+<body>
+<div class="experiences">
 <?php if ($erreur): ?>
     <?php afficher_erreur($erreur); ?>
 <?php else: ?>
     <?php afficher_experience($experience, $experimentateurs, $salles_materiel); ?>
 <?php endif; ?>
 
-<?php afficher_Bandeau_Bas(); ?>
+</div>
 </body>
+<?php afficher_Bandeau_Bas(); ?>
+
 </html>

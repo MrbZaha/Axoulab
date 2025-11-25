@@ -28,7 +28,7 @@ CREATE TABLE experience (
     Heure_debut TIME,
     Heure_fin TIME,
     Resultat VARCHAR(4000),
-    Fin_experience TINYINT DEFAULT 0
+    Statut_experience TINYINT DEFAULT 0
 ) ENGINE=InnoDB;
 
 CREATE TABLE salle_materiel (

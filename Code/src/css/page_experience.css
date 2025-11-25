@@ -1,0 +1,134 @@
+/* Reset sélectif - UNIQUEMENT pour le contenu, pas le bandeau */
+.projets,
+.project-container,
+.project-main,
+.section-projets,
+.materiel-list,
+.materiel-card {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.link-projet{
+    color: #2b5f7e;
+    text-decoration: none;
+}
+.link-projet:hover {
+    color: #9a2666; /* bleu plus foncé au survol */
+}
+/* Nouveau wrapper principal */
+.experience-page {
+    width: 100%;
+    max-width: 1100px;
+    margin: 10 auto;
+    padding: 20px;
+}
+
+.experiences {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #1a1a1a;
+    font-size: 2rem;
+    margin: 30px 0;
+}
+
+/* Titres */
+.section-projets {
+    margin-bottom: 30px;
+}
+
+.section-projets h2 {
+    color: #2b5f7e;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 25px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #2b5f7e;
+}
+
+/* Layout */
+.project-main {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+    margin-bottom: 35px;
+}
+
+/* Cartes */
+.project-description,
+.project-info {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.project-description p,
+.project-info p {
+    font-size: 15px;
+    color: #555;
+}
+
+/* Badges */
+.badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.badge-en-cours {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffc107;
+}
+.badge-termine {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #28a745;
+}
+
+/* Matériel */
+.materiel-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
+    gap: 15px;
+}
+
+.materiel-card {
+    background-color: #fff;
+    padding: 18px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    transition: .2s;
+}
+.materiel-card:hover {
+    border-color: #2b5f7e;
+    transform: translateY(-2px);
+}
+
+/* Erreur */
+.error-message {
+    padding: 20px;
+    background-color: #fee;
+    border: 1px solid #fcc;
+    color: #c00;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 600px;
+    margin: 30px auto;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+    .project-main {
+        grid-template-columns: 1fr;
+    }
+}
+

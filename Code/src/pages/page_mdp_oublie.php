@@ -34,7 +34,7 @@ if (!empty($_POST["email"])) {
     <!-- Création de la page de connexion-->
     <meta charset="UTF-8">
     <title>Réinitialisation du mot de passe </title>
-    <link rel="stylesheet" href="../css/page_mdp_oublie_style.css">
+    <link rel="stylesheet" href="../css/page_mdp_oublie.css">
 
 </head>
 

@@ -142,7 +142,7 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
     <!-- Création de la page de connexion-->
     <meta charset="UTF-8">
     <title>Page de connexion</title>
-    <link rel="stylesheet" href="../css/page_connexion_style.css">
+    <link rel="stylesheet" href="../css/page_connexion.css">
 
 </head>
 <body>
