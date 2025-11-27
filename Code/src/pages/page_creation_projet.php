@@ -2,7 +2,7 @@
 session_start();
 require "../back_php/fonctions_site_web.php";
 $bdd = connectBDD();
-$bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // Pour debug PDO
+$bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 // ======================= VERIFIER TAILLES DES CHAMPS =======================
 function verifier_champs_projet($nom_projet, $description) {
@@ -157,23 +157,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Ajouter participants
                 ajouter_participants($bdd, $id_projet, $gestionnaires_selectionnes, $collaborateurs_selectionnes);
 
-                // ======================= ENVOYER NOTIFICATIONS =======================
-                // Inclure automatiquement le créateur comme gestionnaire si non déjà dans la liste
-                if (!in_array($_SESSION["ID_compte"], $gestionnaires_selectionnes)) {
-                 $gestionnaires_selectionnes[] = $_SESSION["ID_compte"];
-                }
-
-                $donnees = ['Nom_projet' => $nom_projet, 'ID_projet' => $id_projet];     
-
-                // Type 11 → aux autres gestionnaires (sauf créateur)
-                $gestionnaires_dest = array_diff($gestionnaires_selectionnes, [$_SESSION["ID_compte"]]);
+                // ======================= ENVOYER NOTIFICATIONS AUX AUTRES GESTIONNAIRES =======================
+                // Ici on n’envoie PAS de notification au créateur lors de la création
+                $gestionnaires_dest = array_values(array_diff($gestionnaires_selectionnes, [$_SESSION["ID_compte"]]));
                 if (!empty($gestionnaires_dest)) {
-                 envoyerNotification($bdd, 11, $_SESSION["ID_compte"], $donnees, $gestionnaires_dest);
+                    $donnees = ['Nom_projet' => $nom_projet, 'ID_projet' => $id_projet];
+                    // type 11 = proposition de création de projet (comme défini dans ton système)
+                    // envoyerNotification gère l'insertion dans notification_projet (fonction dans fonctions_site_web.php)
+                    $ok = envoyerNotification($bdd, 11, $_SESSION["ID_compte"], $donnees, $gestionnaires_dest);
+
+                    // debug - log des destinataires
+                    error_log("Envoi notif type 11 projet $id_projet de " . $_SESSION["ID_compte"] . " vers : " . implode(',', $gestionnaires_dest));
                 }
-
-                // Type 15 → notification projet créé pour le créateur
-                envoyerNotification($bdd, 15, $_SESSION["ID_compte"], $donnees, [$_SESSION["ID_compte"]]);
-
 
                 // Réinitialiser les sélections
                 $gestionnaires_selectionnes = [];

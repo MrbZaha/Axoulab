@@ -49,11 +49,53 @@ function recuperer_id_compte($bdd, $email) {
 
 // =======================  AFFICHAGE BANDEAU DU HAUT =======================
 /* Affiche le Bandeau du haut */
-
 function afficher_Bandeau_Haut($bdd, $userID) {
+    // Traitement des actions de notifications POST
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_notif'], $_POST['action_notif'], $_POST['is_projet'])) {
+        $idNotif = intval($_POST['id_notif']);
+        $action = $_POST['action_notif'];
+        $isProjet = intval($_POST['is_projet']);
+        $idUtilisateur = $_SESSION['ID_compte'];
+
+        $table = $isProjet ? "notification_projet" : "notification_experience";
+        $idCol = $isProjet ? "ID_notification_projet" : "ID_notification_experience";
+
+        // Récupérer la notification
+        $stmt = $bdd->prepare("SELECT * FROM $table WHERE $idCol = ?");
+        $stmt->execute([$idNotif]);
+        $notif = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($notif) {
+            $idProjet = $notif['ID_projet'] ?? null;
+            $idEnvoyeurOriginal = $notif['ID_compte_envoyeur'];
+
+            $nouvelEtat = 0;
+            $typeRetour = 0;
+
+            switch ($action) {
+                case "valider": $nouvelEtat = 1; $typeRetour = $isProjet ? 12 : 2; break;
+                case "rejeter": $nouvelEtat = 2; $typeRetour = $isProjet ? 13 : 3; break;
+                case "modifier": $nouvelEtat = 3; $typeRetour = $isProjet ? 14 : 4; break;
+            }
+
+            // Mettre à jour la notification
+            $update = $bdd->prepare("UPDATE $table SET Valider = ? WHERE $idCol = ?");
+            $update->execute([$nouvelEtat, $idNotif]);
+
+            // Envoyer notif de retour au créateur si ce n’est pas soi-même
+            if ($idEnvoyeurOriginal != $idUtilisateur) {
+                envoyerNotification($bdd, $typeRetour, $idUtilisateur, ["ID_projet" => $idProjet], [$idEnvoyeurOriginal]);
+            }
+        }
+
+        // Recharger la page pour actualiser l'affichage
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
+    }
+
+    // Récupération des notifications
     $notifications = get_last_notif($bdd, $userID);
-    // Compter les notifications non traitées (Valide = 0)
-    $nb_non_traitees = count(array_filter($notifications, function($n) { return $n['valide'] == 0; }));
+    $nb_non_traitees = count(array_filter($notifications, fn($n) => $n['valide'] == 0));
     ?>
 
     <nav class="site_nav">
@@ -92,47 +134,39 @@ function afficher_Bandeau_Haut($bdd, $userID) {
 
                     <div class="overlay">
                         <h3 class="overlay-title">Notifications</h3>
-                        
+
                         <?php if (empty($notifications)): ?>
                             <p class="no-notif">Aucune notification pour le moment.</p>
                         <?php else: ?>
                             <div class="notifications-list">
                                 <?php foreach ($notifications as $notif): ?>
-                                    <div class="notif-card <?= $notif['valide'] == 0 ? 'notif-non-traitee' : 'notif-traitee' ?>" 
-                                         data-id="<?= $notif['id'] ?>"
-                                         data-is-projet="<?= $notif['is_projet'] ? '1' : '0' ?>">
-                                        
+                                    <div class="notif-card <?= $notif['valide'] == 0 ? 'notif-non-traitee' : 'notif-traitee' ?>" >
                                         <div class="notif-content">
                                             <p class="notif-texte"><?= htmlspecialchars($notif['texte']) ?></p>
                                             <small class="notif-date"><?= htmlspecialchars($notif['date']) ?></small>
                                         </div>
-                                        
+
                                         <?php if ($notif['valide'] == 0): ?>
-                                            <!-- Notification non traitée : afficher les boutons d'action -->
                                             <div class="notif-actions">
-                                                <?php if (in_array('valider', $notif['actions'])): ?>
-                                                    <button class="btn-action btn-valider" 
-                                                            onclick="traiterNotif(<?= $notif['id'] ?>, 'valider', <?= $notif['is_projet'] ? '1' : '0' ?>)">
-                                                        <?= count($notif['actions']) > 1 ? '✓ Valider' : '✓ Marquer comme lu' ?>
-                                                    </button>
-                                                <?php endif; ?>
-                                                
-                                                <?php if (in_array('rejeter', $notif['actions'])): ?>
-                                                    <button class="btn-action btn-rejeter" 
-                                                            onclick="traiterNotif(<?= $notif['id'] ?>, 'rejeter', <?= $notif['is_projet'] ? '1' : '0' ?>)">
-                                                        ✗ Rejeter
-                                                    </button>
-                                                <?php endif; ?>
-                                                
-                                                <?php if (in_array('modifier', $notif['actions'])): ?>
-                                                    <button class="btn-action btn-modifier" 
-                                                            onclick="traiterNotif(<?= $notif['id'] ?>, 'modifier', <?= $notif['is_projet'] ? '1' : '0' ?>)">
-                                                        ✎ Demander modification
-                                                    </button>
-                                                <?php endif; ?>
+                                                <?php foreach ($notif['actions'] as $act): ?>
+                                                    <form method="post" style="display:inline;">
+                                                        <input type="hidden" name="id_notif" value="<?= $notif['id'] ?>">
+                                                        <input type="hidden" name="action_notif" value="<?= $act ?>">
+                                                        <input type="hidden" name="is_projet" value="<?= $notif['is_projet'] ? 1 : 0 ?>">
+                                                        <button type="submit">
+                                                            <?php
+                                                            echo match($act) {
+                                                                'valider' => '✓ Valider',
+                                                                'rejeter' => '✗ Rejeter',
+                                                                'modifier' => '✎ Demander modification',
+                                                                default => 'Action'
+                                                            };
+                                                            ?>
+                                                        </button>
+                                                    </form>
+                                                <?php endforeach; ?>
                                             </div>
                                         <?php else: ?>
-                                            <!-- Notification traitée : afficher le statut -->
                                             <div class="notif-statut">
                                                 <?php if ($notif['valide'] == 1): ?>
                                                     <span class="statut-validee">✓ <?= $notif['statut_texte'] ?></span>
@@ -143,7 +177,7 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                                                 <?php endif; ?>
                                             </div>
                                         <?php endif; ?>
-                                        
+
                                         <a href="<?= htmlspecialchars($notif['link']) ?>" class="notif-link">Voir détails →</a>
                                     </div>
                                 <?php endforeach; ?>
@@ -159,9 +193,7 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                     <a href="page_profil.php" class="user_logo">
                         <?php
                         $path = "../assets/profile_pictures/" . $userID . ".jpg";
-                        if (!file_exists($path)) {
-                            $path = "../assets/profile_pictures/model.jpg";
-                        }
+                        if (!file_exists($path)) $path = "../assets/profile_pictures/model.jpg";
                         ?>
                         <img src="<?= $path ?>" alt="Photo de profil">
                     </a>
@@ -169,43 +201,9 @@ function afficher_Bandeau_Haut($bdd, $userID) {
             </ul>
         </div>
     </nav>
-
-    <script>
-    function traiterNotif(idNotif, action, isProjet) {
-        const messages = {
-            'valider': 'Êtes-vous sûr de vouloir valider cette notification ?',
-            'rejeter': 'Êtes-vous sûr de vouloir rejeter cette proposition ?',
-            'modifier': 'Êtes-vous sûr de vouloir demander une modification ?'
-        };
-        
-        if (!confirm(messages[action] || 'Confirmer cette action ?')) {
-            return;
-        }
-        
-        fetch('../back_php/traiter_notification.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `id=${idNotif}&action=${action}&is_projet=${isProjet}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Erreur: ' + (data.message || 'Une erreur est survenue'));
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-            alert('Erreur lors du traitement de la notification');
-        });
-    }
-    </script>
-
     <?php
 }
+
 
 
 // =======================  VÉRIFIER SI ADMIN =======================
