@@ -6,48 +6,45 @@
     padding: 30px 20px;
     border-radius: 0px; 
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    /* margin : 0px 0px 60px 0px;                    On met de l'espace entre le bandeau et le dessous du bandeau */
     border-bottom: 3px solid rgb(244, 224, 127);
 }
 
 body{
- margin: 0px;
+    margin: 0px;
 }
 
-/* Conteneur global de la searchbar */
+/* ======================= SEARCHBAR ======================= */
 .searchbar {
     position: relative;
     display: flex;
     align-items: center;
-    background-color: #eee7f3; /* couleur proche du modèle figma */
-    border-radius: 999px;        /* arrondi "pilule" */
+    background-color: #eee7f3;
+    border-radius: 999px;
     padding: 12px 20px;
-    width: 380px;                /* j'adapte la largeur */
+    width: 380px;
 }
 
-/* Champ de texte */
 .searchbar input[type="text"] {
     border: none;
-    background: transparent;  /* le fond est celui du container */
+    background: transparent;
     font-size: 18px;
     outline: none;
     padding: 0;
-    flex: 1;                  /* prend toute la largeur disponible */
+    flex: 1;
     color: #464646;
 }
 
-/* Icône de recherche */
 .searchbar-icon {
     position: absolute;
     right: 18px;
     font-size: 18px;
     color: #666;
     cursor: pointer;
-    top: 50%;                 /* centrage vertical réel */
+    top: 50%;
     transform: translateY(-50%);
 }
 
-
+/* ======================= NAVIGATION ======================= */
 #site_nav_main {
     display: flex;
     align-items: center;
@@ -71,52 +68,80 @@ body{
 }
 
 .Links:hover {
-    color: #000000; /* bleu plus foncé au survol */
+    color: #000000;
 }
 
-.notif_logo img{
-    width:50px;
+/* ======================= LOGOS ======================= */
+.notif_logo {
+    position: relative;
+    display: inline-block;
+}
+
+.notif_logo img {
+    width: 50px;
     object-fit: contain;
     padding: 0px 20px 0px 20px;
     transform: rotate(20deg);
     cursor: pointer;
 }
 
-.user_logo img{
+.user_logo img {
     display: block;
-    width:50px;
+    width: 50px;
+    object-fit: contain;
+    padding: 0px 30px 0px 30px;
+    border-radius: 50%;
+}
+
+.lab_logo img {
+    width: 50px;
     object-fit: contain;
     padding: 0px 30px 0px 30px;
 }
 
-.lab_logo img{
-    width:50px;
-    object-fit: contain;
-    padding: 0px 30px 0px 30px;
+/* ======================= SYSTÈME DE NOTIFICATIONS ======================= */
 
-}
-
-/* --- Overlay complet --- */
+/* Conteneur principal des notifications */
 #Notif {
     position: relative;
 }
 
-/* Overlay */
+/* Badge compteur de notifications non lues */
+.notif-badge {
+    position: absolute;
+    top: 8px;
+    right: 15px;
+    background: #ff4444;
+    color: white;
+    border-radius: 50%;
+    padding: 3px 7px;
+    font-size: 11px;
+    font-weight: bold;
+    min-width: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Overlay des notifications */
 #Notif .overlay {
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
-    width: 350px;
-    max-height: 300px;       /* fixe la hauteur max pour activer scroll */
+    width: 420px;
+    max-height: 500px;
     background: #fff;
     border-radius: 12px;
-    padding: 12px;
     box-shadow: 0 4px 25px rgba(0,0,0,0.15);
-    overflow-y: auto;        /* scroll vertical */
-    display: none;           /* caché par défaut */
+    display: none;
     flex-direction: column;
-    gap: 12px;
     z-index: 9999;
+    overflow: hidden;
 }
 
 /* Affichage quand checkbox coché */
@@ -124,47 +149,247 @@ body{
     display: flex;
 }
 
-/* Notification */
-#Notif .notif_case {
-    background: #f7f7f7;
-    padding: 12px 15px;
-    border-radius: 10px;
-    border-left: 4px solid #3a7afe;   /* petit accent de couleur */
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    font-size: 14px;
-    line-height: 1.4;
+/* Titre de l'overlay */
+.overlay-title {
+    padding: 18px 20px;
+    margin: 0;
+    border-bottom: 2px solid #f0f0f0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    background: #fafafa;
+    font-family:'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
-#Notif .notif_case small {
-    display:block;
-    text-decoration: none;      /* enlève le souligné */
-    color: inherit;             /* garde la couleur du texte normal */
-    margin-top:6px;
-    color:#777;
-    font-size:12px;
+/* Liste scrollable des notifications */
+.notifications-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    max-height: 400px;
+}
+
+/* Carte de notification individuelle */
+.notif-card {
+    background: #f7f7f7;
+    border-left: 4px solid #3a7afe;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.notif-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateX(-3px);
+}
+
+/* Notification non traitée = non lue (en surbrillance) */
+.notif-non-traitee {
+    background: #e7f3ff;
+    border-left-color: #0056b3;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(58, 122, 254, 0.15);
+}
+
+/* Notification traitée = lue (plus discrète) */
+.notif-traitee {
+    opacity: 0.75;
+    background: #f1f3f5;
+    border-left-color: #999;
+}
+
+/* Contenu de la notification */
+.notif-content {
+    margin-bottom: 10px;
+}
+
+.notif-texte {
+    margin: 0 0 6px 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+    font-family:'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.notif-date {
+    display: block;
+    color: #777;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+/* Actions sur les notifications */
+.notif-actions {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0 8px 0;
+    flex-wrap: wrap;
+}
+
+.btn-action {
+    padding: 7px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-family:'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-action:active {
+    transform: translateY(0);
+}
+
+.btn-valider {
+    background: #28a745;
+    color: white;
+}
+
+.btn-valider:hover {
+    background: #218838;
+}
+
+.btn-rejeter {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-rejeter:hover {
+    background: #c82333;
+}
+
+.btn-modifier {
+    background: #ffc107;
+    color: #000;
+}
+
+.btn-modifier:hover {
+    background: #e0a800;
+}
+
+/* Statuts des notifications traitées */
+.notif-statut {
+    margin: 10px 0;
+}
+
+.statut-validee {
+    display: inline-block;
+    padding: 5px 12px;
+    background: #d4edda;
+    color: #155724;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #c3e6cb;
+}
+
+.statut-refusee {
+    display: inline-block;
+    padding: 5px 12px;
+    background: #f8d7da;
+    color: #721c24;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #f5c6cb;
+}
+
+.statut-modif {
+    display: inline-block;
+    padding: 5px 12px;
+    background: #fff3cd;
+    color: #856404;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #ffeaa7;
+}
+
+/* Lien "Voir détails" */
+.notif-link {
+    display: inline-block;
+    margin-top: 8px;
+    color: #3a7afe;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.notif-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Message "aucune notification" */
+.no-notif {
+    text-align: center;
+    color: #999;
+    padding: 40px 20px;
+    font-style: italic;
+    font-size: 14px;
 }
 
 /* Bouton fermer */
 #Notif .close_overlay {
     display: block;
-    margin-top: 10px;
+    padding: 14px;
     text-align: center;
-    padding: 8px;
-    background: #e6e6e6;
-    border-radius: 8px;
+    background: #f1f3f5;
     cursor: pointer;
     font-size: 14px;
-}
-
-#Notif .notif_case:visited {
-    color: inherit;             /* évite le violet */
-}
-
-#Notif .notif_case:hover {
-    background: #ededed;        /* petit effet au survol (optionnel) */
-    cursor: pointer;
+    font-weight: 500;
+    color: #495057;
+    border-top: 2px solid #dee2e6;
+    transition: background 0.2s;
+    font-family:'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
 #Notif .close_overlay:hover {
-    background: #d3d3d3;
+    background: #e9ecef;
+}
+
+/* Scrollbar personnalisée pour la liste */
+.notifications-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.notifications-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 10px;
+}
+
+.notifications-list::-webkit-scrollbar-thumb:hover {
+    background: #888;
+}
+
+/* Responsive pour petits écrans */
+@media (max-width: 768px) {
+    #Notif .overlay {
+        width: 90vw;
+        right: 5vw;
+        left: 5vw;
+    }
+    
+    .notif-actions {
+        flex-direction: column;
+    }
+    
+    .btn-action {
+        width: 100%;
+    }
 }

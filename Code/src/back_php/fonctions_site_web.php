@@ -51,6 +51,9 @@ function recuperer_id_compte($bdd, $email) {
 /* Affiche le Bandeau du haut */
 
 function afficher_Bandeau_Haut($bdd, $userID) {
+    $notifications = get_last_notif($bdd, $userID);
+    // Compter les notifications non traitées (Valide = 0)
+    $nb_non_traitees = count(array_filter($notifications, function($n) { return $n['valide'] == 0; }));
     ?>
 
     <nav class="site_nav">
@@ -78,28 +81,74 @@ function afficher_Bandeau_Haut($bdd, $userID) {
 
                 <!-- Icône notification -->
                 <li id="Notif">
-                    <!-- Icone notification -->
                     <label for="notif_toggle" class="notif_logo">
                         <img src="../assets/Notification_logo.png" alt="Notification">
+                        <?php if ($nb_non_traitees > 0): ?>
+                            <span class="notif-badge"><?= $nb_non_traitees ?></span>
+                        <?php endif; ?>
                     </label>
 
-                    <!-- Checkbox pour toggle -->
                     <input type="checkbox" id="notif_toggle" hidden>
 
-                    <!-- Overlay notifications -->
                     <div class="overlay">
-                        <?php
-                        $notifications = get_last_notif($bdd, $userID);
-                        if (empty($notifications)) {
-                            echo "<p>Aucune notification pour le moment.</p>";
-                        } else {
-                            foreach ($notifications as $notif):
-                             ?>
-                                <a class="notif_case" href="<?= htmlspecialchars($notif['link']) ?>">
-                                    <?= htmlspecialchars($notif['texte']) ?><br>
-                                    <small><?= htmlspecialchars($notif['date']) ?></small>
-                            </a>
-                        <?php endforeach; } ?>
+                        <h3 class="overlay-title">Notifications</h3>
+                        
+                        <?php if (empty($notifications)): ?>
+                            <p class="no-notif">Aucune notification pour le moment.</p>
+                        <?php else: ?>
+                            <div class="notifications-list">
+                                <?php foreach ($notifications as $notif): ?>
+                                    <div class="notif-card <?= $notif['valide'] == 0 ? 'notif-non-traitee' : 'notif-traitee' ?>" 
+                                         data-id="<?= $notif['id'] ?>"
+                                         data-is-projet="<?= $notif['is_projet'] ? '1' : '0' ?>">
+                                        
+                                        <div class="notif-content">
+                                            <p class="notif-texte"><?= htmlspecialchars($notif['texte']) ?></p>
+                                            <small class="notif-date"><?= htmlspecialchars($notif['date']) ?></small>
+                                        </div>
+                                        
+                                        <?php if ($notif['valide'] == 0): ?>
+                                            <!-- Notification non traitée : afficher les boutons d'action -->
+                                            <div class="notif-actions">
+                                                <?php if (in_array('valider', $notif['actions'])): ?>
+                                                    <button class="btn-action btn-valider" 
+                                                            onclick="traiterNotif(<?= $notif['id'] ?>, 'valider', <?= $notif['is_projet'] ? '1' : '0' ?>)">
+                                                        <?= count($notif['actions']) > 1 ? '✓ Valider' : '✓ Marquer comme lu' ?>
+                                                    </button>
+                                                <?php endif; ?>
+                                                
+                                                <?php if (in_array('rejeter', $notif['actions'])): ?>
+                                                    <button class="btn-action btn-rejeter" 
+                                                            onclick="traiterNotif(<?= $notif['id'] ?>, 'rejeter', <?= $notif['is_projet'] ? '1' : '0' ?>)">
+                                                        ✗ Rejeter
+                                                    </button>
+                                                <?php endif; ?>
+                                                
+                                                <?php if (in_array('modifier', $notif['actions'])): ?>
+                                                    <button class="btn-action btn-modifier" 
+                                                            onclick="traiterNotif(<?= $notif['id'] ?>, 'modifier', <?= $notif['is_projet'] ? '1' : '0' ?>)">
+                                                        ✎ Demander modification
+                                                    </button>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <!-- Notification traitée : afficher le statut -->
+                                            <div class="notif-statut">
+                                                <?php if ($notif['valide'] == 1): ?>
+                                                    <span class="statut-validee">✓ <?= $notif['statut_texte'] ?></span>
+                                                <?php elseif ($notif['valide'] == 2): ?>
+                                                    <span class="statut-refusee">✗ <?= $notif['statut_texte'] ?></span>
+                                                <?php elseif ($notif['valide'] == 3): ?>
+                                                    <span class="statut-modif">✎ <?= $notif['statut_texte'] ?></span>
+                                                <?php endif; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        
+                                        <a href="<?= htmlspecialchars($notif['link']) ?>" class="notif-link">Voir détails →</a>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
 
                         <label for="notif_toggle" class="close_overlay">Fermer</label>
                     </div>
@@ -121,6 +170,40 @@ function afficher_Bandeau_Haut($bdd, $userID) {
         </div>
     </nav>
 
+    <script>
+    function traiterNotif(idNotif, action, isProjet) {
+        const messages = {
+            'valider': 'Êtes-vous sûr de vouloir valider cette notification ?',
+            'rejeter': 'Êtes-vous sûr de vouloir rejeter cette proposition ?',
+            'modifier': 'Êtes-vous sûr de vouloir demander une modification ?'
+        };
+        
+        if (!confirm(messages[action] || 'Confirmer cette action ?')) {
+            return;
+        }
+        
+        fetch('../back_php/traiter_notification.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `id=${idNotif}&action=${action}&is_projet=${isProjet}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur: ' + (data.message || 'Une erreur est survenue'));
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors du traitement de la notification');
+        });
+    }
+    </script>
+
     <?php
 }
 
@@ -140,10 +223,12 @@ function est_admin($bdd, $email) {
 
 
 // =======================  RÉCUPERER LES DERNIERE NOTIFICATIONS =======================
-/* Récupère les données relatives aux notification et les  */
 
-function get_last_notif($bdd, $IDuser, $limit = 4) {
-
+/**
+ * Récupère les notifications d'un utilisateur
+ * Les notifications non traitées (Valider=0) sont considérées comme "non lues"
+ */
+function get_last_notif($bdd, $IDuser, $limit = 10) {
     // Notifications projets
     $notif_projet = $bdd->prepare("
         SELECT 
@@ -151,6 +236,8 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
             Ce.Prenom AS Prenom_envoyeur,
             np.Type_notif, 
             np.Date_envoi, 
+            np.Valider,
+            np.ID_notification_projet AS ID_notification,
             p.Nom_projet,
             NULL AS Nom_experience,
             p.ID_projet,
@@ -159,6 +246,7 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
         JOIN projet AS p ON np.ID_projet = p.ID_projet
         JOIN compte AS Ce ON np.ID_compte_envoyeur = Ce.ID_compte
         WHERE np.ID_compte_receveur = ?
+        ORDER BY np.Date_envoi DESC
     ");
     $notif_projet->execute([$IDuser]);
 
@@ -169,6 +257,8 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
             Ce.Prenom AS Prenom_envoyeur,
             ne.Type_notif,
             ne.Date_envoi,
+            ne.Valider,
+            ne.ID_notification_experience AS ID_notification,
             NULL AS Nom_projet,
             e.Nom AS Nom_experience,
             NULL AS ID_projet,
@@ -177,76 +267,75 @@ function get_last_notif($bdd, $IDuser, $limit = 4) {
         JOIN experience AS e ON ne.ID_experience = e.ID_experience
         JOIN compte AS Ce ON ne.ID_compte_envoyeur = Ce.ID_compte
         WHERE ne.ID_compte_receveur = ?
+        ORDER BY ne.Date_envoi DESC
     ");
     $notif_experience->execute([$IDuser]);
 
-    // Fusion
+    // Fusionner et trier
     $tab_notifications = array_merge(
         $notif_projet->fetchAll(PDO::FETCH_ASSOC),
         $notif_experience->fetchAll(PDO::FETCH_ASSOC)
     );
 
-    // Tri par date décroissante
     usort($tab_notifications, function($a, $b) {
         return strtotime($b['Date_envoi']) - strtotime($a['Date_envoi']);
     });
 
-    // Limite au nombre demandé
     $notifications = array_slice($tab_notifications, 0, $limit);
 
-    // Textes
+    // Textes des notifications
     $texte_notifications = [
-        'type1'  => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer l\'expérience {Nom_experience}',
-        'type2'  => '{Nom_envoyeur} {Prenom_envoyeur} a validé l\'experience {Nom_experience}',
-        'type3'  => '{Nom_envoyeur} {Prenom_envoyeur} a refusé l\'experience {Nom_experience}',
-        'type4'  => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier l\'experience {Nom_experience}',
-        'type5'  => '{Nom_experience} a été modifiée par {Nom_envoyeur} {Prenom_envoyeur}',
-        'type11' => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer le projet {Nom_projet}',
-        'type12' => '{Nom_envoyeur} {Prenom_envoyeur} a validé le projet {Nom_projet}',
-        'type13' => '{Nom_envoyeur} {Prenom_envoyeur} a refusé le projet {Nom_projet}',
-        'type14' => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier le projet {Nom_projet}',
-        'type15' => '{Nom_projet} a été modifié par {Nom_envoyeur} {Prenom_envoyeur}'
+        1  => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer l\'expérience {Nom_experience}',
+        2  => '{Nom_envoyeur} {Prenom_envoyeur} a validé l\'expérience {Nom_experience}',
+        3  => '{Nom_envoyeur} {Prenom_envoyeur} a refusé l\'expérience {Nom_experience}',
+        4  => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier l\'expérience {Nom_experience}',
+        5  => '{Nom_experience} a été modifiée par {Nom_envoyeur} {Prenom_envoyeur}',
+        11 => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer le projet {Nom_projet}',
+        12 => '{Nom_envoyeur} {Prenom_envoyeur} a validé le projet {Nom_projet}',
+        13 => '{Nom_envoyeur} {Prenom_envoyeur} a refusé le projet {Nom_projet}',
+        14 => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier le projet {Nom_projet}',
+        15 => '{Nom_projet} a été modifié par {Nom_envoyeur} {Prenom_envoyeur}'
     ];
 
-    // Construction finale
     $result = [];
-
     foreach ($notifications as $notif) {
+        $type = $notif['Type_notif'];
+        $texte = str_replace(
+            ['{Nom_envoyeur}', '{Prenom_envoyeur}', '{Nom_experience}', '{Nom_projet}'],
+            [$notif['Nom_envoyeur'], $notif['Prenom_envoyeur'], $notif['Nom_experience'] ?? '', $notif['Nom_projet'] ?? ''],
+            $texte_notifications[$type] ?? 'Notification inconnue'
+        );
 
-        $type = 'type'.$notif['Type_notif'];
-        $texte = $texte_notifications[$type] ?? 'Notification inconnue';
+        $link = ($type >= 1 && $type <= 5)
+            ? "page_experience.php?id_projet=".$notif['ID_projet']."&id_experience=".$notif['ID_experience']
+            : ($type >= 11 && $type <= 15 ? "page_projet.php?id_projet=".$notif['ID_projet'] : "#");
 
-        // Construction du lien
-        if ($notif['Type_notif'] >= 1 && $notif['Type_notif'] <= 5) {
-            // Expériences
-            $link = "experience.php?id_projet=".$notif['ID_projet']."&id_experience=".$notif['ID_experience'];
-            $texte = str_replace(
-                ['{Nom_envoyeur}', '{Prenom_envoyeur}', '{Nom_experience}'],
-                [$notif['Nom_envoyeur'], $notif['Prenom_envoyeur'], $notif['Nom_experience']],
-                $texte
-            );
+        $actions = in_array($type, [1, 11]) ? ['valider', 'rejeter', 'modifier'] : ['valider'];
 
-        } elseif ($notif['Type_notif'] >= 11 && $notif['Type_notif'] <= 15) {
-            // Projets
-            $link = "projet.php?id_projet=".$notif['ID_projet'];
-            $texte = str_replace(
-                ['{Nom_envoyeur}', '{Prenom_envoyeur}', '{Nom_projet}'],
-                [$notif['Nom_envoyeur'], $notif['Prenom_envoyeur'], $notif['Nom_projet']],
-                $texte
-            );
-        } else {
-            $link = "#"; // fallback
+        $statut_texte = '';
+        switch($notif['Valider']) {
+            case 0: $statut_texte = 'Non traitée'; break;
+            case 1: $statut_texte = 'Validée'; break;
+            case 2: $statut_texte = 'Refusée'; break;
+            case 3: $statut_texte = 'Modification demandée'; break;
         }
 
         $result[] = [
+            'id' => $notif['ID_notification'],
             'texte' => $texte,
-            'date'  => $notif['Date_envoi'],
-            'link'  => $link
+            'date' => date('d/m/Y H:i', strtotime($notif['Date_envoi'])),
+            'link' => $link,
+            'valide' => $notif['Valider'], // clé front-end
+            'statut_texte' => $statut_texte,
+            'type' => $type,
+            'actions' => $actions,
+            'is_projet' => ($type >= 11)
         ];
     }
 
     return $result;
 }
+
 
 
 // =======================  INSÉRER UN UTILISATEUR =======================
@@ -405,3 +494,96 @@ function afficher_pagination(int $page_actuelle, int $total_pages, string $type 
     <?php
 }
 ?>
+
+<?php
+    // Configuration des types de notifications
+$TYPES_NOTIFICATIONS = [
+    1 => [
+        'texte' => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer l\'expérience {Nom_experience}',
+        'destinataire' => 'gestionnaire',
+        'actions' => ['valider', 'rejeter', 'modifier']
+    ],
+    2 => [
+        'texte' => '{Nom_envoyeur} {Prenom_envoyeur} a validé l\'expérience {Nom_experience}',
+        'destinataire' => 'utilisateur_connecte',
+        'actions' => ['valider']
+    ],
+    3 => [
+        'texte' => '{Nom_envoyeur} {Prenom_envoyeur} a refusé l\'expérience {Nom_experience}',
+        'destinataire' => 'utilisateur_connecte',
+        'actions' => ['valider']
+    ],
+    4 => [
+        'texte' => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier l\'expérience {Nom_experience}',
+        'destinataire' => 'utilisateur_connecte',
+        'actions' => ['valider']
+    ],
+    5 => [
+        'texte' => '{Nom_experience} a été modifiée par {Nom_envoyeur} {Prenom_envoyeur}',
+        'destinataire' => 'experimentateur',
+        'actions' => ['valider']
+    ],
+    11 => [
+        'texte' => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer le projet {Nom_projet}',
+        'destinataire' => 'chercheur',
+        'actions' => ['valider', 'rejeter', 'modifier']
+    ],
+    12 => [
+        'texte' => '{Nom_envoyeur} {Prenom_envoyeur} a validé le projet {Nom_projet}',
+        'destinataire' => 'etudiant',
+        'actions' => ['valider']
+    ],
+    13 => [
+        'texte' => '{Nom_envoyeur} {Prenom_envoyeur} a refusé le projet {Nom_projet}',
+        'destinataire' => 'etudiant',
+        'actions' => ['valider']
+    ],
+    14 => [
+        'texte' => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier le projet {Nom_projet}',
+        'destinataire' => 'etudiant',
+        'actions' => ['valider']
+    ],
+    15 => [
+        'texte' => '{Nom_projet} a été modifiée par {Nom_envoyeur} {Prenom_envoyeur}',
+        'destinataire' => 'etudiant',
+        'actions' => ['valider']
+    ]
+];
+
+/**
+ * Fonction principale pour envoyer une notification
+ * 
+ * $bdd connexion à la base de données
+ * $typeNotification Type de notification (1-5, 11-15)
+ * $idEnvoyeur ID de l'utilisateur qui envoie
+ * $donnees Données dynamiques (Nom_experience, Nom_projet, etc.)
+ * $destinataires ID ou tableau d'IDs des destinataires (optionnel)
+ * True si succès, false si échec
+ */
+function envoyerNotification($bdd, $typeNotification, $idEnvoyeur, $donnees, $destinataires) {
+    if (empty($destinataires)) return;
+
+    $date_envoi = date('Y-m-d H:i:s');
+
+    $stmt = $bdd->prepare("
+        INSERT INTO notification_projet 
+            (ID_compte_envoyeur, ID_compte_receveur, ID_projet, Type_notif, Date_envoi, Valider)
+        VALUES (?, ?, ?, ?, ?, 0)
+    ");
+
+    foreach ($destinataires as $idDestinataire) {
+        try {
+            $stmt->execute([
+                $idEnvoyeur,
+                $idDestinataire,
+                $donnees['ID_projet'] ?? null,
+                $typeNotification,
+                $date_envoi
+            ]);
+            // debug log
+            error_log("Notification envoyée: type $typeNotification de $idEnvoyeur vers $idDestinataire pour projet ".$donnees['ID_projet']);
+        } catch (Exception $e) {
+            error_log("Erreur notification: ".$e->getMessage());
+        }
+    }
+}
