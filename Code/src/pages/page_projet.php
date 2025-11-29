@@ -313,7 +313,7 @@ $page_title = $projet ? htmlspecialchars($projet['Nom_projet']) : "Projet";
 <?php afficher_Bandeau_Haut($bdd, $id_compte); ?>
 <h1>Projets</h1>
 <div class="create-experience">
-<form action= "page_creation_experience.php?id_projet=<?= $id_projet ?>" method= "post">
+<form action= "page_creation_experience_1.php?id_projet=<?= $id_projet ?>" method= "post">
     <input type= "submit" value= "Ajouter une expérience" />
 </div>
 <?php if ($erreur): ?>
