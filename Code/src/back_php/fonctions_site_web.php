@@ -50,8 +50,12 @@ function recuperer_id_compte($bdd, $email) {
 // =======================  AFFICHAGE BANDEAU DU HAUT =======================
 /* Affiche le Bandeau du haut */
 function afficher_Bandeau_Haut($bdd, $userID) {
-    // Traitement des actions de notifications POST
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_notif'], $_POST['action_notif'], $_POST['is_projet'])) {
+    session_start(); // Assure que la session est démarrée
+
+    // ------------------- TRAITEMENT DES NOTIFICATIONS POST -------------------
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' 
+        && isset($_POST['id_notif'], $_POST['action_notif'], $_POST['is_projet'])) {
+
         $idNotif = intval($_POST['id_notif']);
         $action = $_POST['action_notif'];
         $isProjet = intval($_POST['is_projet']);
@@ -60,7 +64,6 @@ function afficher_Bandeau_Haut($bdd, $userID) {
         $table = $isProjet ? "notification_projet" : "notification_experience";
         $idCol = $isProjet ? "ID_notification_projet" : "ID_notification_experience";
 
-        // Récupérer la notification
         $stmt = $bdd->prepare("SELECT * FROM $table WHERE $idCol = ?");
         $stmt->execute([$idNotif]);
         $notif = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -73,31 +76,55 @@ function afficher_Bandeau_Haut($bdd, $userID) {
             $typeRetour = 0;
 
             switch ($action) {
-                case "valider": $nouvelEtat = 1; $typeRetour = $isProjet ? 12 : 2; break;
-                case "rejeter": $nouvelEtat = 2; $typeRetour = $isProjet ? 13 : 3; break;
-                case "modifier": $nouvelEtat = 3; $typeRetour = $isProjet ? 14 : 4; break;
+                case "valider":
+                    $nouvelEtat = 1;
+                    if ($notif['Type_notif'] == 16) {
+                        $typeRetour = 12;
+                    } elseif (in_array($notif['Type_notif'], [2,3,4,5,12,13,14,15])) {
+                        $typeRetour = null;
+                    } else {
+                        $typeRetour = $isProjet ? 12 : 2;
+                    }
+                    break;
+                case "rejeter":
+                    $nouvelEtat = 2;
+                    $typeRetour = $isProjet ? 13 : 3;
+                    break;
+                case "modifier":
+                    $nouvelEtat = 3;
+                    $typeRetour = $isProjet ? 14 : 4;
+                    break;
             }
 
-            // Mettre à jour la notification
+            // Mettre à jour l'état
             $update = $bdd->prepare("UPDATE $table SET Valider = ? WHERE $idCol = ?");
             $update->execute([$nouvelEtat, $idNotif]);
 
-            // Envoyer notif de retour au créateur si ce n’est pas soi-même
-            if ($idEnvoyeurOriginal != $idUtilisateur) {
-                envoyerNotification($bdd, $typeRetour, $idUtilisateur, ["ID_projet" => $idProjet], [$idEnvoyeurOriginal]);
+            // Envoyer notification de retour si nécessaire
+            if (!empty($typeRetour)) {
+                $verif = $bdd->prepare("SELECT COUNT(*) FROM notification_projet 
+                    WHERE ID_projet = ? AND ID_compte_envoyeur = ? AND ID_compte_receveur = ? AND Type_notif = ?");
+                $verif->execute([$idProjet, $idUtilisateur, $idEnvoyeurOriginal, $typeRetour]);
+                if (!$verif->fetchColumn()) {
+                    envoyerNotification($bdd, $typeRetour, $idUtilisateur, ["ID_projet" => $idProjet], [$idEnvoyeurOriginal]);
+                }
             }
-        }
 
-        // Recharger la page pour actualiser l'affichage
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit;
+            // Supprimer notification traitée
+            $delete = $bdd->prepare("DELETE FROM $table WHERE $idCol = ?");
+            $delete->execute([$idNotif]);
+
+            // Recharger la page pour GET
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
+        }
     }
 
-    // Récupération des notifications
+    // ------------------- AFFICHAGE DU BANDEAU -------------------
     $notifications = get_last_notif($bdd, $userID);
     $nb_non_traitees = count(array_filter($notifications, fn($n) => $n['valide'] == 0));
-    ?>
 
+    ?>
     <nav class="site_nav">
         <div id="site_nav_main">
             <a href="Main_page_connected.php" class="lab_logo">
@@ -111,17 +138,11 @@ function afficher_Bandeau_Haut($bdd, $userID) {
 
         <div id="site_nav_links">
             <ul class="liste_links">
-                <li class="main_links">
-                    <a href="page_explorer.php" class="Links">Explorer</a>
-                </li>
-                <li class="main_links">
-                    <a href="page_mes_experiences.php" class="Links">Mes expériences</a>
-                </li>
-                <li class="main_links">
-                    <a href="page_mes_projets.php" class="Links">Mes projets</a>
-                </li>
+                <li class="main_links"><a href="page_explorer.php" class="Links">Explorer</a></li>
+                <li class="main_links"><a href="page_mes_experiences.php" class="Links">Mes expériences</a></li>
+                <li class="main_links"><a href="page_mes_projets.php" class="Links">Mes projets</a></li>
 
-                <!-- Icône notification -->
+                <!-- Notifications -->
                 <li id="Notif">
                     <label for="notif_toggle" class="notif_logo">
                         <img src="../assets/Notification_logo.png" alt="Notification">
@@ -129,24 +150,21 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                             <span class="notif-badge"><?= $nb_non_traitees ?></span>
                         <?php endif; ?>
                     </label>
-
                     <input type="checkbox" id="notif_toggle" hidden>
-
                     <div class="overlay">
                         <h3 class="overlay-title">Notifications</h3>
-
                         <?php if (empty($notifications)): ?>
                             <p class="no-notif">Aucune notification pour le moment.</p>
                         <?php else: ?>
                             <div class="notifications-list">
                                 <?php foreach ($notifications as $notif): ?>
-                                    <div class="notif-card <?= $notif['valide'] == 0 ? 'notif-non-traitee' : 'notif-traitee' ?>" >
+                                    <div class="notif-card <?= $notif['valide'] == 0 ? 'notif-non-traitee' : 'notif-traitee' ?>">
                                         <div class="notif-content">
                                             <p class="notif-texte"><?= htmlspecialchars($notif['texte']) ?></p>
                                             <small class="notif-date"><?= htmlspecialchars($notif['date']) ?></small>
                                         </div>
 
-                                        <?php if ($notif['valide'] == 0): ?>
+                                        <?php if ($notif['valide'] == 0 && !empty($notif['actions'])): ?>
                                             <div class="notif-actions">
                                                 <?php foreach ($notif['actions'] as $act): ?>
                                                     <form method="post" style="display:inline;">
@@ -154,27 +172,26 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                                                         <input type="hidden" name="action_notif" value="<?= $act ?>">
                                                         <input type="hidden" name="is_projet" value="<?= $notif['is_projet'] ? 1 : 0 ?>">
                                                         <button type="submit">
-                                                            <?php
-                                                            echo match($act) {
+                                                            <?= match($act) {
                                                                 'valider' => '✓ Valider',
                                                                 'rejeter' => '✗ Rejeter',
                                                                 'modifier' => '✎ Demander modification',
                                                                 default => 'Action'
-                                                            };
-                                                            ?>
+                                                            } ?>
                                                         </button>
                                                     </form>
                                                 <?php endforeach; ?>
                                             </div>
                                         <?php else: ?>
                                             <div class="notif-statut">
-                                                <?php if ($notif['valide'] == 1): ?>
-                                                    <span class="statut-validee">✓ <?= $notif['statut_texte'] ?></span>
-                                                <?php elseif ($notif['valide'] == 2): ?>
-                                                    <span class="statut-refusee">✗ <?= $notif['statut_texte'] ?></span>
-                                                <?php elseif ($notif['valide'] == 3): ?>
-                                                    <span class="statut-modif">✎ <?= $notif['statut_texte'] ?></span>
-                                                <?php endif; ?>
+                                                <?php
+                                                $statusLabels = [
+                                                    1 => '✓ Validée',
+                                                    2 => '✗ Refusée',
+                                                    3 => '✎ Modification demandée'
+                                                ];
+                                                echo $notif['valide'] ? $statusLabels[$notif['valide']] : '';
+                                                ?>
                                             </div>
                                         <?php endif; ?>
 
@@ -183,12 +200,11 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                                 <?php endforeach; ?>
                             </div>
                         <?php endif; ?>
-
                         <label for="notif_toggle" class="close_overlay">Fermer</label>
                     </div>
                 </li>
 
-                <!-- Icône utilisateur -->
+                <!-- Utilisateur -->
                 <li id="User">
                     <a href="page_profil.php" class="user_logo">
                         <?php
@@ -203,6 +219,7 @@ function afficher_Bandeau_Haut($bdd, $userID) {
     </nav>
     <?php
 }
+
 
 
 
@@ -292,7 +309,8 @@ function get_last_notif($bdd, $IDuser, $limit = 10) {
         12 => '{Nom_envoyeur} {Prenom_envoyeur} a validé le projet {Nom_projet}',
         13 => '{Nom_envoyeur} {Prenom_envoyeur} a refusé le projet {Nom_projet}',
         14 => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier le projet {Nom_projet}',
-        15 => '{Nom_projet} a été modifié par {Nom_envoyeur} {Prenom_envoyeur}'
+        15 => '{Nom_projet} a été modifié par {Nom_envoyeur} {Prenom_envoyeur}',
+        16 => '{Nom_envoyeur} {Prenom_envoyeur} vous a ajouté comme collaborateur sur le projet {Nom_projet}',
     ];
 
     $result = [];
@@ -308,7 +326,18 @@ function get_last_notif($bdd, $IDuser, $limit = 10) {
             ? "page_experience.php?id_projet=".$notif['ID_projet']."&id_experience=".$notif['ID_experience']
             : ($type >= 11 && $type <= 15 ? "page_projet.php?id_projet=".$notif['ID_projet'] : "#");
 
-        $actions = in_array($type, [1, 11]) ? ['valider', 'rejeter', 'modifier'] : ['valider'];
+        $actions = [];
+
+        if ($notif['Valider'] == 0) {
+            if (in_array($type, [1, 11, 16])) {
+             // notifications de création de projet/expérience ou ajout collaborateur
+            $actions = ['valider', 'rejeter', 'modifier'];
+                    if ($type == 16) $actions = ['valider']; // le collaborateur peut juste valider
+            } elseif (in_array($type, [2,3,4,5,12,13,14,15])) {
+            // notifications de retour au créateur ou info
+                $actions = ['valider'];
+            }
+        }
 
         $statut_texte = '';
         switch($notif['Valider']) {
@@ -585,3 +614,4 @@ function envoyerNotification($bdd, $typeNotification, $idEnvoyeur, $donnees, $de
         }
     }
 }
+?>

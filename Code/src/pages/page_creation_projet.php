@@ -159,17 +159,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // ======================= ENVOYER NOTIFICATIONS AUX AUTRES GESTIONNAIRES =======================
                 // Ici on n’envoie PAS de notification au créateur lors de la création
+                $donnees = ['Nom_projet' => $nom_projet, 'ID_projet' => $id_projet];
                 $gestionnaires_dest = array_values(array_diff($gestionnaires_selectionnes, [$_SESSION["ID_compte"]]));
                 if (!empty($gestionnaires_dest)) {
-                    $donnees = ['Nom_projet' => $nom_projet, 'ID_projet' => $id_projet];
                     // type 11 = proposition de création de projet (comme défini dans ton système)
                     // envoyerNotification gère l'insertion dans notification_projet (fonction dans fonctions_site_web.php)
-                    $ok = envoyerNotification($bdd, 11, $_SESSION["ID_compte"], $donnees, $gestionnaires_dest);
+                    envoyerNotification($bdd, 11, $_SESSION["ID_compte"], $donnees, $gestionnaires_dest);
 
                     // debug - log des destinataires
                     error_log("Envoi notif type 11 projet $id_projet de " . $_SESSION["ID_compte"] . " vers : " . implode(',', $gestionnaires_dest));
                 }
-
+                // ---------- NOUVEAU : notifier les collaborateurs ajoutés ----------
+                $collaborateurs_dest = array_values(array_diff($collaborateurs_selectionnes, [$_SESSION["ID_compte"]]));
+                if (!empty($collaborateurs_dest)) {
+                    // J'utilise le type 16 (numéro libre) pour "ajout comme collaborateur"
+                    // Assure-toi d'ajouter le texte correspondant dans fonctions_site_web (voir plus bas)
+                    envoyerNotification($bdd, 16, $_SESSION["ID_compte"], $donnees, $collaborateurs_dest);
+                    error_log("Envoi notif type 16 (collab ajouté) projet $id_projet de " . $_SESSION["ID_compte"] . " vers : " . implode(',', $collaborateurs_dest));
+                }
                 // Réinitialiser les sélections
                 $gestionnaires_selectionnes = [];
                 $collaborateurs_selectionnes = [];
