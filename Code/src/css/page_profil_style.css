@@ -186,3 +186,17 @@ body {
         height: 120px;
     }
 }
+
+.btn-deconnect {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.btn-deconnect:hover {
+    background-color: #c0392b;
+}
