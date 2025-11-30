@@ -381,6 +381,7 @@ function afficher_pagination(int $page_actuelle, int $total_pages, string $type 
     if ($total_pages <= 1) return;
     
     // Préserver l'autre paramètre de page dans l'URL
+    # Debug :  Ces 2 lignes changeront probablement car ne fonctionnent pas avec la page admin
     $autre_type = ($type === 'a_venir') ? 'terminees' : 'a_venir';
     $autre_page = isset($_GET["page_$autre_type"]) ? (int)$_GET["page_$autre_type"] : 1;
     
