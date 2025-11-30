@@ -4,7 +4,7 @@ require "../back_php/fonctions_site_web.php";
 $bdd = connectBDD();
 $bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 #On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
-verification_connexion($bdd)
+verification_connexion($bdd);
 
 // ======================= VERIFIER TAILLES DES CHAMPS =======================
 function verifier_champs_projet($nom_projet, $description) {

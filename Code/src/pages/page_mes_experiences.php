@@ -5,7 +5,7 @@ require __DIR__ . '/../back_php/fonctions_site_web.php';
 
 $bdd = connectBDD();
 #On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
-verification_connexion($bdd)
+verification_connexion($bdd);
 
 // Récupération et filtrage des expériences
 $id_compte = $_SESSION['ID_compte'];

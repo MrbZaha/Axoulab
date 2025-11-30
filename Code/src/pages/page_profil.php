@@ -15,7 +15,7 @@ $user_ID = $_SESSION["ID_compte"];
 // Connexion à la base de données
 $bdd = connectBDD();
 #On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
-verification_connexion($bdd)
+verification_connexion($bdd);
 
 // ======================= FONCTIONS =======================
 
