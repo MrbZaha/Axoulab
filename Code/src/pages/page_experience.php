@@ -2,7 +2,6 @@
 require_once __DIR__ . '/../back_php/init_DB.php';
 require __DIR__ . '/../back_php/fonctions_site_web.php';
 
-$_SESSION['ID_compte'] = 3; // TEMPORAIRE pour test
 $bdd = connectBDD();
 $id_compte = $_SESSION['ID_compte'];
 $id_experience = isset($_GET['id_experience']) ? (int)$_GET['id_experience'] : 0;

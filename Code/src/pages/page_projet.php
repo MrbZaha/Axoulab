@@ -2,7 +2,6 @@
 require_once __DIR__ . '/../back_php/init_DB.php';
 require __DIR__ . '/../back_php/fonctions_site_web.php';
 
-$_SESSION['ID_compte'] = 3; // TEMPORAIRE pour test
 $bdd = connectBDD();
 $id_compte = $_SESSION['ID_compte'];
 $id_projet = isset($_GET['id_projet']) ? (int)$_GET['id_projet'] : 0;
@@ -312,9 +311,9 @@ $page_title = $projet ? htmlspecialchars($projet['Nom_projet']) : "Projet";
 </head>
 <body>
 <?php afficher_Bandeau_Haut($bdd, $id_compte); ?>
-<h1>Mes projets</h1>
+<h1>Projets</h1>
 <div class="create-experience">
-<form action= "page_creation_experience.php" method= "post">
+<form action= "page_creation_experience_1.php?id_projet=<?= $id_projet ?>" method= "post">
     <input type= "submit" value= "Ajouter une expérience" />
 </div>
 <?php if ($erreur): ?>

@@ -78,6 +78,7 @@ CREATE TABLE notification_experience (
     ID_experience BIGINT,
     Type_notif INT,
     Date_envoi DATETIME DEFAULT CURRENT_TIMESTAMP,
+    Valider TINYINT,
     FOREIGN KEY (ID_compte_envoyeur) REFERENCES compte(ID_compte) ON DELETE CASCADE,
     FOREIGN KEY (ID_compte_receveur) REFERENCES compte(ID_compte) ON DELETE CASCADE,
     FOREIGN KEY (ID_experience) REFERENCES experience(ID_experience) ON DELETE CASCADE
@@ -90,6 +91,7 @@ CREATE TABLE notification_projet (
     ID_projet BIGINT,
     Type_notif INT,
     Date_envoi DATETIME DEFAULT CURRENT_TIMESTAMP,
+    Valider TINYINT,
     FOREIGN KEY (ID_compte_envoyeur) REFERENCES compte(ID_compte) ON DELETE CASCADE,
     FOREIGN KEY (ID_compte_receveur) REFERENCES compte(ID_compte) ON DELETE CASCADE,
     FOREIGN KEY (ID_projet) REFERENCES projet(ID_projet) ON DELETE CASCADE
