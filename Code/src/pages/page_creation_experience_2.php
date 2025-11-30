@@ -3,6 +3,8 @@ session_start();
 require __DIR__ . '/../back_php/fonctions_site_web.php';
 
 $bdd = connectBDD();
+#On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
+verification_connexion($bdd)
 
 function recup_salles($bdd) {
     $sql = "SELECT ID_salle, Nom_salle FROM salle ORDER BY Nom_salle";

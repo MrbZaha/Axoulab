@@ -50,8 +50,6 @@ function recuperer_id_compte($bdd, $email) {
 // =======================  AFFICHAGE BANDEAU DU HAUT =======================
 /* Affiche le Bandeau du haut */
 function afficher_Bandeau_Haut($bdd, $userID) {
-    session_start(); // Assure que la session est démarrée
-
     // ------------------- TRAITEMENT DES NOTIFICATIONS POST -------------------
     if ($_SERVER['REQUEST_METHOD'] === 'POST' 
         && isset($_POST['id_notif'], $_POST['action_notif'], $_POST['is_projet'])) {
@@ -221,8 +219,6 @@ function afficher_Bandeau_Haut($bdd, $userID) {
 }
 
 
-
-
 // =======================  VÉRIFIER SI ADMIN =======================
 /* Vérifie si un compte est administrateur
    Retourne true si l'utilisateur est admin, false sinon */
@@ -362,7 +358,6 @@ function get_last_notif($bdd, $IDuser, $limit = 10) {
 
     return $result;
 }
-
 
 
 // =======================  INSÉRER UN UTILISATEUR =======================
@@ -615,4 +610,87 @@ function envoyerNotification($bdd, $typeNotification, $idEnvoyeur, $donnees, $de
         }
     }
 }
+
+// =======================  Vérifie si l'utilisateur est connecté =======================
+// Permet de limiter l'accès aux pages qui requiert une connexion
+function verification_connexion($bdd) {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    if (!isset($idUtilisateur)) {
+        // layout_erreur()
+        // header("Location: login.php");
+        exit();
+    }
+
+    $id_user = $_SESSION['id_user'];
+
+    // Vérifier que l'utilisateur existe en base
+    $query = $bdd->prepare("SELECT COUNT(*) FROM utilisateurs WHERE id = ?");
+    $query->execute([$id_user]);
+
+    if ($query->fetchColumn() == 0) {
+        // L'id n'est pas valide ⇒ on déconnecte
+        session_destroy();
+        header("Location: login.php");
+        exit();
+    }
+}
+
+// =======================  Lançage d'une page d'erreur =======================
+// Si une erreur se produit, ou si l'utilisateur n'est pas censé avec accès à cette page,
+// cette page est affichée à la place
+function layout_erreur() {
+    ?>
+    <html lang='en'>
+    <head>
+        <!-- On appelle le css ici car sinon il n'a pas le temps de charger -->
+        <link rel="stylesheet" href="../css/layout_erreur.css">
+        <title>Erreur</title>
+    </head>
+
+    <body>        
+        <div class="small_dog">
+            <img alt='Sleeping dog' class='dog1' src='../assets/dog-sleep.png'>
+            <img alt='Sleeping dog' class='dog2' src='../assets/dog-sleep.gif'>
+            <!-- <img alt="Sleepy dog." src="../assets/dog-sleep.gif" onclick="audio.play();"> -->
+        </div>
+
+        <p id=text_error> Il y a eu une erreur. Veuillez retourner à la page précédente.</p>
+
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <script>
+            let audio = new Audio('../assets/sound/error.mp3'); // Musique de Mario64
+            audio.loop = true;
+
+            // On veut faire en sorte que lorsque l'image est cliquée, le gif se lance avec un son
+            // Lorsqu'on clique à nouveau, le gif s'arrête et le son également
+            $(document).on('click', '.small_dog', function() {
+                let isPlaying = $(this).hasClass('playing');
+
+                if (!isPlaying) {
+                    // Passe en mode "gif + son"
+                    $(this).addClass('playing');
+                    $('.dog1').css('opacity', 0);
+                    $('.dog2').css('opacity', 1);
+                    audio.play();
+                } else {
+                    // Reviens à l'image normale + stop son
+                    $(this).removeClass('playing');
+                    $('.dog1').css('opacity', 1);
+                    $('.dog2').css('opacity', 0);
+                    audio.pause();
+                }
+            });
+        </script>
+    </body>
+</html>
+    <?php
+    exit;
+}
+
+
 ?>

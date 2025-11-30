@@ -1,0 +1,35 @@
+.small_dog {
+    /* position: relative; */
+    display: block;
+    margin-left: auto;
+    margin-right: auto;  
+    margin-top: 330px;
+    margin-bottom: auto;
+    width: 30%;
+
+    cursor: pointer;
+    image-rendering: pixelated;
+}
+
+*{ 
+    background-color: black;
+}
+
+.dog2 {
+    position: absolute;
+    width: 30%;
+    opacity: 0;
+}
+
+.dog1 {
+    position: absolute;
+    width : 30%;
+}
+
+#text_error {
+    text-align: center;
+    padding: 210px 0px 20px;
+    font-family:'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: larger;
+    color: white;
+}

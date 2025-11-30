@@ -3,6 +3,8 @@ require_once __DIR__ . '/../back_php/init_DB.php';
 require __DIR__ . '/../back_php/fonctions_site_web.php';
 
 $bdd = connectBDD();
+#On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
+verification_connexion($bdd)
 $id_compte = $_SESSION['ID_compte'];
 $id_experience = isset($_GET['id_experience']) ? (int)$_GET['id_experience'] : 0;
 
@@ -355,11 +357,11 @@ $page_title = $experience ? htmlspecialchars($experience['Nom']) : "Expérience"
 <?php afficher_Bandeau_Haut($bdd, $id_compte); ?>
 <body>
 <div class="experiences">
-<?php if ($erreur): ?>
-    <?php afficher_erreur($erreur); ?>
-<?php else: ?>
-    <?php afficher_experience($experience, $experimentateurs, $salles_materiel); ?>
-<?php endif; ?>
+<?php if ($erreur):
+         afficher_erreur($erreur);
+      else:
+         afficher_experience($experience, $experimentateurs, $salles_materiel);
+      endif; ?>
 
 </div>
 </body>

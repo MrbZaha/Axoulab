@@ -4,6 +4,20 @@ include_once '../back_php/fonctions_site_web.php';
 session_start();
 
 $bdd = connectBDD();
+
+#On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
+verification_connexion($bdd)
+
+// On vérifie si l'utilisateur a les droits pour accéder à cette page
+if (est_admin($bdd, $_SESSION["email"])){
+    // Le code peut poursuivre
+}
+else {
+    // On change le layout de la page et on invite l'utilisateur à revenir sur la page précédente
+    layout_erreur();
+}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -32,16 +46,16 @@ $bdd = connectBDD();
 <!-- Crée un grand div qui aura des bords arrondis et sera un peu gris-->
     <div class="back_square">
         <div class=inside_square>
-            <a href="admin/utilisateurs.php"> Utilisateurs</a>
+            <a href="page_admin_utilisateurs.php"> Utilisateurs</a>
         </div>
         <div class=inside_square>
-            <a href="admin/projets.php"> Projets</a>
+            <a href="page_admin_projets.php"> Projets</a>
         </div>
         <div class=inside_square>
-            <a href="admin/experiences.php"> Expériences</a>
+            <a href="page_admin_experiences.php"> Expériences</a>
         </div>
         <div class=inside_square>
-            <a href="admin/materiel_salles.php"> Matériel et salles</a>
+            <a href="page_admin_materiel_salles.php"> Matériel et salles</a>
         </div>
     </div>
 

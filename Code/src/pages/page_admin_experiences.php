@@ -4,18 +4,18 @@ include_once '../back_php/fonctions_site_web.php';
 session_start();
 
 $bdd = connectBDD();
-# Doit checker si est administrateur
-// $email = $_SESSION("email");
-// echo $email;
 
-// if (est_admin($bdd,$email)) {
-// }
-// else {
-//     exit;
-// }
+#On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
+verification_connexion($bdd)
 
-# Récupération des différentes expériences 
-// Récupération et filtrage des expériences
+// On vérifie si l'utilisateur a les droits pour accéder à cette page
+if (est_admin($bdd, $_SESSION["email"])){
+    // Le code peut poursuivre
+} else {
+    // On change le layout de la page et on invite l'utilisateur à revenir sur la page précédente
+    layout_erreur();
+}
+
 $id_compte = $_SESSION['ID_compte'];
 $experiences = get_mes_experiences_complets($bdd, $id_compte);
 
@@ -52,7 +52,6 @@ if ($page > $total_pages) $page = $total_pages;
     <!-- import du header de la page -->
     <?php
     afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);
-    #bandeau_page("Dashboard", true)
     ?>
     <!-- Afficher le titre de la page en bandeau-->
     <div class=bandeau>

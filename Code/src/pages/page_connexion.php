@@ -107,7 +107,7 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
             // Vérifier si l'utilisateur est admin
             if (est_admin($bdd, $email)) {
                 $_SESSION['est_admin'] = true;
-                header("Location: admin.php");
+                header("Location: page_admin.php");
             } else {
                 $_SESSION['est_admin'] = false;
                 header("Location: Main_page_connected.php");
