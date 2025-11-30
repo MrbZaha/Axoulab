@@ -6,7 +6,7 @@ session_start();
 $bdd = connectBDD();
 
 #On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
-verification_connexion($bdd)
+verification_connexion($bdd);
 
 // On vérifie si l'utilisateur a les droits pour accéder à cette page
 if (est_admin($bdd, $_SESSION["email"])){

@@ -618,17 +618,13 @@ function verification_connexion($bdd) {
         session_start();
     }
 
-    if (!isset($idUtilisateur)) {
-        // layout_erreur()
-        // header("Location: login.php");
-        exit();
+    if (!isset($_SESSION['ID_compte'])) {
+        layout_erreur();
     }
 
-    $id_user = $_SESSION['id_user'];
-
     // Vérifier que l'utilisateur existe en base
-    $query = $bdd->prepare("SELECT COUNT(*) FROM utilisateurs WHERE id = ?");
-    $query->execute([$id_user]);
+    $query = $bdd->prepare("SELECT COUNT(*) FROM compte WHERE ID_COMPTE = ?");
+    $query->execute([$_SESSION['ID_compte']]);
 
     if ($query->fetchColumn() == 0) {
         // L'id n'est pas valide ⇒ on déconnecte
