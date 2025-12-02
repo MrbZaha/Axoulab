@@ -4,26 +4,26 @@
 -- Etat: 1=étudiant, 2=professeur/chercheur, 3=ADMIN
 -- Validation: 1=Validé, 0=Non validé
 INSERT INTO compte (Nom, Prenom, Date_de_naissance, Email, Mdp, Etat, validation) VALUES
-('Dubois', 'Marie', '1988-03-15', 'marie.dubois@lab.fr', 'hash123', 2, 1),
-('Martin', 'Pierre', '1992-07-22', 'pierre.martin@lab.fr', 'hash456', 1, 1),
-('Bernard', 'Sophie', '1985-11-08', 'sophie.bernard@lab.fr', 'hash789', 2, 1),
-('Petit', 'Lucas', '1990-05-12', 'lucas.petit@lab.fr', 'hash101', 1, 1),
-('Robert', 'Emma', '1987-09-30', 'emma.robert@lab.fr', 'hash102', 2, 1),
-('Richard', 'Thomas', '1995-01-18', 'thomas.richard@lab.fr', 'hash103', 1, 1),
-('Durand', 'Léa', '1989-12-25', 'lea.durand@lab.fr', 'hash104', 2, 1),
-('Leroy', 'Hugo', '1993-04-07', 'hugo.leroy@lab.fr', 'hash105', 1, 1),
-('Moreau', 'Chloé', '1986-08-14', 'chloe.moreau@lab.fr', 'hash106', 2, 1),
-('Simon', 'Alexandre', '1991-06-19', 'alexandre.simon@lab.fr', 'hash107', 1, 1),
-('Laurent', 'Camille', '1994-02-28', 'camille.laurent@lab.fr', 'hash108', 1, 1),
-('Lefebvre', 'Nathan', '1988-10-03', 'nathan.lefebvre@lab.fr', 'hash109', 2, 1),
-('Michel', 'Julie', '1990-07-16', 'julie.michel@lab.fr', 'hash110', 1, 1),
-('Garcia', 'Antoine', '1987-03-22', 'antoine.garcia@lab.fr', 'hash111', 2, 1),
-('David', 'Manon', '1992-11-09', 'manon.david@lab.fr', 'hash112', 1, 1),
-('Bertrand', 'Maxime', '1989-05-27', 'maxime.bertrand@lab.fr', 'hash113', 2, 1),
-('Roux', 'Laura', '1991-09-14', 'laura.roux@lab.fr', 'hash114', 1, 1),
-('Vincent', 'Nicolas', '1986-12-01', 'nicolas.vincent@lab.fr', 'hash115', 2, 1),
-('Fournier', 'Sarah', '1993-08-20', 'sarah.fournier@lab.fr', 'hash116', 1, 1),
-('Girard', 'Julien', '1990-04-11', 'julien.girard@lab.fr', 'hash117', 3, 1);
+('Dubois', 'Marie', '1988-03-15', 'marie.dubois@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Martin', 'Pierre', '1992-07-22', 'pierre.martin@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Bernard', 'Sophie', '1985-11-08', 'sophie.bernard@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Petit', 'Lucas', '1990-05-12', 'lucas.petit@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Robert', 'Emma', '1987-09-30', 'emma.robert@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Richard', 'Thomas', '1995-01-18', 'thomas.richard@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Durand', 'Léa', '1989-12-25', 'lea.durand@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Leroy', 'Hugo', '1993-04-07', 'hugo.leroy@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Moreau', 'Chloé', '1986-08-14', 'chloe.moreau@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Simon', 'Alexandre', '1991-06-19', 'alexandre.simon@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Laurent', 'Camille', '1994-02-28', 'camille.laurent@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Lefebvre', 'Nathan', '1988-10-03', 'nathan.lefebvre@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Michel', 'Julie', '1990-07-16', 'julie.michel@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Garcia', 'Antoine', '1987-03-22', 'antoine.garcia@axoulab.fr', 'has$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.h111', 2, 1),
+('David', 'Manon', '1992-11-09', 'manon.david@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Bertrand', 'Maxime', '1989-05-27', 'maxime.bertrand@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Roux', 'Laura', '1991-09-14', 'laura.roux@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Vincent', 'Nicolas', '1986-12-01', 'nicolas.vincent@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Fournier', 'Sarah', '1993-08-20', 'sarah.fournier@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Girard', 'Julien', '1990-04-11', 'julien.girard@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 3, 1);
 
 -- ========================================
 -- INSERTION DES PROJETS
@@ -45,62 +45,62 @@ INSERT INTO projet (Nom_projet, Description, Confidentiel, Validation, Date_de_c
 -- ========================================
 -- INSERTION DES SALLES ET MATÉRIEL
 -- ========================================
-INSERT INTO salle_materiel (Salle, Materiel, Nombre) VALUES
+INSERT INTO salle_materiel (Nom_Salle, Materiel) VALUES
 -- Salle A101 - Chimie
-('A101', 'Microscope optique', 5),
-('A101', 'Bécher 500ml', 20),
-('A101', 'Pipette automatique', 10),
-('A101', 'Centrifugeuse', 2),
-('A101', 'Balance de précision', 3),
+('A101', 'Microscope optique'),
+('A101', 'Bécher 500ml'),
+('A101', 'Pipette automatique'),
+('A101', 'Centrifugeuse'),
+('A101', 'Balance de précision'),
 
 -- Salle A102 - Biologie
-('A102', 'Microscope électronique', 2),
-('A102', 'Incubateur', 4),
-('A102', 'Autoclave', 1),
-('A102', 'Hotte à flux laminaire', 3),
-('A102', 'Congélateur -80°C', 2),
+('A102', 'Microscope électronique'),
+('A102', 'Incubateur'),
+('A102', 'Autoclave'),
+('A102', 'Hotte à flux laminaire'),
+('A102', 'Congélateur -80°C'),
 
 -- Salle B201 - Physique
-('B201', 'Oscilloscope', 8),
-('B201', 'Générateur de signaux', 6),
-('B201', 'Multimètre', 15),
-('B201', 'Alimentation stabilisée', 10),
-('B201', 'Spectromètre', 2),
+('B201', 'Oscilloscope'),
+('B201', 'Générateur de signaux'),
+('B201', 'Multimètre'),
+('B201', 'Alimentation stabilisée'),
+('B201', 'Spectromètre'),
 
 -- Salle B202 - Électronique
-('B202', 'Station de soudage', 12),
-('B202', 'Analyseur de spectre', 3),
-('B202', 'Fer à souder', 20),
-('B202', 'Plaque de prototypage', 30),
-('B202', 'Imprimante 3D', 2),
+('B202', 'Station de soudage'),
+('B202', 'Analyseur de spectre'),
+('B202', 'Fer à souder'),
+('B202', 'Plaque de prototypage'),
+('B202', 'Imprimante 3D'),
 
 -- Salle C301 - Informatique
-('C301', 'Serveur calcul haute performance', 5),
-('C301', 'Station de travail GPU', 10),
-('C301', 'Oscilloscope numérique', 4),
-('C301', 'Analyseur logique', 3),
-('C301', 'Switch réseau', 6),
+('C301', 'Serveur calcul haute performance'),
+('C301', 'Station de travail GPU'),
+('C301', 'Oscilloscope numérique'),
+('C301', 'Analyseur logique'),
+('C301', 'Switch réseau'),
 
 -- Salle C302 - Robotique
-('C302', 'Bras robotique', 3),
-('C302', 'Capteur LIDAR', 5),
-('C302', 'Caméra haute vitesse', 4),
-('C302', 'Plateforme mobile', 2),
-('C302', 'Contrôleur Arduino', 25),
+('C302', 'Bras robotique'),
+('C302', 'Capteur LIDAR'),
+('C302', 'Caméra haute vitesse'),
+('C302', 'Plateforme mobile'),
+('C302', 'Contrôleur Arduino'),
 
 -- Salle D401 - Optique
-('D401', 'Laser He-Ne', 6),
-('D401', 'Table optique', 4),
-('D401', 'Spectrophotomètre', 3),
-('D401', 'Fibre optique (rouleaux)', 10),
-('D401', 'Détecteur CCD', 2),
+('D401', 'Laser He-Ne'),
+('D401', 'Table optique'),
+('D401', 'Spectrophotomètre'),
+('D401', 'Fibre optique (rouleaux)'),
+('D401', 'Détecteur CCD'),
 
 -- Salle D402 - Matériaux
-('D402', 'Four haute température', 2),
-('D402', 'Machine de traction', 1),
-('D402', 'Duromètre', 5),
-('D402', 'Microscope MEB', 1),
-('D402', 'Broyeur à billes', 3);
+('D402', 'Four haute température'),
+('D402', 'Machine de traction'),
+('D402', 'Duromètre'),
+('D402', 'Microscope MEB'),
+('D402', 'Broyeur à billes');
 
 -- ========================================
 -- INSERTION DES EXPÉRIENCES
@@ -309,120 +309,120 @@ INSERT INTO projet_experience (ID_projet, ID_experience) VALUES
 -- ASSOCIATION SALLES - EXPÉRIENCES
 -- ========================================
 -- Expérience 1: Salle A101 (chimie)
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (1, 1), (1, 2), (1, 3);
 
 -- Expérience 2: Salle A102 (biologie)
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (2, 6), (2, 7), (2, 8);
 
 -- Expérience 3: Salle A102
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (3, 6);
 
 -- Expérience 4: Salle C301 (informatique)
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (4, 21), (4, 22);
 
 -- Expérience 5: Salle C301
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (5, 21), (5, 22);
 
 -- Expérience 6: Salle A101
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (6, 1), (6, 2), (6, 4);
 
 -- Expérience 7: Salle A101
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (7, 1), (7, 4);
 
 -- Expérience 8: Salle A102
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (8, 7), (8, 10);
 
 -- Expérience 9: Salle D401 (optique)
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (9, 31), (9, 32), (9, 34);
 
 -- Expérience 10: Salle D401
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (10, 31), (10, 34);
 
 -- Expérience 11: Salle C302 (robotique)
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (11, 26), (11, 27), (11, 30);
 
 -- Expérience 12: Salle C302
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (12, 26), (12, 28);
 
 -- Expérience 13: Salle C302
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (13, 26), (13, 29);
 
 -- Expérience 14: Salle D402 (matériaux)
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (14, 36), (14, 37);
 
 -- Expérience 15: Salle D401
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (15, 33), (15, 35);
 
 -- Expérience 16: Salle A102
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (16, 6), (16, 7);
 
 -- Expérience 17: Salle C301
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (17, 21), (17, 22);
 
 -- Expérience 18: Salle D402
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (18, 36), (18, 40);
 
 -- Expérience 19: Salle D402
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (19, 36), (19, 39);
 
 -- Expérience 20: Salle A102
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (20, 6), (20, 8), (20, 10);
 
 -- Expérience 21: Salle C301
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (21, 21), (21, 22);
 
 -- Expérience 22: Salle B202 (électronique)
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (22, 16), (22, 18), (22, 19), (22, 20);
 
 -- Expérience 23: Salle B201 (physique)
-INSERT INTO salle_experience (ID_experience, ID_salle) VALUES
+INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (23, 11), (23, 13);
 
 -- ========================================
 -- INSERTION DES NOTIFICATIONS
 -- ========================================
 -- Notifications pour expériences
-INSERT INTO notification_experience (ID_compte_envoyeur, ID_compte_receveur, ID_experience, Type_notif, Date_envoi) VALUES
-(1, 2, 1, 1, '2024-11-20 09:15:00'),
-(2, 3, 1, 2, '2024-11-20 14:30:00'),
-(5, 6, 4, 1, '2024-11-21 10:00:00'),
-(9, 10, 6, 3, '2024-11-22 11:45:00'),
-(12, 13, 9, 1, '2024-11-23 08:30:00'),
-(16, 17, 11, 2, '2024-11-23 15:20:00'),
-(3, 4, 16, 1, '2024-11-24 09:00:00'),
-(7, 8, 18, 3, '2024-11-24 13:45:00');
+INSERT INTO notification_experience (ID_compte_envoyeur, ID_compte_receveur, ID_experience, Type_notif, Date_envoi, Valider) VALUES
+(1, 2, 1, 1, '2024-11-20 09:15:00', 0),
+(2, 3, 1, 2, '2024-11-20 14:30:00', 1),
+(5, 6, 4, 1, '2024-11-21 10:00:00', 1),
+(9, 10, 6, 3, '2024-11-22 11:45:00', 0),
+(12, 13, 9, 1, '2024-11-23 08:30:00', 1),
+(16, 17, 11, 2, '2024-11-23 15:20:00', 1),
+(3, 4, 16, 1, '2024-11-24 09:00:00', 1),
+(7, 8, 18, 3, '2024-11-24 13:45:00', 1);
 
 -- Notifications pour projets
-INSERT INTO notification_projet (ID_compte_envoyeur, ID_compte_receveur, ID_projet, Type_notif, Date_envoi) VALUES
-(1, 2, 1, 1, '2024-11-15 10:30:00'),
-(1, 3, 1, 1, '2024-11-15 10:31:00'),
-(5, 6, 2, 2, '2024-11-16 14:00:00'),
-(9, 10, 3, 1, '2024-11-17 09:15:00'),
-(12, 13, 4, 3, '2024-11-18 11:30:00'),
-(16, 17, 5, 1, '2024-11-19 08:45:00'),
-(19, 20, 6, 2, '2024-11-20 15:00:00'),
-(3, 4, 7, 1, '2024-11-21 10:20:00'),
-(10, 11, 9, 3, '2024-11-22 13:00:00'),
-(14, 15, 10, 1, '2024-11-23 09:30:00');
+INSERT INTO notification_projet (ID_compte_envoyeur, ID_compte_receveur, ID_projet, Type_notif, Date_envoi, Valider) VALUES
+(1, 2, 1, 1, '2024-11-15 10:30:00', 1),
+(1, 3, 1, 1, '2024-11-15 10:31:00', 0),
+(5, 6, 2, 2, '2024-11-16 14:00:00', 1),
+(9, 10, 3, 1, '2024-11-17 09:15:00', 0),
+(12, 13, 4, 3, '2024-11-18 11:30:00', 0),
+(16, 17, 5, 1, '2024-11-19 08:45:00', 1),
+(19, 20, 6, 2, '2024-11-20 15:00:00', 1),
+(3, 4, 7, 1, '2024-11-21 10:20:00', 0),
+(10, 11, 9, 3, '2024-11-22 13:00:00', 1),
+(14, 15, 10, 1, '2024-11-23 09:30:00', 0);
