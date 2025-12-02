@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/../back_php/init_DB.php';
 require __DIR__ . '/../back_php/fonctions_site_web.php';
 
 $bdd = connectBDD();
@@ -15,7 +14,6 @@ $erreur = null;
 if ($id_projet === 0) {
     $erreur = "ID de projet manquant.";
 }
-
 
 
 // Fonctions d'affichage
@@ -119,7 +117,7 @@ function afficher_carte_experience(array $exp): void {
     $desc = htmlspecialchars(substr($exp['Description'], 0, 180)) . "…";
     $date = htmlspecialchars($exp['Date_reservation']);
     $heure = htmlspecialchars($exp['Heure_debut']) . " - " . htmlspecialchars($exp['Heure_fin']);
-    $salle = isset($exp['Salle']) ? htmlspecialchars($exp['Salle']) : "Non spécifié";
+    $salle = isset($exp['Nom_salle']) ? htmlspecialchars($exp['Nom_salle']) : "Non spécifié";
 
     ?>
     <a class="experience-card card" href="page_experience.php?id_experience=<?= $id ?>">
@@ -227,9 +225,12 @@ function get_experiences(PDO $bdd, int $id_projet): array {
             e.Validation,
             e.Resultat,
             e.Nom,
-            e.Statut_experience
+            e.Statut_experience,
+            sm.Nom_salle
         FROM experience e
         INNER JOIN projet_experience pe ON e.ID_experience = pe.ID_experience
+        INNER JOIN materiel_experience me ON e.ID_experience = me.ID_experience
+        INNER JOIN salle_materiel sm ON me.ID_materiel = sm.ID_materiel
         WHERE pe.ID_projet = :id_projet
         ORDER BY e.Date_reservation DESC, e.Heure_debut DESC
     ";

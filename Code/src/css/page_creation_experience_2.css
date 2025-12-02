@@ -1,9 +1,9 @@
 body {
     font-family: Arial, sans-serif;
-    padding: 10px;
-    background-color: #f5f5f5;
-    color: #222;
+    background-color: #f3f3f3;
     margin: 0;
+    padding: 0;
+    min-height: 100vh;
 }
 .container { max-width: 100%; margin: 0 auto; padding: 0 10px; }
 
@@ -140,6 +140,65 @@ thead th {
 .semaine-info {
     font-weight: 700;
     font-size: 0.95em;
+}
+
+.info-experience {
+    background: #f0f8ff;
+    border: 2px solid #4a90e2;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+.info-experience h3 {
+    margin-top: 0;
+    color: #4a90e2;
+}
+.reservation-form {
+    background: #fff;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+.form-group {
+    margin-bottom: 15px;
+}
+.form-group label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+.btn-creer {
+    background: #4CAF50;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 700;
+}
+.btn-creer:hover {
+    background: #45a049;
+}
+.cell-content.selectable {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.cell-content.selectable:hover {
+    background: #e3f2fd;
+    transform: scale(1.02);
+}
+.cell-content.selected {
+    background: #4CAF50 !important;
+    color: white;
+    font-weight: bold;
 }
 
 /* Responsive adjustments */
