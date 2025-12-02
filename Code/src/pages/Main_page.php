@@ -12,12 +12,14 @@ session_start();
         <title>AxouLab</title>
 </head>
 <body>
+    <!-- On crée un conteneur pour le titre ainsi que les boutons de connexion ou d'inscription -->
     <div class="container">
         <div class="left-section">
             <h1 class="title">Axoulab</h1>
             <p class="subtitle">Le partage nous fait avancer</p>
         </div>
-
+        
+        <!-- Cette boîte contiendra les boutons de connexion et d'inscription -->
         <div class="right-section">
             <div class="box">
                 <button class="btn btn-login"  onclick="location.href='page_connexion.php'">Connexion</button>
