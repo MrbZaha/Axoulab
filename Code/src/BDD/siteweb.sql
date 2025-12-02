@@ -62,7 +62,7 @@ CREATE TABLE projet_experience (
     FOREIGN KEY (ID_experience) REFERENCES experience(ID_experience) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE TABLE salle_experience (
+CREATE TABLE materiel_experience (
     ID_experience BIGINT,
     ID_materiel BIGINT,
     PRIMARY KEY (ID_experience, ID_materiel),

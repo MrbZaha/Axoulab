@@ -107,6 +107,33 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                     envoyerNotification($bdd, $typeRetour, $idUtilisateur, ["ID_projet" => $idProjet], [$idEnvoyeurOriginal]);
                 }
             }
+            // --- si c'est une notification de création de projet (type 11) et que le destinataire l'a traitée,
+            // on met à jour l'état du projet en base.
+        if ($isProjet && isset($notif['Type_notif']) && in_array($notif['Type_notif'], [11])) {
+        // Projet validé
+            if ($nouvelEtat == 1) {
+                $up = $bdd->prepare("UPDATE projet SET Validation = 1, Date_de_modification = NOW() WHERE ID_projet = ?");
+                $up->execute([$idProjet]);
+            }
+
+            // Projet rejeté → on supprime le projet
+            if ($nouvelEtat == 2) {
+            // Mettre l’état à 2 pour historiser
+            $up = $bdd->prepare("UPDATE projet SET Validation = 2, Date_de_modification = NOW() WHERE ID_projet = ?");
+            $up->execute([$idProjet]);
+
+            // Envoyer notification de refus au créateur
+            envoyerNotification($bdd, 13, $_SESSION['ID_compte'], ['ID_projet' => $idProjet], [$idEnvoyeurOriginal]);
+
+            // Supprimer le projet (optionnel, après avoir notifié)
+            $deleteProjet = $bdd->prepare("DELETE FROM projet WHERE ID_projet = ?");
+            $deleteProjet->execute([$idProjet]);
+        }
+
+        // Modification demandée → laisse Validation = 0
+}
+
+
 
             // Supprimer notification traitée
             $delete = $bdd->prepare("DELETE FROM $table WHERE $idCol = ?");
@@ -615,31 +642,36 @@ $TYPES_NOTIFICATIONS = [
  */
 function envoyerNotification($bdd, $typeNotification, $idEnvoyeur, $donnees, $destinataires) {
     if (empty($destinataires)) return;
-
     $date_envoi = date('Y-m-d H:i:s');
-
-    $stmt = $bdd->prepare("
-        INSERT INTO notification_projet 
-            (ID_compte_envoyeur, ID_compte_receveur, ID_projet, Type_notif, Date_envoi, Valider)
-        VALUES (?, ?, ?, ?, ?, 0)
-    ");
 
     foreach ($destinataires as $idDestinataire) {
         try {
-            $stmt->execute([
-                $idEnvoyeur,
-                $idDestinataire,
-                $donnees['ID_projet'] ?? null,
-                $typeNotification,
-                $date_envoi
-            ]);
-            // debug log
-            error_log("Notification envoyée: type $typeNotification de $idEnvoyeur vers $idDestinataire pour projet ".$donnees['ID_projet']);
+            if (in_array($typeNotification, [1,2,3,4,5])) {
+                // Notification expérience
+                $idExperience = $donnees['ID_experience'] ?? null;
+                $stmt = $bdd->prepare("
+                    INSERT INTO notification_experience 
+                        (ID_compte_envoyeur, ID_compte_receveur, ID_experience, Type_notif, Date_envoi, Valider)
+                    VALUES (?, ?, ?, ?, ?, 0)
+                ");
+                $stmt->execute([$idEnvoyeur, $idDestinataire, $idExperience, $typeNotification, $date_envoi]);
+            } else {
+                // Notification projet
+                $idProjet = $donnees['ID_projet'] ?? null;
+                $stmt = $bdd->prepare("
+                    INSERT INTO notification_projet 
+                        (ID_compte_envoyeur, ID_compte_receveur, ID_projet, Type_notif, Date_envoi, Valider)
+                    VALUES (?, ?, ?, ?, ?, 0)
+                ");
+                $stmt->execute([$idEnvoyeur, $idDestinataire, $idProjet, $typeNotification, $date_envoi]);
+            }
         } catch (Exception $e) {
             error_log("Erreur notification: ".$e->getMessage());
         }
     }
 }
+
+
 
 // =======================  Vérifie si l'utilisateur est connecté =======================
 // Permet de limiter l'accès aux pages qui requiert une connexion
