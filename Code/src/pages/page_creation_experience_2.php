@@ -24,17 +24,29 @@ function recuperer_materiels_salle($bdd, $nom_salle) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+function recuperer_id_materiel_par_nom($bdd, $nom_materiel, $nom_salle) {
+    $sql = "
+        SELECT ID_materiel
+        FROM salle_materiel
+        WHERE Materiel = :materiel AND Nom_salle = :nom_salle
+        LIMIT 1
+    ";
+    $stmt = $bdd->prepare($sql);
+    $stmt->execute(['materiel' => $nom_materiel, 'nom_salle' => $nom_salle]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ? $result['ID_materiel'] : null;
+}
+
 function recuperer_reservations_semaine($bdd, $nom_salle, $date_debut, $date_fin) {
     $sql = "
-        SELECT
+        SELECT DISTINCT
             e.ID_experience,
             e.Nom AS nom_experience,
             DATE(e.Date_reservation) AS Date_reservation,
             e.Heure_debut,
             e.Heure_fin,
             e.Description,
-            e.Statut_experience,
-            sm.ID_materiel
+            e.Statut_experience
         FROM experience e
         INNER JOIN materiel_experience em ON em.ID_experience = e.ID_experience
         INNER JOIN salle_materiel sm ON sm.ID_materiel = em.ID_materiel
@@ -49,29 +61,7 @@ function recuperer_reservations_semaine($bdd, $nom_salle, $date_debut, $date_fin
         'date_debut' => $date_debut,
         'date_fin' => $date_fin
     ]);
-    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    $grouped = [];
-    foreach ($rows as $r) {
-        $id = $r['ID_experience'];
-        if (!isset($grouped[$id])) {
-            $grouped[$id] = [
-                'ID_experience' => $r['ID_experience'],
-                'nom_experience' => $r['nom_experience'],
-                'Date_reservation' => $r['Date_reservation'],
-                'Heure_debut' => $r['Heure_debut'],
-                'Heure_fin' => $r['Heure_fin'],
-                'Description' => $r['Description'],
-                'Statut_experience' => $r['Statut_experience'],
-                'materiels' => []
-            ];
-        }
-        $grouped[$id]['materiels'][] = [
-            'ID_materiel' => $r['ID_materiel']
-        ];
-    }
-
-    return array_values($grouped);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 function get_dates_semaine($date_reference = null) {
@@ -121,7 +111,7 @@ function creer_experience($bdd, $nom_experience, $description, $date_reservation
     return false;
 }
 
-function associer_experience_a_projet($bdd, $id_projet, $id_experience) {
+function associer_experience_projet($bdd, $id_projet, $id_experience) {
     $sql = $bdd->prepare("
         INSERT INTO projet_experience (ID_projet, ID_experience)
         VALUES (?, ?)
@@ -140,75 +130,140 @@ function ajouter_experimentateurs($bdd, $id_experience, $experimentateurs) {
     }
 }
 
-function associer_materiel_experience($bdd, $id_experience, $nom_salle) {
-    // Récupérer tous les matériels de la salle
-    $sql = "SELECT ID_materiel FROM salle_materiel WHERE Nom_salle = ?";
-    $stmt = $bdd->prepare($sql);
-    $stmt->execute([$nom_salle]);
-    $materiels = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Associer chaque matériel à l'expérience
+function associer_materiel_experience($bdd, $id_experience, $materiels_ids) {
     $sql_insert = $bdd->prepare("
         INSERT INTO materiel_experience (ID_experience, ID_materiel)
         VALUES (?, ?)
     ");
     
-    foreach ($materiels as $mat) {
-        $sql_insert->execute([$id_experience, $mat['ID_materiel']]);
+    foreach ($materiels_ids as $id_materiel) {
+        $sql_insert->execute([$id_experience, $id_materiel]);
     }
 }
 
 // ======================= TRAITEMENT DES DONNÉES =======================
 $message = "";
-$id_projet = null;
 $nom_experience = "";
 $description = "";
 $experimentateurs_ids = [];
+$materiels_selectionnes = [];
+$id_projet = null;
+$creneau_selectionne = null;
 
 // Récupération des données de la page 1
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['id_projet'])) {
+    // Récupérer id_projet
+    if (isset($_POST['id_projet']) && !empty($_POST['id_projet'])) {
         $id_projet = intval($_POST['id_projet']);
     }
+    
     if (isset($_POST['nom_experience'])) {
         $nom_experience = $_POST['nom_experience'];
     }
+    
     if (isset($_POST['description'])) {
         $description = $_POST['description'];
     }
+    
     if (isset($_POST['experimentateurs_ids'])) {
         $experimentateurs_ids = array_filter(array_map('intval', explode(',', $_POST['experimentateurs_ids'])));
     }
     
-    // Traitement de la création finale
-    if (isset($_POST['creer_experience'])) {
-        $date_reservation = $_POST['date_reservation'];
-        $heure_debut = $_POST['heure_debut'];
-        $heure_fin = $_POST['heure_fin'];
-        $nom_salle = $_POST['nom_salle'];
-        
-        // Créer l'expérience
-        $id_experience = creer_experience($bdd, $nom_experience, $description, $date_reservation, $heure_debut, $heure_fin, $nom_salle);
-        
-        if ($id_experience) {
-            // Associer au projet
-            associer_experience_a_projet($bdd, $id_projet, $id_experience);
-            
-            // Ajouter les expérimentateurs
-            if (!empty($experimentateurs_ids)) {
-                ajouter_experimentateurs($bdd, $id_experience, $experimentateurs_ids);
-            }
-            
-            // Associer les matériels de la salle
-            associer_materiel_experience($bdd, $id_experience, $nom_salle);
-            
-            // Redirection
-            header("Location: page_experience.php?id_projet=" . $id_projet . "&id_experience=" . $id_experience);
-            exit();
-        } else {
-            $message = "<p style='color:red;'>Erreur lors de la création de l'expérience.</p>";
+    // Récupérer la liste des matériels sélectionnés
+    if (isset($_POST['materiels_selectionnes'])) {
+        $materiels_selectionnes = array_filter(array_map('intval', explode(',', $_POST['materiels_selectionnes'])));
+    }
+    
+    // Récupérer le créneau sélectionné
+    if (isset($_POST['date_reservation']) && isset($_POST['heure_debut']) && isset($_POST['heure_fin'])) {
+        $creneau_selectionne = [
+            'date' => $_POST['date_reservation'],
+            'heure_debut' => $_POST['heure_debut'],
+            'heure_fin' => $_POST['heure_fin']
+        ];
+    }
+    
+    // Gérer les actions d'ajout/retrait de matériel
+    if (isset($_POST['action'])) {
+        switch ($_POST['action']) {
+            case 'ajouter_materiel':
+                if (!empty($_POST['Materiel']) && isset($_POST['nom_salle'])) {
+                    $nom_materiel = trim($_POST['Materiel']);
+                    $nom_salle = $_POST['nom_salle'];
+                    
+                    // Récupérer l'ID du matériel par son nom
+                    $id_materiel = recuperer_id_materiel_par_nom($bdd, $nom_materiel, $nom_salle);
+                    
+                    if ($id_materiel && !in_array($id_materiel, $materiels_selectionnes)) {
+                        $materiels_selectionnes[] = $id_materiel;
+                    }
+                }
+                break;
+                
+            case 'retirer_materiel':
+                if (isset($_POST['id_retirer']) && !empty($_POST['id_retirer'])) {
+                    $id_a_retirer = intval($_POST['id_retirer']);
+                    $materiels_selectionnes = array_diff($materiels_selectionnes, [$id_a_retirer]);
+                    $materiels_selectionnes = array_values($materiels_selectionnes); // Réindexer le tableau
+                }
+                break;
+                
+            case 'selectionner_creneau':
+                if (isset($_POST['creneau_date']) && isset($_POST['creneau_heure'])) {
+                    $date = $_POST['creneau_date'];
+                    $heure = intval($_POST['creneau_heure']);
+                    $creneau_selectionne = [
+                        'date' => $date,
+                        'heure_debut' => sprintf('%02d:00', $heure),
+                        'heure_fin' => sprintf('%02d:00', $heure + 1)
+                    ];
+                }
+                break;
         }
     }
+    
+    // Traitement de la création finale
+    if (isset($_POST['creer_experience'])) {
+        if (!$id_projet || $id_projet <= 0) {
+            $message = "<p style='color:red;'>Erreur : ID du projet invalide.</p>";
+        } elseif (empty($_POST['date_reservation']) || empty($_POST['heure_debut']) || empty($_POST['heure_fin'])) {
+            $message = "<p style='color:red;'>Erreur : Veuillez sélectionner un créneau horaire.</p>";
+        } else {
+            $date_reservation = $_POST['date_reservation'];
+            $heure_debut = $_POST['heure_debut'];
+            $heure_fin = $_POST['heure_fin'];
+            $nom_salle = $_POST['nom_salle'];
+            
+            // Créer l'expérience
+            $id_experience = creer_experience($bdd, $nom_experience, $description, $date_reservation, $heure_debut, $heure_fin, $nom_salle);
+            
+            if ($id_experience) {
+                // Associer au projet
+                associer_experience_projet($bdd, $id_projet, $id_experience);
+                
+                // Ajouter les expérimentateurs
+                if (!empty($experimentateurs_ids)) {
+                    ajouter_experimentateurs($bdd, $id_experience, $experimentateurs_ids);
+                }
+                
+                // Associer les matériels sélectionnés
+                if (!empty($materiels_selectionnes)) {
+                    associer_materiel_experience($bdd, $id_experience, $materiels_selectionnes);
+                }
+                
+                // Redirection
+                header("Location: page_experience.php?id_projet=" . $id_projet . "&id_experience=" . $id_experience);
+                exit();
+            } else {
+                $message = "<p style='color:red;'>Erreur lors de la création de l'expérience.</p>";
+            }
+        }
+    }
+}
+
+// Vérifier si on a un ID_projet valide
+if (!$id_projet || $id_projet <= 0) {
+    $message = "<p style='color:red;'>Erreur : Aucun projet sélectionné. Veuillez retourner à l'étape 1.</p>";
 }
 
 // ======================= PLANNING =======================
@@ -249,7 +304,10 @@ $heures = range(8, 19);
 <link rel="stylesheet" href="../css/Bandeau_haut.css">
 <link rel="stylesheet" href="../css/Bandeau_bas.css">
 <style>
-
+.cell-content.selected {
+    background-color: #e3f2fd;
+    border: 2px solid #2196F3;
+}
 </style>
 </head>
 <body>
@@ -260,165 +318,233 @@ $heures = range(8, 19);
 
     <?php if (!empty($message)) echo $message; ?>
 
-    <!-- Récapitulatif de l'expérience -->
-    <div class="info-experience">
-        <h3>📋 Récapitulatif de l'expérience</h3>
-        <p><strong>Nom :</strong> <?= htmlspecialchars($nom_experience) ?></p>
-        <p><strong>Description :</strong> <?= htmlspecialchars($description) ?></p>
-        <p><strong>Projet ID :</strong> <?= $id_projet ?></p>
-    </div>
-
-    <!-- Sélection de salle -->
-    <form method="get" action="" class="form-row">
-        <label for="nom_salle" style="font-weight:700;margin-right:6px">Choisir une salle :</label>
-        <select name="nom_salle" id="nom_salle" onchange="this.form.submit()" style="padding:8px 10px;border-radius:6px;border:1px solid #d0d0d0;">
-            <?php foreach ($salles as $s): ?>
-                <option value="<?= htmlspecialchars($s['Nom_salle']) ?>" <?= ($s['Nom_salle'] === $nom_salle_selectionnee) ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($s['Nom_salle']) ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-        <?php if (isset($_GET['date_ref'])): ?>
-            <input type="hidden" name="date_ref" value="<?= htmlspecialchars($_GET['date_ref']) ?>">
-        <?php endif; ?>
-    </form>
-
-    <?php if ($nom_salle_selectionnee !== ''): ?>
-        <h2>Salle : <?= htmlspecialchars($nom_salle_selectionnee) ?></h2>
-
-        <div class="navigation-semaine">
-            <a href="?nom_salle=<?= urlencode($nom_salle_selectionnee) ?>&date_ref=<?= htmlspecialchars($semaine_precedente) ?>" class="btn-nav">
-                ← Semaine précédente
-            </a>
-            
-            <span class="semaine-info">
-                Semaine du <?= htmlspecialchars($dates_semaine[0]['date_formatee']) ?> au <?= htmlspecialchars($dates_semaine[6]['date_formatee']) ?>
-            </span>
-            
-            <a href="?nom_salle=<?= urlencode($nom_salle_selectionnee) ?>&date_ref=<?= htmlspecialchars($semaine_suivante) ?>" class="btn-nav">
-                Semaine suivante →
-            </a>
+    <?php if ($id_projet && $id_projet > 0): ?>
+        <!-- Récapitulatif de l'expérience -->
+        <div class="info-experience">
+            <h3>Récapitulatif de l'expérience</h3>
+            <p><strong>Nom :</strong> <?= htmlspecialchars($nom_experience) ?></p>
+            <p><strong>Description :</strong> <?= htmlspecialchars($description) ?></p>
+            <p><strong>Projet ID :</strong> <?= $id_projet ?></p>
         </div>
 
-        <?php if ($date_ref !== date('Y-m-d')): ?>
-            <div style="text-align:center;margin:10px 0;">
-                <a href="?nom_salle=<?= urlencode($nom_salle_selectionnee) ?>" class="btn-nav" style="display:inline-block;">
-                    Revenir à la semaine actuelle
+        <!-- Sélection de salle -->
+        <form method="get" action="" class="form-row">
+            <label for="nom_salle" style="font-weight:700;margin-right:6px">Choisir une salle :</label>
+            <select name="nom_salle" id="nom_salle" onchange="this.form.submit()" style="padding:8px 10px;border-radius:6px;border:1px solid #d0d0d0;">
+                <?php foreach ($salles as $s): ?>
+                    <option value="<?= htmlspecialchars($s['Nom_salle']) ?>" <?= ($s['Nom_salle'] === $nom_salle_selectionnee) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($s['Nom_salle']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <?php if (isset($_GET['date_ref'])): ?>
+                <input type="hidden" name="date_ref" value="<?= htmlspecialchars($_GET['date_ref']) ?>">
+            <?php endif; ?>
+        </form>
+
+        <?php if ($nom_salle_selectionnee !== ''): ?>
+            <h2>Salle : <?= htmlspecialchars($nom_salle_selectionnee) ?></h2>
+
+            <div class="navigation-semaine">
+                <a href="?nom_salle=<?= urlencode($nom_salle_selectionnee) ?>&date_ref=<?= htmlspecialchars($semaine_precedente) ?>" class="btn-nav">
+                    ← Semaine précédente
+                </a>
+                
+                <span class="semaine-info">
+                    Semaine du <?= htmlspecialchars($dates_semaine[0]['date_formatee']) ?> au <?= htmlspecialchars($dates_semaine[6]['date_formatee']) ?>
+                </span>
+                
+                <a href="?nom_salle=<?= urlencode($nom_salle_selectionnee) ?>&date_ref=<?= htmlspecialchars($semaine_suivante) ?>" class="btn-nav">
+                    Semaine suivante →
                 </a>
             </div>
-        <?php endif; ?>
 
-        <p style="text-align:center;color:#666;margin:15px 0;">
-            Cliquez sur un créneau disponible pour réserver
-        </p>
+            <?php if ($date_ref !== date('Y-m-d')): ?>
+                <div style="text-align:center;margin:10px 0;">
+                    <a href="?nom_salle=<?= urlencode($nom_salle_selectionnee) ?>" class="btn-nav" style="display:inline-block;">
+                        Revenir à la semaine actuelle
+                    </a>
+                </div>
+            <?php endif; ?>
 
-        <table aria-describedby="planning" id="planning-table">
-            <thead>
-                <tr>
-                    <th class="col-heure">Heure</th>
-                    <?php foreach ($dates_semaine as $jour): ?>
-                        <th class="col-jour">
-                            <div style="font-weight:700;"><?= htmlspecialchars($jour['jour']) ?></div>
-                            <div style="font-size:0.9em;opacity:0.85;"><?= htmlspecialchars($jour['date_formatee']) ?></div>
-                        </th>
-                    <?php endforeach; ?>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($heures as $heure): ?>
+            <p style="text-align:center;color:#666;margin:15px 0;">
+                Cliquez sur un créneau disponible pour le sélectionner
+            </p>
+
+            <table aria-describedby="planning" id="planning-table">
+                <thead>
                     <tr>
-                        <th class="col-heure"><?= sprintf('%02dH', $heure) ?></th>
-
+                        <th class="col-heure">Heure</th>
                         <?php foreach ($dates_semaine as $jour): ?>
-                            <td class="col-jour">
-                                <?php
-                                $occ = creneau_est_occupe($reservations, $jour, $heure);
-                                if (!empty($occ)):
-                                    foreach ($occ as $i => $res):
-                                        $cls = 'couleur-' . (($i % 4) + 1);
-                                ?>
-                                        <div class="cell-content">
-                                            <div class="reservation <?= $cls ?>" title="<?= htmlspecialchars($res['Description'] ?? '') ?>">
-                                                <div style="font-weight:700;"><?= htmlspecialchars($res['nom_experience']) ?></div>
-                                                <div style="font-size:0.85em;margin-top:6px;color:#f7f7f7;">
-                                                    <?= htmlspecialchars(substr($res['Heure_debut'],0,5)) ?> — <?= htmlspecialchars(substr($res['Heure_fin'],0,5)) ?>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php endforeach;
-                                else: ?>
-                                    <div class="cell-content selectable" 
-                                         data-date="<?= $jour['date'] ?>" 
-                                         data-heure="<?= $heure ?>"
-                                         onclick="selectionnerCreneau(this)">
-                                        <div class="empty-slot">—</div>
-                                    </div>
-                                <?php endif; ?>
-                            </td>
+                            <th class="col-jour">
+                                <div style="font-weight:700;"><?= htmlspecialchars($jour['jour']) ?></div>
+                                <div style="font-size:0.9em;opacity:0.85;"><?= htmlspecialchars($jour['date_formatee']) ?></div>
+                            </th>
                         <?php endforeach; ?>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($heures as $heure): ?>
+                        <tr>
+                            <th class="col-heure"><?= sprintf('%02dH', $heure) ?></th>
 
-        <!-- Formulaire de réservation -->
-        <div class="reservation-form">
-            <h3>Créer la réservation</h3>
-            <form method="post" id="form-reservation">
-                <input type="hidden" name="id_projet" value="<?= $id_projet ?>">
-                <input type="hidden" name="nom_experience" value="<?= htmlspecialchars($nom_experience) ?>">
-                <input type="hidden" name="description" value="<?= htmlspecialchars($description) ?>">
-                <input type="hidden" name="experimentateurs_ids" value="<?= implode(',', $experimentateurs_ids) ?>">
-                <input type="hidden" name="nom_salle" value="<?= htmlspecialchars($nom_salle_selectionnee) ?>">
+                            <?php foreach ($dates_semaine as $jour): ?>
+                                <td class="col-jour">
+                                    <?php
+                                    $occ = creneau_est_occupe($reservations, $jour, $heure);
+                                    $est_selectionne = ($creneau_selectionne && 
+                                                       $creneau_selectionne['date'] === $jour['date'] && 
+                                                       (int)substr($creneau_selectionne['heure_debut'], 0, 2) === $heure);
+                                    
+                                    if (!empty($occ)):
+                                        foreach ($occ as $i => $res):
+                                            $cls = 'couleur-' . (($i % 4) + 1);
+                                    ?>
+                                            <div class="cell-content">
+                                                <div class="reservation <?= $cls ?>" title="<?= htmlspecialchars($res['Description'] ?? '') ?>">
+                                                    <div style="font-weight:700;"><?= htmlspecialchars($res['nom_experience']) ?></div>
+                                                    <div style="font-size:0.85em;margin-top:6px;color:#f7f7f7;">
+                                                        <?= htmlspecialchars(substr($res['Heure_debut'],0,5)) ?> — <?= htmlspecialchars(substr($res['Heure_fin'],0,5)) ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php endforeach;
+                                    else: ?>
+                                        <form method="post" style="margin:0;">
+                                            <input type="hidden" name="id_projet" value="<?= $id_projet ?>">
+                                            <input type="hidden" name="nom_experience" value="<?= htmlspecialchars($nom_experience) ?>">
+                                            <input type="hidden" name="description" value="<?= htmlspecialchars($description) ?>">
+                                            <input type="hidden" name="experimentateurs_ids" value="<?= implode(',', $experimentateurs_ids) ?>">
+                                            <input type="hidden" name="materiels_selectionnes" value="<?= implode(',', $materiels_selectionnes) ?>">
+                                            <input type="hidden" name="nom_salle" value="<?= htmlspecialchars($nom_salle_selectionnee) ?>">
+                                            <input type="hidden" name="creneau_date" value="<?= $jour['date'] ?>">
+                                            <input type="hidden" name="creneau_heure" value="<?= $heure ?>">
+                                            <input type="hidden" name="action" value="selectionner_creneau">
+                                            <?php if ($creneau_selectionne): ?>
+                                                <input type="hidden" name="date_reservation" value="<?= htmlspecialchars($creneau_selectionne['date']) ?>">
+                                                <input type="hidden" name="heure_debut" value="<?= htmlspecialchars($creneau_selectionne['heure_debut']) ?>">
+                                                <input type="hidden" name="heure_fin" value="<?= htmlspecialchars($creneau_selectionne['heure_fin']) ?>">
+                                            <?php endif; ?>
+                                            
+                                            <button type="submit" class="cell-content selectable <?= $est_selectionne ? 'selected' : '' ?>" style="width:100%;height:100%;border:none;background:none;cursor:pointer;padding:0;">
+                                                <div class="empty-slot">—</div>
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                </td>
+                            <?php endforeach; ?>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
 
-                <div class="form-group">
-                    <label for="date_reservation">Date :</label>
-                    <input type="date" id="date_reservation" name="date_reservation" required>
-                </div>
+            <!-- Formulaire de réservation -->
+            <div class="reservation-form">
+                <h3>Créer la réservation</h3>
+                <form method="post" id="form-reservation">
+                    <input type="hidden" name="id_projet" value="<?= $id_projet ?>">
+                    <input type="hidden" name="nom_experience" value="<?= htmlspecialchars($nom_experience) ?>">
+                    <input type="hidden" name="description" value="<?= htmlspecialchars($description) ?>">
+                    <input type="hidden" name="experimentateurs_ids" value="<?= implode(',', $experimentateurs_ids) ?>">
+                    <input type="hidden" name="nom_salle" value="<?= htmlspecialchars($nom_salle_selectionnee) ?>">
+                    <input type="hidden" name="materiels_selectionnes" id="materiels_selectionnes" value="<?= implode(',', $materiels_selectionnes) ?>">
+                    <input type="hidden" name="id_retirer" id="id_retirer" value="">
 
-                <div class="form-group">
-                    <label for="heure_debut">Heure de début :</label>
-                    <input type="time" id="heure_debut" name="heure_debut" required>
-                </div>
+                    <div class="form-group">
+                        <label for="date_reservation">Date :</label>
+                        <input type="date" 
+                               id="date_reservation" 
+                               name="date_reservation" 
+                               value="<?= $creneau_selectionne ? htmlspecialchars($creneau_selectionne['date']) : '' ?>"
+                               required 
+                               readonly>
+                    </div>
 
-                <div class="form-group">
-                    <label for="heure_fin">Heure de fin :</label>
-                    <input type="time" id="heure_fin" name="heure_fin" required>
-                </div>
+                    <div class="form-group">
+                        <label for="heure_debut">Heure de début :</label>
+                        <input type="time" 
+                               id="heure_debut" 
+                               name="heure_debut" 
+                               value="<?= $creneau_selectionne ? htmlspecialchars($creneau_selectionne['heure_debut']) : '' ?>"
+                               required 
+                               readonly>
+                    </div>
 
-                <button type="submit" name="creer_experience" class="btn-creer">
-                    Créer l'expérience et réserver
-                </button>
-            </form>
-        </div>
+                    <div class="form-group">
+                        <label for="heure_fin">Heure de fin :</label>
+                        <input type="time" 
+                               id="heure_fin" 
+                               name="heure_fin" 
+                               value="<?= $creneau_selectionne ? htmlspecialchars($creneau_selectionne['heure_fin']) : '' ?>"
+                               required 
+                               readonly>
+                    </div>
 
+                    <!-- Section Matériels -->
+                    <div class="form-group">
+                        <label>Matériels :</label>                
+                        <div class="selection-container">
+                            <input type="text"
+                                   name="Materiel"
+                                   list="liste-materiel"
+                                   placeholder="Rechercher un matériel"
+                                   autocomplete="off">
+                            <button type="submit" name="action" value="ajouter_materiel" class="btn-ajouter">Ajouter</button>
+                        </div>
+                        <datalist id="liste-materiel">
+                            <?php foreach ($materiels as $materiel): 
+                                // N'afficher que les matériels NON sélectionnés
+                                if (!in_array($materiel['ID_materiel'], $materiels_selectionnes)):
+                            ?>
+                                <option value="<?= htmlspecialchars($materiel['Materiel']) ?>">
+                                </option>
+                            <?php 
+                                endif;
+                            endforeach; ?>
+                        </datalist>
+
+                        <div class="liste-selectionnes">
+                            <?php if (empty($materiels_selectionnes)): ?>
+                                <div class="liste-vide">Aucun matériel ajouté</div>
+                            <?php else: ?>
+                                <?php 
+                                // Afficher UNIQUEMENT les matériels sélectionnés
+                                foreach ($materiels as $materiel): 
+                                    if (in_array($materiel['ID_materiel'], $materiels_selectionnes)):
+                                ?>
+                                    <span class="tag-materiel">
+                                        <?= htmlspecialchars($materiel['Materiel']) ?>
+                                        <button type="submit" 
+                                                name="action" 
+                                                value="retirer_materiel" 
+                                                class="btn-croix"
+                                                onclick="document.getElementById('id_retirer').value='<?= $materiel['ID_materiel'] ?>'; return true;">
+                                            ×
+                                        </button>
+                                    </span>
+                                <?php 
+                                    endif;
+                                endforeach;
+                                ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <button type="submit" name="creer_experience" class="btn-creer">
+                        Créer l'expérience et réserver
+                    </button>
+                </form>
+            </div>
+
+        <?php else: ?>
+            <p style="text-align:center;margin-top:20px;">Aucune salle trouvée.</p>
+        <?php endif; ?>
     <?php else: ?>
-        <p style="text-align:center;margin-top:20px;">Aucune salle trouvée.</p>
+        <p style="text-align:center;margin-top:20px;">
+            <a href="page_creation_experience_1.php" class="btn-nav">← Retour à l'étape 1</a>
+        </p>
     <?php endif; ?>
 </div>
-
-<script>
-function selectionnerCreneau(element) {
-    // Désélectionner tous les créneaux
-    document.querySelectorAll('.cell-content.selected').forEach(el => {
-        el.classList.remove('selected');
-    });
-    
-    // Sélectionner le créneau cliqué
-    element.classList.add('selected');
-    
-    // Remplir le formulaire
-    const date = element.getAttribute('data-date');
-    const heure = parseInt(element.getAttribute('data-heure'));
-    
-    document.getElementById('date_reservation').value = date;
-    document.getElementById('heure_debut').value = String(heure).padStart(2, '0') + ':00';
-    document.getElementById('heure_fin').value = String(heure + 1).padStart(2, '0') + ':00';
-    
-    // Scroll vers le formulaire
-    document.getElementById('form-reservation').scrollIntoView({ behavior: 'smooth' });
-}
-</script>
 
 <?php afficher_Bandeau_Bas(); ?>
 </body>

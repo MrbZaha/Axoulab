@@ -134,7 +134,7 @@ if (!empty($experimentateurs_selectionnes)) {
         
         <?php if ($id_projet === null): ?>
             <p style="color:red;">Erreur : Vous devez accéder à cette page depuis un projet.</p>
-            <a href="liste_projets.php">Retour à la liste des projets</a>
+            <a href="page_mes_projets.php">Retour à la liste de vos projets</a>
         <?php else: ?>
 
         <form method="post" id="form-experience">
@@ -151,8 +151,7 @@ if (!empty($experimentateurs_selectionnes)) {
             <!-- EXPERIMENTATEURS -->
             <div class="participants-section">
                 <label>Expérimentateurs :</label>
-                <p class="info-text">Tous les utilisateurs validés peuvent être expérimentateurs</p>
-                
+                <p class="info-text">Tous les utilisateurs validés peuvent être expérimentateurs</p>  
                 <div class="selection-container">
                     <input type="text" 
                            name="nom_experimentateur" 
@@ -161,7 +160,6 @@ if (!empty($experimentateurs_selectionnes)) {
                            autocomplete="off">
                     <button type="submit" name="action" value="ajouter_experimentateur" class="btn-ajouter">Ajouter</button>
                 </div>
-                
                 <datalist id="liste-experimentateurs-disponibles">
                     <?php foreach ($experimentateurs_disponibles as $personne): ?>
                         <option value="<?= htmlspecialchars($personne['Prenom'] . ' ' . $personne['Nom']) ?>">
