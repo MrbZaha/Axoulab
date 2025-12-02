@@ -149,8 +149,8 @@ function associer_materiel_experience($bdd, $id_experience, $nom_salle) {
     
     // Associer chaque matériel à l'expérience
     $sql_insert = $bdd->prepare("
-        INSERT INTO materiel_experience (ID_experience, ID_materiel, Quantite_utilisee)
-        VALUES (?, ?, 1)
+        INSERT INTO materiel_experience (ID_experience, ID_materiel)
+        VALUES (?, ?)
     ");
     
     foreach ($materiels as $mat) {
