@@ -7,7 +7,6 @@ verification_connexion($bdd);
 
 function get_mes_projets_complets(PDO $bdd, int $id_compte=NULL): array {
     
-    if ($id_compte==NULL){
     $sql_projets = "
         SELECT 
             p.ID_projet, 
@@ -20,29 +19,18 @@ function get_mes_projets_complets(PDO $bdd, int $id_compte=NULL): array {
         FROM projet p
         INNER JOIN projet_collaborateur_gestionnaire pcg
             ON p.ID_projet = pcg.ID_projet    ";
-    $stmt = $bdd->prepare($sql_projets);
-    $stmt->execute();
+    
+
+    // Ajout conditionnel du WHERE
+    if ($id_compte !== null) {
+        $sql_projets .= " WHERE pcg.ID_compte = :id_compte";
+        $stmt = $bdd->prepare($sql_projets);
+        $stmt->execute(['id_compte' => $id_compte]);
+    } else {
+        $stmt = $bdd->prepare($sql_projets);
+        $stmt->execute();
     }
 
-    else (){
-        $sql_projets = "
-        SELECT 
-            p.ID_projet, 
-            p.Nom_projet, 
-            p.Description, 
-            p.Confidentiel, 
-            p.Validation, 
-            pcg.Statut,
-            p.Date_de_creation
-        FROM projet p
-        INNER JOIN projet_collaborateur_gestionnaire pcg
-            ON p.ID_projet = pcg.ID_projet
-        WHERE pcg.ID_compte = :id_compte
-    ";
-    $stmt = $bdd->prepare($sql_projets);
-    $stmt->execute(['id_compte' => $id_compte]);
-    }
-    
     $projets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($projets)) {
@@ -72,6 +60,8 @@ function get_mes_projets_complets(PDO $bdd, int $id_compte=NULL): array {
 
     foreach ($projets as &$p) {
         $p['Gestionnaires'] = $gestionnaires[$p['ID_projet']] ?? [];
+        $p['Progression'] = progression_projet($bdd, (int)$p['ID_projet']);
+
     }
 
     return $projets;
@@ -111,7 +101,9 @@ function afficher_projets_pagines(array $projets, int $page_actuelle = 1, int $i
 }
 
 
-function get_mes_experiences_complets(PDO $bdd): array {
+function get_mes_experiences_complets(PDO $bdd, int $id_compte=NULL): array {
+    
+    if ($id_compte==NULL){
     $sql_experiences = "
         SELECT 
             e.ID_experience, 
@@ -141,6 +133,42 @@ function get_mes_experiences_complets(PDO $bdd): array {
 
     $stmt = $bdd->prepare($sql_experiences);
     $stmt->execute();
+    }
+
+    else(){
+        $sql_experiences = "
+        SELECT 
+            e.ID_experience, 
+            e.Nom, 
+            e.Validation, 
+            e.Description, 
+            e.Date_reservation,
+            e.Heure_debut,
+            e.Heure_fin,
+            e.Resultat,
+            e.Statut_experience,
+            s.Nom_salle,
+            p.Nom_projet,
+            p.ID_projet
+        FROM experience e
+        LEFT JOIN projet_experience pe
+            ON pe.ID_experience = e.ID_experience
+        LEFT JOIN projet p
+            ON p.ID_projet = pe.ID_projet
+        INNER JOIN experience_experimentateur ee
+            ON e.ID_experience = ee.ID_experience
+        LEFT JOIN materiel_experience me
+            ON e.ID_experience = me.ID_experience
+        LEFT JOIN salle_materiel s
+            ON me.ID_materiel = s.ID_materiel
+        WHERE ee.ID_compte = :id_compte
+    ";
+
+    $stmt = $bdd->prepare($sql_experiences);
+    $stmt->execute(['id_compte' => $id_compte]);
+    }
+
+
     $experiences = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($experiences)) {
@@ -192,53 +220,56 @@ function filtrer_pro_exp(PDO $bdd, int $projet_exp=2){
 }
 
 
-function filtrer_projets(array $liste_projets, 
+function filtrer_projets(
+    array $liste_projets, 
     ?string $texte = null, 
-    bool $confid = false, 
-    ?string $statut = null
+    bool $confid = null, 
+    ?int $statut = null
 ): array {
 
     $resultat = [];
+    $t = strtolower($texte ?? "");
 
     foreach ($liste_projets as $proj) {
 
-        // --- 1. Filtre texte (Nom + Description)
+        // --- 1. Filtre texte (Nom + Description + Gestionnaires)
         if (!empty($texte)) {
-            $t = strtolower($texte);
-            if (
-                !str_contains(strtolower($proj["Nom_projet"] ?? ""), $t) &&
-                !str_contains(strtolower($proj["Description"] ?? ""), $t)
-            ) {
-                continue; // on saute ce projet
-            }
-        }
-    
+            $match = false;
 
-            // --- 2. Filtre confid (si TRUE -> ne garder que projets confidentiels)
-        if ($confid === true) {
-            if (($proj["Confidentiel"] ?? 0) != 1) {
-                continue;
-            }
-        }
+            // Nom du projet
+            if (str_contains(strtolower($proj["Nom_projet"] ?? ""), $t)) $match = true;
 
-        // --- 3. Filtre statut
-        // Ex : statut = "validé", "en attente", "refusé"
-        if (!empty($statut)) {
-            if (strcasecmp($proj["Statut"] ?? "", $statut) !== 0) {
-                continue;
+            // Description
+            if (!$match && str_contains(strtolower($proj["Description"] ?? ""), $t)) $match = true;
+
+            // Gestionnaires
+            if (!$match && !empty($proj["Gestionnaires"]) && is_array($proj["Gestionnaires"])) {
+                foreach ($proj["Gestionnaires"] as $g) {
+                    if (str_contains(strtolower($g), $t)) {
+                        $match = true;
+                        break;
+                    }
+                }
             }
+
+            // Si rien ne match → on skip
+            if (!$match) continue;
         }
 
+        // --- 2. Confidentialité
+        if ($confid !== null && (($proj["Confidentiel"] ?? 0) != $confid)) continue;
+
+        // --- 3. Progression
+        if ($proj['Progression'] !== null && (($proj['Progression'] ?? 0) != $statut)) continue;
+
+        // --- 4. Si tout passe → on garde
         $resultat[] = $proj;
     }
 
-    // --- 4. Tri (par date de création décroissante)
-    usort($resultat, function ($a, $b) {
-        return strtotime($b["Date_de_creation"] ?? 0) - strtotime($a["Date_de_creation"] ?? 0);
-    });
-
     return $resultat;
 }
+
+
 
 
 
@@ -259,20 +290,20 @@ function progression_projet(PDO $bdd, int $IDprojet): int {
     $proj_exp = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-    if (empty($experiences)) {
+    if (empty($proj_exp)) {
         return 0; // pas d'expériences = progression 0%
     }
 
     // Exemple : Statut_experience = 'fini'
     $finies = 0;
-    foreach ($experiences as $statut) {
-        if ($statut === 2) {
+    foreach ($proj_exp as $exp) {
+        if ((int)$exp['Statut_experience'] === 2) {
             $finies++;
         }
     }
 
     // Pourcentage arrondi
-    $progression = (int) round(($finies / count($experiences)) * 100);
+    $progression = (int) round(($finies / count($proj_exp)) * 100);
 
     return $progression;
 }
