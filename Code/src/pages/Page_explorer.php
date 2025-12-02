@@ -135,30 +135,121 @@ function create_page(array $items, int $items_par_page = 6): int {
     return (int)ceil($total_items / $items_par_page);
 }
 
-function filtrer_pro_exp(int $projet_exp=2){
+function filtrer_pro_exp(PDO $bdd, int $projet_exp=2){
 
-    switch $choix
+    switch ($projet_exp) {
         case 0:
             $info=get_mes_projets_complets($bdd)
-
+            break;
+        
         case 1:
             $info=get_mes_experiences_complets($bdd)
+            break;
 
         case 2:
-            
+        default:
+            // Projets
             $projets = get_mes_projets_complets($bdd);
-
-            
             foreach ($projets as &$p) {
                 $p["Type"] = "projet";
             }
 
+            // Expériences
             $experiences = get_mes_experiences_complets($bdd);
-
             foreach ($experiences as &$e) {
                 $e["Type"] = "experience";
             }
 
-            $fusion = array_merge($projets, $experiences);
+            // Fusion
+            $info = array_merge($projets, $experiences);
+            break;
+    }
 
+    return $info;
+}
+
+
+function filtrer_projets(array $liste_projets, 
+    ?string $texte = null, 
+    bool $confid = false, 
+    ?string $statut = null
+): array {
+
+    $resultat = [];
+
+    foreach ($liste_projets as $proj) {
+
+        // --- 1. Filtre texte (Nom + Description)
+        if (!empty($texte)) {
+            $t = strtolower($texte);
+            if (
+                !str_contains(strtolower($proj["Nom_projet"] ?? ""), $t) &&
+                !str_contains(strtolower($proj["Description"] ?? ""), $t)
+            ) {
+                continue; // on saute ce projet
+            }
+        }
+    
+
+            // --- 2. Filtre confid (si TRUE -> ne garder que projets confidentiels)
+        if ($confid === true) {
+            if (($proj["Confidentiel"] ?? 0) != 1) {
+                continue;
+            }
+        }
+
+        // --- 3. Filtre statut
+        // Ex : statut = "validé", "en attente", "refusé"
+        if (!empty($statut)) {
+            if (strcasecmp($proj["Statut"] ?? "", $statut) !== 0) {
+                continue;
+            }
+        }
+
+        $resultat[] = $proj;
+    }
+
+    // --- 4. Tri (par date de création décroissante)
+    usort($resultat, function ($a, $b) {
+        return strtotime($b["Date_de_creation"] ?? 0) - strtotime($a["Date_de_creation"] ?? 0);
+    });
+
+    return $resultat;
+}
+
+
+
+
+function progression_projet(PDO $bdd, int $IDprojet): int {
+    $sql_projet_exp = "
+        SELECT 
+            p.ID_projet,
+            ex.Statut_experience 
+        FROM projet p
+        INNER JOIN projet_experience AS pex
+            ON p.ID_projet = pex.ID_projet    
+        INNER JOIN experience AS ex
+            ON pex.ID_experience = ex.ID_experience
+        WHERE p.ID_projet= :id_projet";
+    $stmt = $bdd->prepare($sql_projet_exp);
+    $stmt->execute(['id_projet' => $IDprojet]);
+    $proj_exp = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+    if (empty($experiences)) {
+        return 0; // pas d'expériences = progression 0%
+    }
+
+    // Exemple : Statut_experience = 'fini'
+    $finies = 0;
+    foreach ($experiences as $statut) {
+        if ($statut === 2) {
+            $finies++;
+        }
+    }
+
+    // Pourcentage arrondi
+    $progression = (int) round(($finies / count($experiences)) * 100);
+
+    return $progression;
 }
