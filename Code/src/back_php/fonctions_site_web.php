@@ -107,6 +107,33 @@ function afficher_Bandeau_Haut($bdd, $userID) {
                     envoyerNotification($bdd, $typeRetour, $idUtilisateur, ["ID_projet" => $idProjet], [$idEnvoyeurOriginal]);
                 }
             }
+            // --- si c'est une notification de création de projet (type 11) et que le destinataire l'a traitée,
+            // on met à jour l'état du projet en base.
+        if ($isProjet && isset($notif['Type_notif']) && in_array($notif['Type_notif'], [11])) {
+        // Projet validé
+            if ($nouvelEtat == 1) {
+                $up = $bdd->prepare("UPDATE projet SET Validation = 1, Date_de_modification = NOW() WHERE ID_projet = ?");
+                $up->execute([$idProjet]);
+            }
+
+            // Projet rejeté → on supprime le projet
+            if ($nouvelEtat == 2) {
+            // Mettre l’état à 2 pour historiser
+            $up = $bdd->prepare("UPDATE projet SET Validation = 2, Date_de_modification = NOW() WHERE ID_projet = ?");
+            $up->execute([$idProjet]);
+
+            // Envoyer notification de refus au créateur
+            envoyerNotification($bdd, 13, $_SESSION['ID_compte'], ['ID_projet' => $idProjet], [$idEnvoyeurOriginal]);
+
+            // Supprimer le projet (optionnel, après avoir notifié)
+            $deleteProjet = $bdd->prepare("DELETE FROM projet WHERE ID_projet = ?");
+            $deleteProjet->execute([$idProjet]);
+        }
+
+        // Modification demandée → laisse Validation = 0
+}
+
+
 
             // Supprimer notification traitée
             $delete = $bdd->prepare("DELETE FROM $table WHERE $idCol = ?");
@@ -396,8 +423,9 @@ function afficher_Bandeau_Bas() {
 <?php } 
 
 // =======================  Récupération de l'ensemble des expériences =======================
-function get_mes_experiences_complets(PDO $bdd, int $id_compte): array {
-    $sql_experiences = "
+function get_mes_experiences_complets(PDO $bdd, int $id_compte, int $user=1): array {
+    if ($user==1) {                   // Si on s'intéresse uniquement aux expériences de l'utilisateur
+        $sql_experiences = "
         SELECT 
             e.ID_experience, 
             e.Nom, 
@@ -424,9 +452,39 @@ function get_mes_experiences_complets(PDO $bdd, int $id_compte): array {
             ON me.ID_materiel = s.ID_materiel
         WHERE ee.ID_compte = :id_compte
     ";
-
-    $stmt = $bdd->prepare($sql_experiences);
-    $stmt->execute(['id_compte' => $id_compte]);
+        $stmt = $bdd->prepare($sql_experiences);
+        $stmt->execute(['id_compte' => $id_compte]);
+    }
+    else {                            // Si on s'intéresse à l'ensemble des expériences
+        $sql_experiences = "
+        SELECT 
+            e.ID_experience, 
+            e.Nom, 
+            e.Validation, 
+            e.Description, 
+            e.Date_reservation,
+            e.Heure_debut,
+            e.Heure_fin,
+            e.Resultat,
+            e.Statut_experience,
+            s.Salle,
+            p.Nom_projet,
+            p.ID_projet
+        FROM experience e
+        LEFT JOIN projet_experience pe
+            ON pe.ID_experience = e.ID_experience
+        LEFT JOIN projet p
+            ON p.ID_projet = pe.ID_projet
+        INNER JOIN experience_experimentateur ee
+            ON e.ID_experience = ee.ID_experience
+        LEFT JOIN salle_experience se
+            ON e.ID_experience = se.ID_experience
+        LEFT JOIN salle_materiel s
+            ON se.ID_salle = s.ID_salle
+    ";  
+        $stmt = $bdd->prepare($sql_experiences);
+        $stmt->execute();
+    }
     $experiences = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($experiences)) {
@@ -441,7 +499,7 @@ function create_page(array $items, int $items_par_page = 6): int {
     if ($total_items == 0) {
         return 1;
     }
-    return (int)ceil($total_items / $items_par_page);
+    return (int)ceil($total_items / $items_par_page);  # Retourne le nombre de pages qui seront créées
 }
 
 // =======================  affichage des expériences sur plusieurs pages =======================
@@ -453,9 +511,8 @@ function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1
     <div class="liste">
         <?php if (empty($experiences_page)): ?>
             <p class="no-experiences">Aucune expérience à afficher</p>
-        <?php else: ?>
-            <?php foreach ($experiences_page as $exp): ?>
-                <?php 
+        <?php else:
+            foreach ($experiences_page as $exp):
                 $id_experience = htmlspecialchars($exp['ID_experience']);
                 $nom = htmlspecialchars($exp['Nom']);
                 $description = $exp['Description'];
@@ -482,8 +539,8 @@ function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1
                         <p><strong>Salle :</strong> <?= $salle ?></p>
                     </div>
                 </a>
-            <?php endforeach; ?>
-        <?php endif; ?>
+            <?php endforeach;
+        endif; ?>
     </div>
     <?php
 }
@@ -500,17 +557,17 @@ function afficher_pagination(int $page_actuelle, int $total_pages, string $type 
     <div class="pagination">
         <?php if ($page_actuelle > 1): ?>
             <a href="?page_<?= $type ?>=<?= $page_actuelle - 1 ?>&page_<?= $autre_type ?>=<?= $autre_page ?>" class="page-btn">« Précédent</a>
-        <?php endif; ?>
+        <?php endif;
         
-        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-            <?php if ($i == $page_actuelle): ?>
+        for ($i = 1; $i <= $total_pages; $i++):
+            if ($i == $page_actuelle): ?>
                 <span class="page-btn active"><?= $i ?></span>
             <?php else: ?>
                 <a href="?page_<?= $type ?>=<?= $i ?>&page_<?= $autre_type ?>=<?= $autre_page ?>" class="page-btn"><?= $i ?></a>
-            <?php endif; ?>
-        <?php endfor; ?>
+            <?php endif; 
+        endfor;
         
-        <?php if ($page_actuelle < $total_pages): ?>
+        if ($page_actuelle < $total_pages): ?>
             <a href="?page_<?= $type ?>=<?= $page_actuelle + 1 ?>&page_<?= $autre_type ?>=<?= $autre_page ?>" class="page-btn">Suivant »</a>
         <?php endif; ?>
     </div>
@@ -585,31 +642,36 @@ $TYPES_NOTIFICATIONS = [
  */
 function envoyerNotification($bdd, $typeNotification, $idEnvoyeur, $donnees, $destinataires) {
     if (empty($destinataires)) return;
-
     $date_envoi = date('Y-m-d H:i:s');
-
-    $stmt = $bdd->prepare("
-        INSERT INTO notification_projet 
-            (ID_compte_envoyeur, ID_compte_receveur, ID_projet, Type_notif, Date_envoi, Valider)
-        VALUES (?, ?, ?, ?, ?, 0)
-    ");
 
     foreach ($destinataires as $idDestinataire) {
         try {
-            $stmt->execute([
-                $idEnvoyeur,
-                $idDestinataire,
-                $donnees['ID_projet'] ?? null,
-                $typeNotification,
-                $date_envoi
-            ]);
-            // debug log
-            error_log("Notification envoyée: type $typeNotification de $idEnvoyeur vers $idDestinataire pour projet ".$donnees['ID_projet']);
+            if (in_array($typeNotification, [1,2,3,4,5])) {
+                // Notification expérience
+                $idExperience = $donnees['ID_experience'] ?? null;
+                $stmt = $bdd->prepare("
+                    INSERT INTO notification_experience 
+                        (ID_compte_envoyeur, ID_compte_receveur, ID_experience, Type_notif, Date_envoi, Valider)
+                    VALUES (?, ?, ?, ?, ?, 0)
+                ");
+                $stmt->execute([$idEnvoyeur, $idDestinataire, $idExperience, $typeNotification, $date_envoi]);
+            } else {
+                // Notification projet
+                $idProjet = $donnees['ID_projet'] ?? null;
+                $stmt = $bdd->prepare("
+                    INSERT INTO notification_projet 
+                        (ID_compte_envoyeur, ID_compte_receveur, ID_projet, Type_notif, Date_envoi, Valider)
+                    VALUES (?, ?, ?, ?, ?, 0)
+                ");
+                $stmt->execute([$idEnvoyeur, $idDestinataire, $idProjet, $typeNotification, $date_envoi]);
+            }
         } catch (Exception $e) {
             error_log("Erreur notification: ".$e->getMessage());
         }
     }
 }
+
+
 
 // =======================  Vérifie si l'utilisateur est connecté =======================
 // Permet de limiter l'accès aux pages qui requiert une connexion
@@ -654,7 +716,6 @@ function layout_erreur() {
         </div>
 
         <p id=text_error> Il y a eu une erreur. Veuillez retourner à la page précédente.</p>
-
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
