@@ -124,13 +124,12 @@ function get_experimentateurs(PDO $bdd, int $id_experience): array {
 function get_salles_et_materiel(PDO $bdd, int $id_experience): array {
     $sql = "
         SELECT 
-            sm.Salle,
-            sm.Materiel,
-            sm.Nombre
-        FROM salle_experience se
-        JOIN salle_materiel sm ON se.ID_salle = sm.ID_salle
+            sm.Nom_salle,
+            sm.Materiel
+        FROM materiel_experience se
+        JOIN salle_materiel sm ON se.ID_materiel = sm.ID_materiel
         WHERE se.ID_experience = :id_experience
-        ORDER BY sm.Salle, sm.Materiel
+        ORDER BY sm.Nom_salle, sm.Materiel
     ";
     
     $stmt = $bdd->prepare($sql);
@@ -158,16 +157,15 @@ function afficher_experience(array $experience, array $experimentateurs, array $
     
     foreach ($salles_materiel as $item) {
         // Ajouter la salle (éviter les doublons)
-        if (!in_array($item['Salle'], $salles)) {
-            $salles[] = $item['Salle'];
+        if (!in_array($item['Nom_salle'], $salles)) {
+            $salles[] = $item['Nom_salle'];
         }
         
         // Ajouter le matériel avec son nombre
         if (!empty($item['Materiel'])) {
             $materiels[] = [
                 'nom' => $item['Materiel'],
-                'nombre' => $item['Nombre'],
-                'salle' => $item['Salle']
+                'salle' => $item['Nom_salle']
             ];
         }
     }
@@ -236,7 +234,6 @@ function afficher_experience(array $experience, array $experimentateurs, array $
                                 <div class="materiel-card">
                                     <p><strong><?= htmlspecialchars($mat['nom']) ?></strong></p>
                                     <p>Salle : <?= htmlspecialchars($mat['salle']) ?></p>
-                                    <p>Nombre : <?= htmlspecialchars($mat['nombre']) ?></p>
                                 </div>
                             <?php endforeach; ?>
                         </div>

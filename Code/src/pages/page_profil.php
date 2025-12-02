@@ -39,9 +39,9 @@ function modifier_photo_de_profil($user_ID) {
 
     $tmp = $_FILES['photo']['tmp_name'];
     $type = exif_imagetype($tmp);
-    if (!in_array($type, [IMAGETYPE_JPEG, IMAGETYPE_PNG])) {
-        echo "Type de fichier non supporté. Seuls JPEG et PNG sont autorisés.";
-        return;
+    if (!in_array($type, [IMAGETYPE_JPEG, IMAGETYPE_PNG])) { ?>
+        <div class="error-message"><?= "Type de fichier non supporté. Seuls JPEG et PNG sont autorisés." ?></div>
+        <?php return;
     }
 
     switch ($type) {
@@ -113,9 +113,6 @@ if (isset($_POST['valider_mdp'])) {
 
 // ======================= GESTION DE LA PHOTO DE PROFIL =======================
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    modifier_photo_de_profil($user_ID);
-}
 
 // Définition du chemin de la photo de profil
 $path = "../assets/profile_pictures/" . $user_ID . ".png";
@@ -134,7 +131,6 @@ if (!file_exists($path)) {
 </head>
 <body>
   <div class="profil-box">
-
     <!-- Section photo de profil -->
     <div class="avatar-section">
       <form method="post" enctype="multipart/form-data">
@@ -175,6 +171,11 @@ if (!file_exists($path)) {
         <input type="submit" name="valider_mdp" value="Valider" class="btn-mdp">
       </form>
     <?php endif; ?>
+
+
+    <?php if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        modifier_photo_de_profil($user_ID);
+    }?>
 
   </div>
 </body>

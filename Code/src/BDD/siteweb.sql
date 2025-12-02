@@ -32,10 +32,9 @@ CREATE TABLE experience (
 ) ENGINE=InnoDB;
 
 CREATE TABLE salle_materiel (
-    ID_salle BIGINT PRIMARY KEY AUTO_INCREMENT,
-    Salle VARCHAR(64),
-    Materiel VARCHAR(64),
-    Nombre INT(11)
+    ID_materiel BIGINT PRIMARY KEY AUTO_INCREMENT,
+    Nom_Salle VARCHAR(64),
+    Materiel VARCHAR(64)
 ) ENGINE=InnoDB;
 
 CREATE TABLE experience_experimentateur (
@@ -63,12 +62,12 @@ CREATE TABLE projet_experience (
     FOREIGN KEY (ID_experience) REFERENCES experience(ID_experience) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE TABLE salle_experience (
+CREATE TABLE materiel_experience (
     ID_experience BIGINT,
-    ID_salle BIGINT,
-    PRIMARY KEY (ID_experience, ID_salle),
+    ID_materiel BIGINT,
+    PRIMARY KEY (ID_experience, ID_materiel),
     FOREIGN KEY (ID_experience) REFERENCES experience(ID_experience) ON DELETE CASCADE,
-    FOREIGN KEY (ID_salle) REFERENCES salle_materiel(ID_salle) ON DELETE CASCADE
+    FOREIGN KEY (ID_materiel) REFERENCES salle_materiel(ID_materiel) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE notification_experience (

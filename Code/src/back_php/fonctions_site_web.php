@@ -409,7 +409,7 @@ function get_mes_experiences_complets(PDO $bdd, int $id_compte, int $user=1): ar
             e.Heure_fin,
             e.Resultat,
             e.Statut_experience,
-            s.Salle,
+            s.Nom_salle,
             p.Nom_projet,
             p.ID_projet
         FROM experience e
@@ -419,10 +419,10 @@ function get_mes_experiences_complets(PDO $bdd, int $id_compte, int $user=1): ar
             ON p.ID_projet = pe.ID_projet
         INNER JOIN experience_experimentateur ee
             ON e.ID_experience = ee.ID_experience
-        LEFT JOIN salle_experience se
-            ON e.ID_experience = se.ID_experience
+        LEFT JOIN materiel_experience me
+            ON e.ID_experience = me.ID_experience
         LEFT JOIN salle_materiel s
-            ON se.ID_salle = s.ID_salle
+            ON me.ID_materiel = s.ID_materiel
         WHERE ee.ID_compte = :id_compte
     ";
         $stmt = $bdd->prepare($sql_experiences);
@@ -495,7 +495,7 @@ function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1
                 $date_reservation = htmlspecialchars($exp['Date_reservation']);
                 $heure_debut = htmlspecialchars($exp['Heure_debut']);
                 $heure_fin = htmlspecialchars($exp['Heure_fin']);
-                $salle = htmlspecialchars($exp['Salle'] ?? 'Non définie');
+                $salle = htmlspecialchars($exp['Nom_salle'] ?? 'Non définie');
                 $nom_projet = htmlspecialchars($exp['Nom_projet'] ?? 'Sans projet');
                 $id_projet = htmlspecialchars($exp['ID_projet']);
                 ?>
