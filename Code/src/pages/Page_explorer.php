@@ -5,7 +5,9 @@ $bdd = connectBDD();
 #On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
 verification_connexion($bdd);
 
-function get_mes_projets_complets(PDO $bdd, int $id_compte): array {
+function get_mes_projets_complets(PDO $bdd, int $id_compte=NULL): array {
+    
+    if ($id_compte==NULL){
     $sql_projets = "
         SELECT 
             p.ID_projet, 
@@ -20,6 +22,27 @@ function get_mes_projets_complets(PDO $bdd, int $id_compte): array {
             ON p.ID_projet = pcg.ID_projet    ";
     $stmt = $bdd->prepare($sql_projets);
     $stmt->execute();
+    }
+
+    else (){
+        $sql_projets = "
+        SELECT 
+            p.ID_projet, 
+            p.Nom_projet, 
+            p.Description, 
+            p.Confidentiel, 
+            p.Validation, 
+            pcg.Statut,
+            p.Date_de_creation
+        FROM projet p
+        INNER JOIN projet_collaborateur_gestionnaire pcg
+            ON p.ID_projet = pcg.ID_projet
+        WHERE pcg.ID_compte = :id_compte
+    ";
+    $stmt = $bdd->prepare($sql_projets);
+    $stmt->execute(['id_compte' => $id_compte]);
+    }
+    
     $projets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($projets)) {
