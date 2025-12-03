@@ -1,0 +1,63 @@
+.adv-btn {
+    margin-top: 15px;
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #3c6e71;
+    color: white;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.adv-toggle {
+    display: none;
+}
+
+.adv-menu {
+    display: none;
+    margin-top: 10px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #f4f4f4;
+}
+
+.adv-toggle:checked ~ .adv-menu {
+    display: block;
+}
+
+.adv-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+    margin: 10px 0;
+}
+
+.adv-label {
+    font-weight: bold;
+    width: 120px;
+}
+
+.adv-search-btn {
+    margin-top: 15px;
+    padding: 8px 18px;
+    cursor: pointer;
+    background-color: #284b63;
+    color: white;
+    border: none;
+    border-radius: 6px;
+}
+
+.adv-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.adv-options label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}

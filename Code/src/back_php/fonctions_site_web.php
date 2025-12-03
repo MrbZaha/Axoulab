@@ -49,7 +49,7 @@ function recuperer_id_compte($bdd, $email) {
 
 // =======================  AFFICHAGE BANDEAU DU HAUT =======================
 /* Affiche le Bandeau du haut */
-function afficher_Bandeau_Haut($bdd, $userID) {
+function afficher_Bandeau_Haut($bdd, $userID, bool $recherche = true) {
     // ------------------- TRAITEMENT DES NOTIFICATIONS POST -------------------
     if ($_SERVER['REQUEST_METHOD'] === 'POST' 
         && isset($_POST['id_notif'], $_POST['action_notif'], $_POST['is_projet'])) {
@@ -155,15 +155,21 @@ function afficher_Bandeau_Haut($bdd, $userID) {
             <a href="Main_page_connected.php" class="lab_logo">
                 <img src="../assets/logo_labo.png" alt="Logo_labo">
             </a>
-            <div class="searchbar">
-                <input type="text" name="q" placeholder="Rechercher..." />
-                <span class="searchbar-icon"><i class="fas fa-search"></i></span>
-            </div>
+
+            <?php if ($recherche): ?>
+                <!-- Barre de recherche affichée uniquement si $recherche = true -->
+                <form class="searchbar" action="Page_explorer.php" method="GET">
+                    <input type="text" name="texte" placeholder="Rechercher..." />
+                    <button type="submit" class="searchbar-icon">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            <?php endif; ?>
         </div>
 
         <div id="site_nav_links">
             <ul class="liste_links">
-                <li class="main_links"><a href="page_explorer.php" class="Links">Explorer</a></li>
+                <li class="main_links"><a href="Page_explorer.php" class="Links">Explorer</a></li>
                 <li class="main_links"><a href="page_mes_experiences.php" class="Links">Mes expériences</a></li>
                 <li class="main_links"><a href="page_mes_projets.php" class="Links">Mes projets</a></li>
 
@@ -423,9 +429,10 @@ function afficher_Bandeau_Bas() {
 <?php } 
 
 // =======================  Récupération de l'ensemble des expériences =======================
-function get_mes_experiences_complets(PDO $bdd, int $id_compte, int $user=1): array {
-    if ($user==1) {                   // Si on s'intéresse uniquement aux expériences de l'utilisateur
-        $sql_experiences = "
+function get_mes_experiences_complets(PDO $bdd, ?int $id_compte = null): array {
+
+    // --- 1. Requête principale
+    $sql_experiences = "
         SELECT 
             e.ID_experience, 
             e.Nom, 
@@ -436,7 +443,9 @@ function get_mes_experiences_complets(PDO $bdd, int $id_compte, int $user=1): ar
             e.Heure_fin,
             e.Resultat,
             e.Statut_experience,
-            s.Nom_salle,
+            e.Date_de_creation,
+            e.Date_de_modification,
+            s.Nom_Salle,
             p.Nom_projet,
             p.ID_projet
         FROM experience e
@@ -444,53 +453,61 @@ function get_mes_experiences_complets(PDO $bdd, int $id_compte, int $user=1): ar
             ON pe.ID_experience = e.ID_experience
         LEFT JOIN projet p
             ON p.ID_projet = pe.ID_projet
-        INNER JOIN experience_experimentateur ee
-            ON e.ID_experience = ee.ID_experience
-        LEFT JOIN materiel_experience me
-            ON e.ID_experience = me.ID_experience
-        LEFT JOIN salle_materiel s
-            ON me.ID_materiel = s.ID_materiel
-        WHERE ee.ID_compte = :id_compte
-    ";
-        $stmt = $bdd->prepare($sql_experiences);
-        $stmt->execute(['id_compte' => $id_compte]);
-    }
-    else {                            // Si on s'intéresse à l'ensemble des expériences
-        $sql_experiences = "
-        SELECT 
-            e.ID_experience, 
-            e.Nom, 
-            e.Validation, 
-            e.Description, 
-            e.Date_reservation,
-            e.Heure_debut,
-            e.Heure_fin,
-            e.Resultat,
-            e.Statut_experience,
-            s.Salle,
-            p.Nom_projet,
-            p.ID_projet
-        FROM experience e
-        LEFT JOIN projet_experience pe
-            ON pe.ID_experience = e.ID_experience
-        LEFT JOIN projet p
-            ON p.ID_projet = pe.ID_projet
-        INNER JOIN experience_experimentateur ee
-            ON e.ID_experience = ee.ID_experience
-        LEFT JOIN salle_experience se
+        LEFT JOIN materiel_experience se
             ON e.ID_experience = se.ID_experience
         LEFT JOIN salle_materiel s
-            ON se.ID_salle = s.ID_salle
-    ";  
+            ON se.ID_materiel = s.ID_materiel
+        INNER JOIN experience_experimentateur ee
+            ON e.ID_experience = ee.ID_experience
+    ";
+
+    if ($id_compte !== null) {
+        $sql_experiences .= " WHERE ee.ID_compte = :id_compte";
+        $stmt = $bdd->prepare($sql_experiences);
+        $stmt->execute(['id_compte' => $id_compte]);
+    } else {
         $stmt = $bdd->prepare($sql_experiences);
         $stmt->execute();
     }
+
     $experiences = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($experiences)) {
         return [];
     }
-    return $experiences;    
+
+    // --- 2. Récupérer tous les IDs d'expérience
+    $ids_exp = array_column($experiences, 'ID_experience');
+    $in = str_repeat('?,', count($ids_exp) - 1) . '?';
+
+    // --- 3. Requête pour récupérer tous les expérimentateurs
+    $sql_experimentateurs = "
+        SELECT 
+            ee.ID_experience,
+            c.Nom,
+            c.Prenom
+        FROM experience_experimentateur ee
+        INNER JOIN compte c
+            ON ee.ID_compte = c.ID_compte
+        WHERE ee.ID_experience IN ($in)
+    ";
+    $stmt2 = $bdd->prepare($sql_experimentateurs);
+    $stmt2->execute($ids_exp);
+    $rows = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
+    // --- 4. Regrouper les expérimentateurs par expérience
+    $experimentateurs = [];
+    foreach ($rows as $row) {
+        $experimentateurs[$row['ID_experience']][] = $row['Prenom'] . ' ' . $row['Nom'];
+    }
+
+    // --- 5. Ajouter les expérimentateurs et progression
+    foreach ($experiences as &$exp) {
+        $exp['Experimentateurs'] = $experimentateurs[$exp['ID_experience']] ?? [];
+        
+
+    return $experiences;
+}
 }
 
 // =======================  Gère le nombre de pages qui devront être créées =======================
