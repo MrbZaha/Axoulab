@@ -5,16 +5,11 @@ session_start();
 // Inclusion des fonctions pour la base de données
 include_once "../back_php/fonctions_site_web.php";
 
-// Vérification que l'utilisateur est connecté
-if (!isset($_SESSION["ID_compte"])) {
-    die("Vous devez être connecté pour accéder à cette page.");
-}
-
 $user_ID = $_SESSION["ID_compte"];
 
 // Connexion à la base de données
 $bdd = connectBDD();
-#On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
+// On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
 verification_connexion($bdd);
 
 // ======================= FONCTIONS =======================
@@ -39,9 +34,9 @@ function modifier_photo_de_profil($user_ID) {
 
     $tmp = $_FILES['photo']['tmp_name'];
     $type = exif_imagetype($tmp);
-    if (!in_array($type, [IMAGETYPE_JPEG, IMAGETYPE_PNG])) {
-        echo "Type de fichier non supporté. Seuls JPEG et PNG sont autorisés.";
-        return;
+    if (!in_array($type, [IMAGETYPE_JPEG, IMAGETYPE_PNG])) { ?>
+        <div class="error-message"><?= "Type de fichier non supporté. Seuls JPEG et PNG sont autorisés." ?></div>
+        <?php return;
     }
 
     switch ($type) {
@@ -68,6 +63,7 @@ function modifier_photo_de_profil($user_ID) {
 $requete = $bdd->prepare("SELECT * FROM compte WHERE ID_compte = ?");
 $requete->execute([$user_ID]);
 $user = $requete->fetch(PDO::FETCH_ASSOC); // Retourne un tableau associatif
+$etat = htmlspecialchars($user['Etat']);   // Récupère le statut de l'utilisateur
 
 // Vérification que l'utilisateur existe
 if (!$user) {
@@ -113,9 +109,6 @@ if (isset($_POST['valider_mdp'])) {
 
 // ======================= GESTION DE LA PHOTO DE PROFIL =======================
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    modifier_photo_de_profil($user_ID);
-}
 
 // Définition du chemin de la photo de profil
 $path = "../assets/profile_pictures/" . $user_ID . ".png";
@@ -128,13 +121,16 @@ if (!file_exists($path)) {
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Profil utilisateur</title>
-  <link rel="stylesheet" href="../css/page_profil_style.css">
+    <meta charset="UTF-8">
+    <title>Profil utilisateur</title>
+    <link rel="stylesheet" href="../css/page_profil_style.css">
+    <link rel="stylesheet" href="../css/Bandeau_haut.css">
+    <link rel="stylesheet" href="../css/Bandeau_bas.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+<?php afficher_Bandeau_Haut($bdd, $_SESSION["ID_compte"])?>
 <body>
   <div class="profil-box">
-
     <!-- Section photo de profil -->
     <div class="avatar-section">
       <form method="post" enctype="multipart/form-data">
@@ -143,7 +139,9 @@ if (!file_exists($path)) {
         </label>
         <input type="file" name="photo" id="photo" onchange="this.form.submit()" hidden>
       </form>
-      <span class="role">Étudiant(e)</span>
+
+      <!-- Debug : Attention, tous les profils sont notés comme étant étudiants-->
+      <span class="role"> <?= get_etat($etat) ?> </span>
        <form action="../back_php/logout.php" method="post">
       <input type="submit" value="Déconnexion" class="btn-deconnect">
       </form>
@@ -176,6 +174,12 @@ if (!file_exists($path)) {
       </form>
     <?php endif; ?>
 
+
+    <?php if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        modifier_photo_de_profil($user_ID);
+    }?>
+
   </div>
+<?php afficher_Bandeau_Bas() ?>
 </body>
 </html>

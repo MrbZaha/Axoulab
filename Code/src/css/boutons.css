@@ -1,0 +1,34 @@
+/* Boutons */
+.btn {
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    padding: 12px 30px;
+    margin: 0px 15px 0px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    width: 150px;
+    font-family:'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.btnBlanc {
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.btnDore {
+    background: #ffb300;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.btnRouge {
+    background: #f76f3d;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}

@@ -521,8 +521,10 @@ function create_page(array $items, int $items_par_page = 6): int {
 
 // =======================  affichage des expériences sur plusieurs pages =======================
 function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1, int $items_par_page = 6): void {
+    // On récupère l'indice de la première expérience qui sera affichée
     $debut = ($page_actuelle - 1) * $items_par_page;
     $experiences_page = array_slice($experiences, $debut, $items_par_page);
+    $bdd = connectBDD();
     
     ?>
     <div class="liste">
@@ -544,7 +546,7 @@ function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1
                 $id_projet = htmlspecialchars($exp['ID_projet']);
                 ?>
                 
-                <a class='experience-card' href='page_experience.php?id_projet=<?= $id_projet ?>&id_experience=<?= $id_experience ?>'>
+                <div class='experience-card' onclick="location.href='page_experience.php?id_projet=<?= $id_projet ?>&id_experience=<?= $id_experience ?>'">
                     <div class="experience-header">
                         <h3><?= $nom ?></h3>
                         <span class="projet-badge"><?= $nom_projet ?></span>
@@ -554,8 +556,23 @@ function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1
                         <p><strong>Date :</strong> <?= $date_reservation ?></p>
                         <p><strong>Horaires :</strong> <?= $heure_debut ?> - <?= $heure_fin ?></p>
                         <p><strong>Salle :</strong> <?= $salle ?></p>
+                        <?php if (est_admin($bdd, $_SESSION["email"])) {
+                            // lance une fonction qui ajoute 2 boutons : modification et suppression 
+                            ?>
+                            <div class="right-section">
+                                <div class="box">
+                                    <button class="btn btnBlanc"  
+                                        onclick="event.stopPropagation(); location.href='page_modifier_experience.php'">
+                                        Modifier</button>
+                                    <a href="page_admin_experiences.php?action=supprimer&id=<?php echo $id_experience; ?>"
+                                        class="btn btnRouge"
+                                        onclick="event.stopPropagation();">
+                                        Supprimer</a>
+                                </div>
+                            </div>
+                        <?php } ?>
                     </div>
-                </a>
+                    </div>
             <?php endforeach;
         endif; ?>
     </div>
@@ -764,6 +781,40 @@ function layout_erreur() {
 </html>
     <?php
     exit;
+}
+
+// =======================  Récupération du titre d'un utilisateur =======================
+function get_etat($etat) {
+    if ($etat==1) {
+        return "Étudiant";
+    }
+    elseif ($etat==2) {
+        return "Chercheur";
+    }
+    elseif ($etat==3) {
+        return "Administrateur";
+    }
+    else {
+        return "Erreur";
+    }
+}
+
+// =======================  Supprime une experience à partir de son identifiant =======================
+function supprimer_experience($bdd, $id_experience) {
+    $stmt = $bdd->prepare("DELETE FROM experience WHERE ID_experience = ?");
+    $stmt->execute([$id_experience]);
+}
+
+// =======================  Suppression d'un utilisateur à partir de son identifiant =======================
+function supprimer_utilisateur($bdd, $id_user) {
+    $stmt = $bdd->prepare("DELETE FROM compte WHERE ID_compte = ?");
+    $stmt->execute([$id_user]);
+}
+
+// =======================  Acceptation de l'inscription d'un utilisateur =======================
+function accepter_utilisateur($bdd, $id_user) {
+    $stmt = $bdd->prepare("UPDATE compte SET validation = 1 WHERE ID_compte = ?");
+    $stmt->execute([$id_user]);
 }
 
 

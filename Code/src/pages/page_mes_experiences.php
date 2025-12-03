@@ -1,4 +1,5 @@
 <?php
+session_start();
 require __DIR__ . '/../back_php/fonctions_site_web.php';
 
 $bdd = connectBDD();
