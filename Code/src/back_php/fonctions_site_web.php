@@ -399,7 +399,7 @@ function afficher_Bandeau_Bas() {
 function get_mes_experiences_complets(PDO $bdd, int $id_compte, int $user=1): array {
     if ($user==1) {                   // Si on s'intéresse uniquement aux expériences de l'utilisateur
         $sql_experiences = "
-        SELECT 
+        SELECT DISTINCT
             e.ID_experience, 
             e.Nom, 
             e.Validation, 
@@ -430,7 +430,7 @@ function get_mes_experiences_complets(PDO $bdd, int $id_compte, int $user=1): ar
     }
     else {                            // Si on s'intéresse à l'ensemble des expériences
         $sql_experiences = "
-        SELECT 
+        SELECT DISTINCT
             e.ID_experience, 
             e.Nom, 
             e.Validation, 
@@ -440,7 +440,7 @@ function get_mes_experiences_complets(PDO $bdd, int $id_compte, int $user=1): ar
             e.Heure_fin,
             e.Resultat,
             e.Statut_experience,
-            s.Salle,
+            s.Nom_salle,
             p.Nom_projet,
             p.ID_projet
         FROM experience e
@@ -450,10 +450,10 @@ function get_mes_experiences_complets(PDO $bdd, int $id_compte, int $user=1): ar
             ON p.ID_projet = pe.ID_projet
         INNER JOIN experience_experimentateur ee
             ON e.ID_experience = ee.ID_experience
-        LEFT JOIN salle_experience se
-            ON e.ID_experience = se.ID_experience
+        LEFT JOIN materiel_experience me
+            ON e.ID_experience = me.ID_experience
         LEFT JOIN salle_materiel s
-            ON se.ID_salle = s.ID_salle
+            ON me.ID_materiel = s.ID_materiel
     ";  
         $stmt = $bdd->prepare($sql_experiences);
         $stmt->execute();
@@ -475,10 +475,27 @@ function create_page(array $items, int $items_par_page = 6): int {
     return (int)ceil($total_items / $items_par_page);  # Retourne le nombre de pages qui seront créées
 }
 
+// =======================  Supprime une experience à partir de son identifiant =======================
+function supprimer_experience($bdd, $id_experience) {
+        $query = "
+        DELETE e, ee, me, ne, pe
+        FROM experience e
+        LEFT JOIN experience_experimentateur ee ON ee.ID_experience = e.ID_experience
+        LEFT JOIN materiel_experience me ON me.ID_experience = e.ID_experience
+        LEFT JOIN notification_experience ne ON ne.ID_experience = e.ID_experience
+        LEFT JOIN projet_experience pe ON pe.ID_experience = e.ID_experience
+        WHERE e.ID_experience = ?;
+        "; 
+        $stmt = $bdd->prepare($query);
+        $stmt->execute([$id_experience]);
+}
+
+
 // =======================  affichage des expériences sur plusieurs pages =======================
 function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1, int $items_par_page = 6): void {
     $debut = ($page_actuelle - 1) * $items_par_page;
     $experiences_page = array_slice($experiences, $debut, $items_par_page);
+    $bdd = connectBDD();
     
     ?>
     <div class="liste">
@@ -500,7 +517,7 @@ function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1
                 $id_projet = htmlspecialchars($exp['ID_projet']);
                 ?>
                 
-                <a class='experience-card' href='page_experience.php?id_projet=<?= $id_projet ?>&id_experience=<?= $id_experience ?>'>
+                <div class='experience-card' onclick="location.href='page_experience.php?id_projet=<?= $id_projet ?>&id_experience=<?= $id_experience ?>'">
                     <div class="experience-header">
                         <h3><?= $nom ?></h3>
                         <span class="projet-badge"><?= $nom_projet ?></span>
@@ -510,8 +527,23 @@ function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1
                         <p><strong>Date :</strong> <?= $date_reservation ?></p>
                         <p><strong>Horaires :</strong> <?= $heure_debut ?> - <?= $heure_fin ?></p>
                         <p><strong>Salle :</strong> <?= $salle ?></p>
+                        <?php if (est_admin($bdd, $_SESSION["email"])) {
+                            // lance une fonction qui ajoute 2 boutons : modification et suppression 
+                            ?>
+                            <div class="right-section">
+                                <div class="box">
+                                    <button class="btn btnBlanc"  
+                                        onclick="event.stopPropagation(); location.href='page_modifier_experience.php'">
+                                        Modifier</button>
+                                    <a href="page_admin_experiences.php?action=supprimer&id=<?php echo $id_experience; ?>"
+                                        class="btn btnRouge"
+                                        onclick="event.stopPropagation();">
+                                        Supprimer</a>
+                                </div>
+                            </div>
+                        <?php } ?>
                     </div>
-                </a>
+                    </div>
             <?php endforeach;
         endif; ?>
     </div>

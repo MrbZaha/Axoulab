@@ -5,16 +5,11 @@ session_start();
 // Inclusion des fonctions pour la base de données
 include_once "../back_php/fonctions_site_web.php";
 
-// Vérification que l'utilisateur est connecté
-if (!isset($_SESSION["ID_compte"])) {
-    die("Vous devez être connecté pour accéder à cette page.");
-}
-
 $user_ID = $_SESSION["ID_compte"];
 
 // Connexion à la base de données
 $bdd = connectBDD();
-#On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
+// On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
 verification_connexion($bdd);
 
 // ======================= FONCTIONS =======================
@@ -125,10 +120,14 @@ if (!file_exists($path)) {
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Profil utilisateur</title>
-  <link rel="stylesheet" href="../css/page_profil_style.css">
+    <meta charset="UTF-8">
+    <title>Profil utilisateur</title>
+    <link rel="stylesheet" href="../css/page_profil_style.css">
+    <link rel="stylesheet" href="../css/Bandeau_haut.css">
+    <link rel="stylesheet" href="../css/Bandeau_bas.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+<?php afficher_Bandeau_Haut($bdd, $_SESSION["ID_compte"])?>
 <body>
   <div class="profil-box">
     <!-- Section photo de profil -->
@@ -178,5 +177,6 @@ if (!file_exists($path)) {
     }?>
 
   </div>
+<?php afficher_Bandeau_Bas() ?>
 </body>
 </html>
