@@ -63,6 +63,7 @@ function modifier_photo_de_profil($user_ID) {
 $requete = $bdd->prepare("SELECT * FROM compte WHERE ID_compte = ?");
 $requete->execute([$user_ID]);
 $user = $requete->fetch(PDO::FETCH_ASSOC); // Retourne un tableau associatif
+$etat = htmlspecialchars($user['Etat']);   // Récupère le statut de l'utilisateur
 
 // Vérification que l'utilisateur existe
 if (!$user) {
@@ -138,7 +139,9 @@ if (!file_exists($path)) {
         </label>
         <input type="file" name="photo" id="photo" onchange="this.form.submit()" hidden>
       </form>
-      <span class="role">Étudiant(e)</span>
+
+      <!-- Debug : Attention, tous les profils sont notés comme étant étudiants-->
+      <span class="role"> <?= get_etat($etat) ?> </span>
        <form action="../back_php/logout.php" method="post">
       <input type="submit" value="Déconnexion" class="btn-deconnect">
       </form>

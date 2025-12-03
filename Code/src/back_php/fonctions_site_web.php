@@ -502,24 +502,9 @@ function create_page(array $items, int $items_par_page = 6): int {
     return (int)ceil($total_items / $items_par_page);  # Retourne le nombre de pages qui seront créées
 }
 
-// =======================  Supprime une experience à partir de son identifiant =======================
-function supprimer_experience($bdd, $id_experience) {
-        $query = "
-        DELETE e, ee, me, ne, pe
-        FROM experience e
-        LEFT JOIN experience_experimentateur ee ON ee.ID_experience = e.ID_experience
-        LEFT JOIN materiel_experience me ON me.ID_experience = e.ID_experience
-        LEFT JOIN notification_experience ne ON ne.ID_experience = e.ID_experience
-        LEFT JOIN projet_experience pe ON pe.ID_experience = e.ID_experience
-        WHERE e.ID_experience = ?;
-        "; 
-        $stmt = $bdd->prepare($query);
-        $stmt->execute([$id_experience]);
-}
-
-
 // =======================  affichage des expériences sur plusieurs pages =======================
 function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1, int $items_par_page = 6): void {
+    // On récupère l'indice de la première expérience qui sera affichée
     $debut = ($page_actuelle - 1) * $items_par_page;
     $experiences_page = array_slice($experiences, $debut, $items_par_page);
     $bdd = connectBDD();
@@ -779,6 +764,40 @@ function layout_erreur() {
 </html>
     <?php
     exit;
+}
+
+// =======================  Récupération du titre d'un utilisateur =======================
+function get_etat($etat) {
+    if ($etat==1) {
+        return "Étudiant";
+    }
+    elseif ($etat==2) {
+        return "Chercheur";
+    }
+    elseif ($etat==3) {
+        return "Administrateur";
+    }
+    else {
+        return "Erreur";
+    }
+}
+
+// =======================  Supprime une experience à partir de son identifiant =======================
+function supprimer_experience($bdd, $id_experience) {
+    $stmt = $bdd->prepare("DELETE FROM experience WHERE ID_experience = ?");
+    $stmt->execute([$id_experience]);
+}
+
+// =======================  Suppression d'un utilisateur à partir de son identifiant =======================
+function supprimer_utilisateur($bdd, $id_user) {
+    $stmt = $bdd->prepare("DELETE FROM compte WHERE ID_compte = ?");
+    $stmt->execute([$id_user]);
+}
+
+// =======================  Acceptation de l'inscription d'un utilisateur =======================
+function accepter_utilisateur($bdd, $id_user) {
+    $stmt = $bdd->prepare("UPDATE compte SET validation = 1 WHERE ID_compte = ?");
+    $stmt->execute([$id_user]);
 }
 
 
