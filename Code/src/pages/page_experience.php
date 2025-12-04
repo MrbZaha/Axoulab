@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/../back_php/init_DB.php';
 require __DIR__ . '/../back_php/fonctions_site_web.php';
 
 $bdd = connectBDD();
@@ -359,7 +358,6 @@ $page_title = $experience ? htmlspecialchars($experience['Nom']) : "Expérience"
       else:
          afficher_experience($experience, $experimentateurs, $salles_materiel);
       endif; ?>
-
 </div>
 </body>
 <?php afficher_Bandeau_Bas(); ?>

@@ -263,15 +263,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
             <a href="Main_page_connected.php" class="lab_logo">
                 <img src="../assets/logo_labo.png" alt="Logo_labo">
             </a>
-            <div class="searchbar">
-                <input type="text" name="q" placeholder="Rechercher..." />
-                <span class="searchbar-icon"><i class="fas fa-search"></i></span>
-            </div>
-        </div>
+
+        <?php if ($recherche): ?>
+            <!-- Barre de recherche affichée uniquement si $recherche = true -->
+            <form class="searchbar" action="Page_rechercher.php" method="GET">
+                <!-- Texte saisi -->
+                <input type="text" name="texte" placeholder="Rechercher..." value="<?= htmlspecialchars($_GET['texte'] ?? '') ?>" />
+
+                <!-- Paramètres fixes -->
+                <input type="hidden" name="type[]" value="projet">
+                <input type="hidden" name="type[]" value="experience">
+                <input type="hidden" name="tri" value="A-Z">
+                <input type="hidden" name="ordre" value="asc">
+
+                <button type="submit" class="searchbar-icon">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        <?php endif; ?>
+    </div>
 
         <div id="site_nav_links">
             <ul class="liste_links">
-                <li class="main_links"><a href="page_explorer.php" class="Links">Explorer</a></li>
+                <li class="main_links"><a href="Page_rechercher.php?texte=&type%5B0%5D=projet&type%5B1%5D=experience&tri=A-Z&ordre=asc" class="Links">Explorer</a></li>
                 <li class="main_links"><a href="page_mes_experiences.php" class="Links">Mes expériences</a></li>
                 <li class="main_links"><a href="page_mes_projets.php" class="Links">Mes projets</a></li>
 
@@ -531,9 +545,10 @@ function afficher_Bandeau_Bas() {
 <?php } 
 
 // =======================  Récupération de l'ensemble des expériences =======================
-function get_mes_experiences_complets(PDO $bdd, int $id_compte, int $user=1): array {
-    if ($user==1) {                   // Si on s'intéresse uniquement aux expériences de l'utilisateur
-        $sql_experiences = "
+function get_mes_experiences_complets(PDO $bdd, ?int $id_compte = null): array {
+
+    // --- 1. Requête principale
+    $sql_experiences = "
         SELECT 
             e.ID_experience, 
             e.Nom, 
@@ -544,7 +559,9 @@ function get_mes_experiences_complets(PDO $bdd, int $id_compte, int $user=1): ar
             e.Heure_fin,
             e.Resultat,
             e.Statut_experience,
-            s.Nom_salle,
+            e.Date_de_creation,
+            e.Date_de_modification,
+            s.Nom_Salle,
             p.Nom_projet,
             p.ID_projet
         FROM experience e
@@ -552,53 +569,61 @@ function get_mes_experiences_complets(PDO $bdd, int $id_compte, int $user=1): ar
             ON pe.ID_experience = e.ID_experience
         LEFT JOIN projet p
             ON p.ID_projet = pe.ID_projet
-        INNER JOIN experience_experimentateur ee
-            ON e.ID_experience = ee.ID_experience
-        LEFT JOIN materiel_experience me
-            ON e.ID_experience = me.ID_experience
-        LEFT JOIN salle_materiel s
-            ON me.ID_materiel = s.ID_materiel
-        WHERE ee.ID_compte = :id_compte
-    ";
-        $stmt = $bdd->prepare($sql_experiences);
-        $stmt->execute(['id_compte' => $id_compte]);
-    }
-    else {                            // Si on s'intéresse à l'ensemble des expériences
-        $sql_experiences = "
-        SELECT 
-            e.ID_experience, 
-            e.Nom, 
-            e.Validation, 
-            e.Description, 
-            e.Date_reservation,
-            e.Heure_debut,
-            e.Heure_fin,
-            e.Resultat,
-            e.Statut_experience,
-            s.Salle,
-            p.Nom_projet,
-            p.ID_projet
-        FROM experience e
-        LEFT JOIN projet_experience pe
-            ON pe.ID_experience = e.ID_experience
-        LEFT JOIN projet p
-            ON p.ID_projet = pe.ID_projet
-        INNER JOIN experience_experimentateur ee
-            ON e.ID_experience = ee.ID_experience
-        LEFT JOIN salle_experience se
+        LEFT JOIN materiel_experience se
             ON e.ID_experience = se.ID_experience
         LEFT JOIN salle_materiel s
-            ON se.ID_salle = s.ID_salle
-    ";  
+            ON se.ID_materiel = s.ID_materiel
+        INNER JOIN experience_experimentateur ee
+            ON e.ID_experience = ee.ID_experience
+    ";
+
+    if ($id_compte !== null) {
+        $sql_experiences .= " WHERE ee.ID_compte = :id_compte";
+        $stmt = $bdd->prepare($sql_experiences);
+        $stmt->execute(['id_compte' => $id_compte]);
+    } else {
         $stmt = $bdd->prepare($sql_experiences);
         $stmt->execute();
     }
+
     $experiences = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($experiences)) {
         return [];
     }
-    return $experiences;    
+
+    // --- 2. Récupérer tous les IDs d'expérience
+    $ids_exp = array_column($experiences, 'ID_experience');
+    $in = str_repeat('?,', count($ids_exp) - 1) . '?';
+
+    // --- 3. Requête pour récupérer tous les expérimentateurs
+    $sql_experimentateurs = "
+        SELECT 
+            ee.ID_experience,
+            c.Nom,
+            c.Prenom
+        FROM experience_experimentateur ee
+        INNER JOIN compte c
+            ON ee.ID_compte = c.ID_compte
+        WHERE ee.ID_experience IN ($in)
+    ";
+    $stmt2 = $bdd->prepare($sql_experimentateurs);
+    $stmt2->execute($ids_exp);
+    $rows = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
+    // --- 4. Regrouper les expérimentateurs par expérience
+    $experimentateurs = [];
+    foreach ($rows as $row) {
+        $experimentateurs[$row['ID_experience']][] = $row['Prenom'] . ' ' . $row['Nom'];
+    }
+
+    // --- 5. Ajouter les expérimentateurs et progression
+    foreach ($experiences as &$exp) {
+        $exp['Experimentateurs'] = $experimentateurs[$exp['ID_experience']] ?? [];
+        
+
+    return $experiences;
+}
 }
 
 // =======================  Gère le nombre de pages qui devront être créées =======================
@@ -612,8 +637,10 @@ function create_page(array $items, int $items_par_page = 6): int {
 
 // =======================  affichage des expériences sur plusieurs pages =======================
 function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1, int $items_par_page = 6): void {
+    // On récupère l'indice de la première expérience qui sera affichée
     $debut = ($page_actuelle - 1) * $items_par_page;
     $experiences_page = array_slice($experiences, $debut, $items_par_page);
+    $bdd = connectBDD();
     
     ?>
     <div class="liste">
@@ -635,7 +662,7 @@ function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1
                 $id_projet = htmlspecialchars($exp['ID_projet']);
                 ?>
                 
-                <a class='experience-card' href='page_experience.php?id_projet=<?= $id_projet ?>&id_experience=<?= $id_experience ?>'>
+                <div class='experience-card' onclick="location.href='page_experience.php?id_projet=<?= $id_projet ?>&id_experience=<?= $id_experience ?>'">
                     <div class="experience-header">
                         <h3><?= $nom ?></h3>
                         <span class="projet-badge"><?= $nom_projet ?></span>
@@ -645,8 +672,23 @@ function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1
                         <p><strong>Date :</strong> <?= $date_reservation ?></p>
                         <p><strong>Horaires :</strong> <?= $heure_debut ?> - <?= $heure_fin ?></p>
                         <p><strong>Salle :</strong> <?= $salle ?></p>
+                        <?php if (est_admin($bdd, $_SESSION["email"])) {
+                            // lance une fonction qui ajoute 2 boutons : modification et suppression 
+                            ?>
+                            <div class="right-section">
+                                <div class="box">
+                                    <button class="btn btnBlanc"  
+                                        onclick="event.stopPropagation(); location.href='page_modifier_experience.php'">
+                                        Modifier</button>
+                                    <a href="page_admin_experiences.php?action=supprimer&id=<?php echo $id_experience; ?>"
+                                        class="btn btnRouge"
+                                        onclick="event.stopPropagation();">
+                                        Supprimer</a>
+                                </div>
+                            </div>
+                        <?php } ?>
                     </div>
-                </a>
+                    </div>
             <?php endforeach;
         endif; ?>
     </div>
@@ -855,6 +897,40 @@ function layout_erreur() {
 </html>
     <?php
     exit;
+}
+
+// =======================  Récupération du titre d'un utilisateur =======================
+function get_etat($etat) {
+    if ($etat==1) {
+        return "Étudiant";
+    }
+    elseif ($etat==2) {
+        return "Chercheur";
+    }
+    elseif ($etat==3) {
+        return "Administrateur";
+    }
+    else {
+        return "Erreur";
+    }
+}
+
+// =======================  Supprime une experience à partir de son identifiant =======================
+function supprimer_experience($bdd, $id_experience) {
+    $stmt = $bdd->prepare("DELETE FROM experience WHERE ID_experience = ?");
+    $stmt->execute([$id_experience]);
+}
+
+// =======================  Suppression d'un utilisateur à partir de son identifiant =======================
+function supprimer_utilisateur($bdd, $id_user) {
+    $stmt = $bdd->prepare("DELETE FROM compte WHERE ID_compte = ?");
+    $stmt->execute([$id_user]);
+}
+
+// =======================  Acceptation de l'inscription d'un utilisateur =======================
+function accepter_utilisateur($bdd, $id_user) {
+    $stmt = $bdd->prepare("UPDATE compte SET validation = 1 WHERE ID_compte = ?");
+    $stmt->execute([$id_user]);
 }
 
 

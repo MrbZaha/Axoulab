@@ -17,7 +17,7 @@ INSERT INTO compte (Nom, Prenom, Date_de_naissance, Email, Mdp, Etat, validation
 ('Laurent', 'Camille', '1994-02-28', 'camille.laurent@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
 ('Lefebvre', 'Nathan', '1988-10-03', 'nathan.lefebvre@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
 ('Michel', 'Julie', '1990-07-16', 'julie.michel@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
-('Garcia', 'Antoine', '1987-03-22', 'antoine.garcia@axoulab.fr', 'has$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.h111', 2, 1),
+('Garcia', 'Antoine', '1987-03-22', 'antoine.garcia@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
 ('David', 'Manon', '1992-11-09', 'manon.david@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
 ('Bertrand', 'Maxime', '1989-05-27', 'maxime.bertrand@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
 ('Roux', 'Laura', '1991-09-14', 'laura.roux@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
@@ -107,49 +107,49 @@ INSERT INTO salle_materiel (Nom_Salle, Materiel) VALUES
 -- ========================================
 -- Validation: 0=non validée, 1=validée
 -- Statut_experience: 0=non commencé, 1=en cours, 2=terminée
-INSERT INTO experience (Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Statut_experience) VALUES
+INSERT INTO experience (Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Resultat, Statut_experience, Date_de_creation, Date_de_modification) VALUES
 -- Expériences du Projet 1
-('Synthèse de nanoparticules d''or', 1, 'Production de nanoparticules d''or par réduction chimique pour tests de ciblage cellulaire.', '2024-11-25', '09:00:00', '12:00:00', 'Nanoparticules de 20nm obtenues avec succès. Rendement: 85%.', 2),
-('Test de cytotoxicité in vitro', 1, 'Évaluation de la toxicité des nanoparticules sur lignées cellulaires cancéreuses.', '2024-11-26', '14:00:00', '18:00:00', NULL, 1),
-('Imagerie par microscopie électronique', 1, 'Caractérisation morphologique des nanoparticules synthétisées.', '2024-11-27', '10:00:00', '13:00:00', NULL, 0),
+('Synthèse de nanoparticules d''or', 1, 'Production de nanoparticules d''or par réduction chimique pour tests de ciblage cellulaire.', '2024-11-25', '09:00:00', '12:00:00', 'Nanoparticules de 20nm obtenues avec succès. Rendement: 85%.', 2, '2024-11-10', '2024-11-15'),
+('Test de cytotoxicité in vitro', 1, 'Évaluation de la toxicité des nanoparticules sur lignées cellulaires cancéreuses.', '2024-11-26', '14:00:00', '18:00:00', NULL, 1, '2024-11-11', '2024-11-18'),
+('Imagerie par microscopie électronique', 1, 'Caractérisation morphologique des nanoparticules synthétisées.', '2024-11-27', '10:00:00', '13:00:00', NULL, 0, '2024-11-12', '2024-11-20'),
 
 -- Expériences du Projet 2
-('Collecte de données climatiques', 1, 'Récupération et nettoyage des données météorologiques sur 20 ans.', '2024-11-25', '08:00:00', '17:00:00', 'Dataset de 2 millions d''entrées préparé et validé.', 2),
-('Entraînement modèle ML', 1, 'Formation d''un réseau de neurones pour la prédiction de températures.', '2024-11-28', '09:00:00', '16:00:00', NULL, 1),
+('Collecte de données climatiques', 1, 'Récupération et nettoyage des données météorologiques sur 20 ans.', '2024-11-25', '08:00:00', '17:00:00', 'Dataset de 2 millions d''entrées préparé et validé.', 2, '2024-11-05', '2024-11-15'),
+('Entraînement modèle ML', 1, 'Formation d''un réseau de neurones pour la prédiction de températures.', '2024-11-28', '09:00:00', '16:00:00', NULL, 1, '2024-11-06', '2024-11-19'),
 
 -- Expériences du Projet 3
-('Extraction de cellulose', 1, 'Isolement de cellulose à partir de paille de blé.', '2024-11-24', '13:00:00', '17:00:00', 'Rendement d''extraction: 72%. Pureté satisfaisante.', 2),
-('Polymérisation enzymatique', 1, 'Synthèse de bioplastique par catalyse enzymatique.', '2024-11-29', '09:00:00', '15:00:00', NULL, 1),
-('Tests de biodégradabilité', 0, 'Mesure du taux de dégradation en conditions de compostage.', '2024-12-01', '10:00:00', '12:00:00', NULL, 0),
+('Extraction de cellulose', 1, 'Isolement de cellulose à partir de paille de blé.', '2024-11-24', '13:00:00', '17:00:00', 'Rendement d''extraction: 72%. Pureté satisfaisante.', 2, '2024-11-08', '2024-11-14'),
+('Polymérisation enzymatique', 1, 'Synthèse de bioplastique par catalyse enzymatique.', '2024-11-29', '09:00:00', '15:00:00', NULL, 1, '2024-11-09', '2024-11-21'),
+('Tests de biodégradabilité', 0, 'Mesure du taux de dégradation en conditions de compostage.', '2024-12-01', '10:00:00', '12:00:00', NULL, 0, '2024-11-10', '2024-11-25'),
 
 -- Expériences du Projet 4
-('Configuration intrication quantique', 1, 'Mise en place d''un système de paires de photons intriqués.', '2024-11-26', '08:30:00', '12:30:00', NULL, 1),
-('Test de cryptographie quantique', 1, 'Validation du protocole BB84 sur fibre optique.', '2024-11-30', '14:00:00', '18:00:00', NULL, 0),
+('Configuration intrication quantique', 1, 'Mise en place d''un système de paires de photons intriqués.', '2024-11-26', '08:30:00', '12:30:00', NULL, 1, '2024-11-07', '2024-11-17'),
+('Test de cryptographie quantique', 1, 'Validation du protocole BB84 sur fibre optique.', '2024-11-30', '14:00:00', '18:00:00', NULL, 0, '2024-11-08', '2024-11-22'),
 
 -- Expériences du Projet 5
-('Programmation comportement robot', 1, 'Développement d''algorithmes d''évitement d''obstacles.', '2024-11-25', '10:00:00', '16:00:00', 'Navigation autonome fonctionnelle dans environnement contrôlé.', 2),
-('Interface homme-machine', 1, 'Conception d''une interface tactile intuitive pour seniors.', '2024-11-27', '13:00:00', '17:00:00', NULL, 1),
-('Tests en conditions réelles', 0, 'Validation du système en résidence pour personnes âgées.', '2024-12-02', '09:00:00', '12:00:00', NULL, 0),
+('Programmation comportement robot', 1, 'Développement d''algorithmes d''évitement d''obstacles.', '2024-11-25', '10:00:00', '16:00:00', 'Navigation autonome fonctionnelle dans environnement contrôlé.', 2, '2024-11-05', '2024-11-15'),
+('Interface homme-machine', 1, 'Conception d''une interface tactile intuitive pour seniors.', '2024-11-27', '13:00:00', '17:00:00', NULL, 1, '2024-11-06', '2024-11-18'),
+('Tests en conditions réelles', 0, 'Validation du système en résidence pour personnes âgées.', '2024-12-02', '09:00:00', '12:00:00', NULL, 0, '2024-11-07', '2024-11-25'),
 
 -- Expériences du Projet 6
-('Dépôt couches minces', 1, 'Fabrication de cellules solaires par pulvérisation cathodique.', '2024-11-24', '09:00:00', '14:00:00', 'Couches uniformes obtenues. Épaisseur: 500nm.', 2),
-('Mesure de rendement photovoltaïque', 1, 'Caractérisation IV des cellules sous illumination standard.', '2024-11-28', '11:00:00', '15:00:00', NULL, 1),
+('Dépôt couches minces', 1, 'Fabrication de cellules solaires par pulvérisation cathodique.', '2024-11-24', '09:00:00', '14:00:00', 'Couches uniformes obtenues. Épaisseur: 500nm.', 2, '2024-11-05', '2024-11-12'),
+('Mesure de rendement photovoltaïque', 1, 'Caractérisation IV des cellules sous illumination standard.', '2024-11-28', '11:00:00', '15:00:00', NULL, 1, '2024-11-06', '2024-11-19'),
 
 -- Expériences du Projet 7
-('IRM fonctionnelle sujets témoins', 1, 'Acquisition d''images cérébrales pendant tâches mémorielles.', '2024-11-26', '09:00:00', '17:00:00', NULL, 1),
-('Analyse activation hippocampique', 1, 'Traitement des données d''imagerie et analyse statistique.', '2024-11-29', '10:00:00', '18:00:00', NULL, 0),
+('IRM fonctionnelle sujets témoins', 1, 'Acquisition d''images cérébrales pendant tâches mémorielles.', '2024-11-26', '09:00:00', '17:00:00', NULL, 1, '2024-11-07', '2024-11-18'),
+('Analyse activation hippocampique', 1, 'Traitement des données d''imagerie et analyse statistique.', '2024-11-29', '10:00:00', '18:00:00', NULL, 0, '2024-11-08', '2024-11-21'),
 
 -- Expériences du Projet 8
-('Synthèse composés cuprates', 1, 'Production de cuprates supraconducteurs par voie solide.', '2024-11-25', '08:00:00', '16:00:00', 'Composé YBa2Cu3O7 obtenu. Phase pure confirmée par DRX.', 2),
-('Mesure température critique', 1, 'Détermination de Tc par mesure de résistivité électrique.', '2024-11-27', '09:00:00', '13:00:00', NULL, 1),
+('Synthèse composés cuprates', 1, 'Production de cuprates supraconducteurs par voie solide.', '2024-11-25', '08:00:00', '16:00:00', 'Composé YBa2Cu3O7 obtenu. Phase pure confirmée par DRX.', 2, '2024-11-05', '2024-11-15'),
+('Mesure température critique', 1, 'Détermination de Tc par mesure de résistivité électrique.', '2024-11-27', '09:00:00', '13:00:00', NULL, 1, '2024-11-06', '2024-11-18'),
 
 -- Expériences du Projet 9
-('Séquençage ADN 16S', 1, 'Identification des espèces bactériennes présentes dans échantillons.', '2024-11-24', '10:00:00', '18:00:00', 'Séquençage de 50 échantillons complété. Profondeur satisfaisante.', 2),
-('Analyse bio-informatique', 1, 'Traitement des données de séquençage et analyse de diversité.', '2024-11-28', '09:00:00', '17:00:00', NULL, 1),
+('Séquençage ADN 16S', 1, 'Identification des espèces bactériennes présentes dans échantillons.', '2024-11-24', '10:00:00', '18:00:00', 'Séquençage de 50 échantillons complété. Profondeur satisfaisante.', 2, '2024-11-05', '2024-11-12'),
+('Analyse bio-informatique', 1, 'Traitement des données de séquençage et analyse de diversité.', '2024-11-28', '09:00:00', '17:00:00', NULL, 1, '2024-11-06', '2024-11-19'),
 
 -- Expériences du Projet 10
-('Conception PCB capteur', 1, 'Design du circuit imprimé pour capteur température/humidité.', '2024-11-25', '13:00:00', '18:00:00', 'PCB dessiné et envoyé en fabrication. Délai: 10 jours.', 2),
-('Test consommation énergétique', 1, 'Mesure de la consommation en différents modes de fonctionnement.', '2024-11-29', '10:00:00', '14:00:00', NULL, 1);
+('Conception PCB capteur', 1, 'Design du circuit imprimé pour capteur température/humidité.', '2024-11-25', '13:00:00', '18:00:00', 'PCB dessiné et envoyé en fabrication. Délai: 10 jours.', 2, '2024-11-05', '2024-11-15'),
+('Test consommation énergétique', 1, 'Mesure de la consommation en différents modes de fonctionnement.', '2024-11-29', '10:00:00', '14:00:00', NULL, 1, '2024-11-06', '2024-11-18');
 
 -- ========================================
 -- ATTRIBUTION DES GESTIONNAIRES ET COLLABORATEURS
