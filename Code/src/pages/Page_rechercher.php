@@ -13,7 +13,7 @@ function get_mes_projets_complets(PDO $bdd, int $id_compte=NULL): array {
     $sql_projets = "
         SELECT 
             p.ID_projet, 
-            p.Nom_projet, 
+            p.Nom_projet AS Nom, 
             p.Description, 
             p.Confidentiel, 
             p.Validation, 
@@ -74,12 +74,12 @@ function get_mes_projets_complets(PDO $bdd, int $id_compte=NULL): array {
 
 function filtrer_trier_pro_exp(PDO $bdd,
     array $types = ['projet','experience'], // types à inclure
-    int $modalite = 1,
-    int $ordre = 1,
+    string $tri = 'A-Z',                    // critère de tri : 'A-Z', 'date_modif', 'date_creation'
+    string $ordre = 'asc',                  // 'asc' ou 'desc'
     ?string $texte = null, 
     ?int $confid = null, 
-    ?int $statut_proj = null,
-    ?array $statut_exp = []
+    ?array $statut_proj = null,
+    ?array $statut_exp = null
 ): array {
 
     $info = [];
@@ -109,48 +109,44 @@ function filtrer_trier_pro_exp(PDO $bdd,
     // --- Fusionner les résultats
     $info = array_merge($projets_filtree, $exp_filtree);
 
+    // --- Tri selon critère ($tri) et ordre ($ordre)
+    if (!empty($info)) {
+        usort($info, function($a, $b) use ($tri, $ordre) {
+            $valA = null;
+            $valB = null;
 
+            switch ($tri) {
+                case 'A-Z':
+                    $valA = strtolower($a['Nom'] ?? $a['Nom'] ?? '');
+                    $valB = strtolower($b['Nom'] ?? $b['Nom'] ?? '');
+                    break;
+                case 'date_creation':
+                    $valA = strtotime($a['Date_de_creation'] ?? '0');
+                    $valB = strtotime($b['Date_de_creation'] ?? '0');
+                    break;
+                case 'date_modif':
+                    $valA = strtotime($a['Date_de_modification'] ?? '0');
+                    $valB = strtotime($b['Date_de_modification'] ?? '0');
+                    break;
+                default:
+                    $valA = 0;
+                    $valB = 0;
+            }
 
-    // --- Tri selon modalité et ordre
-        if (!empty($info)) {
-            usort($info, function($a, $b) use ($modalite, $ordre) {
-                $valA = null;
-                $valB = null;
+            if ($valA == $valB) return 0;
 
-                // Choix de la valeur à trier
-                switch ($modalite) {
-                    case 0: // Alphabétique
-                        $valA = strtolower($a['Nom_projet'] ?? $a['Nom'] ?? '');
-                        $valB = strtolower($b['Nom_projet'] ?? $b['Nom'] ?? '');
-                        break;
-
-                    case 1: // Date de création / réservation
-                        $valA = strtotime($a['Date_de_creation'] ?? $a['Date_de_creation'] ?? '0');
-                        $valB = strtotime($b['Date_de_creation'] ?? $b['Date_de_creation'] ?? '0');
-                        break;
-
-                    case 2: // Date de modification (à adapter selon ton schema)
-                        $valA = strtotime($a['Date_de_modification'] ?? $a['Date_de_modification'] ?? '0');
-                        $valB = strtotime($b['Date_de_modification'] ?? $b['Date_de_modification'] ?? '0');
-                        break;
-
-                    default:
-                        $valA = 0;
-                        $valB = 0;
-                }
-
-                if ($valA == $valB) return 0;
-
-                if ($ordre == 0) { // croissant
-                    return ($valA < $valB) ? -1 : 1;
-                } else { // décroissant
-                    return ($valA > $valB) ? -1 : 1;
-                }
-            });
-        }
+            if ($ordre === 'asc') {
+                return ($valA < $valB) ? -1 : 1;
+            } else { // 'desc'
+                return ($valA > $valB) ? -1 : 1;
+            }
+        });
+    }
 
     return $info;
 }
+
+
 
 
 function filtrer_projets(
@@ -171,7 +167,7 @@ function filtrer_projets(
             $match = false;
 
             // Nom du projet
-            if (str_contains(strtolower($proj["Nom_projet"] ?? ""), $t)) $match = true;
+            if (str_contains(strtolower($proj["Nom"] ?? ""), $t)) $match = true;
 
             // Description
             if (!$match && str_contains(strtolower($proj["Description"] ?? ""), $t)) $match = true;
@@ -321,41 +317,6 @@ function progression_projet(PDO $bdd, int $IDprojet): int {
 }
 
 
-function afficher_projets_pagines(array $projets, int $page_actuelle = 1, int $items_par_page = 6): void {
-    $debut = ($page_actuelle - 1) * $items_par_page;
-    $projets_page = array_slice($projets, $debut, $items_par_page);
-    
-    ?>
-    <div class="liste">
-        <?php if (empty($projets_page)): ?>
-            <p class="no-projects">Aucun projet en cours</p>
-        <?php else: ?>
-            <?php foreach ($projets_page as $p): ?>
-                <?php 
-                $id = htmlspecialchars($p['ID_projet']);
-                $nom = htmlspecialchars($p['Nom_projet']);
-                $description = $p['Description'];
-                $desc = strlen($description) > 200 
-                    ? htmlspecialchars(substr($description, 0, 200)) . '…'
-                    : htmlspecialchars($description);
-                $date = htmlspecialchars($p['Date_de_creation']);
-                $role = $p['Statut'] ? "Gestionnaire" : "Collaborateur";
-                ?>
-                
-                <a class='projet-card' href='page_projet.php?id_projet=<?= $id ?>'>
-                    <h3><?= $nom ?></h3>
-                    <p><?= $desc ?></p>
-                    <p><strong>Date de création :</strong> <?= $date ?></p>
-                    <p><strong>Rôle :</strong> <?= $role ?></p>
-                </a>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </div>
-    <?php
-}
-
-
-
 function afficher_projets_experiences_pagines(array $items, int $page_actuelle = 1, int $items_par_page = 6): void {
     // Calcul de la tranche à afficher
     $debut = ($page_actuelle - 1) * $items_par_page;
@@ -371,7 +332,7 @@ function afficher_projets_experiences_pagines(array $items, int $page_actuelle =
                 <?php if (($item['Type'] ?? '') === 'projet'): 
                     // Variables projets
                     $id = htmlspecialchars($item['ID_projet']);
-                    $nom = htmlspecialchars($item['Nom_projet']);
+                    $nom = htmlspecialchars($item['Nom']);
                     $description = $item['Description'];
                     $desc = strlen($description) > 200 
                         ? htmlspecialchars(substr($description, 0, 200)) . '…'
@@ -398,7 +359,7 @@ function afficher_projets_experiences_pagines(array $items, int $page_actuelle =
                     $heure_debut = htmlspecialchars($item['Heure_debut']);
                     $heure_fin = htmlspecialchars($item['Heure_fin']);
                     $salle = htmlspecialchars($item['Salle'] ?? 'Non définie');
-                    $nom_projet = htmlspecialchars($item['Nom_projet'] ?? 'Sans projet');
+                    $nom_projet = htmlspecialchars($item['Nom'] ?? 'Sans projet');
                     $id_projet = htmlspecialchars($item['ID_projet']);
                     ?>
                     <a class='experience-card' href='page_experience.php?id_projet=<?= $id_projet ?>&id_experience=<?= $id_experience ?>'>
@@ -457,17 +418,33 @@ function afficher_pagination_mixte(int $page_actuelle, int $total_pages, string 
     <?php
 }
 
-$page_actuelle=$_GET['page'] ?? 1;
-$projet_exp=$_GET['type'] ?? [];
-$modalite=$_GET['modalite'] ?? 1;
-$ordre=$_GET['ordre'] ?? 1;
-$texte=$_GET['texte'] ?? null;
-$confid=$_GET['confid'] ?? null;
-$statut_proj=$_GET['statut_proj'] ?? null;
-$statut_exp=$_GET['statut_exp'] ?? [];
+$page_actuelle = $_GET['page'] ?? 1;
+$projet_exp   = $_GET['type'] ?? [];          // 'projet' et/ou 'experience'
+$tri          = $_GET['tri'] ?? 'A-Z';        // 'A-Z', 'date_modif', 'date_creation'
+$ordre        = $_GET['ordre'] ?? 'asc';      // 'asc' ou 'desc'
+$texte        = $_GET['texte'] ?? null;
+
+// Confidentialité projets : true = afficher confidentiels, null = ne pas filtrer
+$confid = isset($_GET['afficher_confidentiels']) ? 1 : null;
+
+// Statut projet : true = afficher projets finis, null = ne pas filtrer
+$statut_proj = isset($_GET['afficher_projets_finis']) ? 1 : null;
+
+// Statut expérience : tableau de valeurs 'fini', 'encours', 'pascommence'
+$statut_exp = [];
+if (isset($_GET['statut_exp_fini'])) {
+    $statut_exp[] = 'fini';
+}
+if (isset($_GET['statut_exp_encours'])) {
+    $statut_exp[] = 'encours';
+}
+if (isset($_GET['statut_exp_pascommence'])) {
+    $statut_exp[] = 'pascommence';
+}
+
 $items_par_page=10;
 
-$liste_mixte=filtrer_trier_pro_exp($bdd, $projet_exp, $modalite, $ordre, $texte, $confid, $statut_proj, $statut_exp);
+$liste_mixte=filtrer_trier_pro_exp($bdd, $projet_exp, $tri, $ordre, $texte, $confid, $statut_proj, $statut_exp);
 $total_pages=create_page($liste_mixte,$items_par_page);
 ?>
 
@@ -488,51 +465,75 @@ $total_pages=create_page($liste_mixte,$items_par_page);
 
 <h1>Que recherchez-vous?</h1>
 
-<form method="GET" action="Page_explorer.php">
+<form method="GET" action="Page_rechercher.php" style="text-align:center;">
 
-    <!-- Barre de recherche texte toujours visible -->
-    <div class="adv-row">
-        <span class="adv-label">Rechercher :</span>
+    <!-- Barre de recherche principale -->
+    <div class="searchbar">
         <input type="text" name="texte" value="<?= htmlspecialchars($_GET['texte'] ?? '') ?>" placeholder="Tapez votre recherche...">
     </div>
 
-    <!-- Bouton pour ouvrir le menu avancé -->
-    <input type="checkbox" id="toggle-adv" class="adv-toggle">
-    <label for="toggle-adv" class="adv-btn">Recherche avancée</label>
+    <!-- Bouton Rechercher principal -->
+    <button type="submit" class="search-btn">Rechercher</button>
 
-    <div class="adv-menu">
-        <!-- Type -->
-        <div class="adv-row">
-            <span class="adv-label">Type :</span>
-            <input type="checkbox" id="type-projet" name="type[]" value="projet" <?= in_array('projet', $_GET['type'] ?? []) ? 'checked' : '' ?>>
-            <label for="type-projet">Projet</label>
+    <!-- Container pour toggle + menu avancé -->
+    <div class="advanced-container">
 
-            <input type="checkbox" id="type-exp" name="type[]" value="experience" <?= in_array('experience', $_GET['type'] ?? []) ? 'checked' : '' ?>>
-            <label for="type-exp">Expérience</label>
+        <!-- Checkbox invisible pour contrôler le menu -->
+        <input type="checkbox" id="toggle-adv" class="adv-toggle">
+        <label for="toggle-adv" class="adv-btn">Recherche avancée</label>
+
+        <!-- Menu avancé -->
+        <div class="adv-menu">
+
+            <!-- Type -->
+            <div class="adv-row">
+                <span class="adv-label">Type :</span>
+                <input type="checkbox" id="type-projet" name="type[]" value="projet" <?= in_array('projet', $_GET['type'] ?? []) ? 'checked' : '' ?>>
+                <label for="type-projet">Projet</label>
+
+                <input type="checkbox" id="type-exp" name="type[]" value="experience" <?= in_array('experience', $_GET['type'] ?? []) ? 'checked' : '' ?>>
+                <label for="type-exp">Expérience</label>
+            </div>
+
+            <!-- Options Projet -->
+            <div class="adv-row adv-options projet-options">
+                <span class="adv-label">Projet :</span>
+                
+                <!-- Case pour afficher les projets confidentiels -->
+                <label>
+                    <input type="checkbox" name="afficher_confidentiels" <?= isset($_GET['afficher_confidentiels']) ? 'checked' : '' ?>>
+                    Afficher confidentiels
+                </label>
+
+                <!-- Case pour afficher les projets finis -->
+                <label>
+                    <input type="checkbox" name="afficher_projets_finis" <?= isset($_GET['afficher_projets_finis']) ? 'checked' : '' ?>>
+                    Afficher projets finis
+                </label>
+            </div>
+
+
+            <!-- --------------------------- -->
+            <!-- Options de tri / ordre      -->
+            <!-- --------------------------- -->
+            <div class="adv-row">
+                <span class="adv-label">Trier par :</span>
+                <select name="tri">
+                    <option value="A-Z" <?= ($_GET['tri'] ?? '')=='A-Z' ? 'selected' : '' ?>>A-Z</option>
+                    <option value="date_modif" <?= ($_GET['tri'] ?? '')=='date_modif' ? 'selected' : '' ?>>Date de modification</option>
+                    <option value="date_creation" <?= ($_GET['tri'] ?? '')=='date_creation' ? 'selected' : '' ?>>Date de création</option>
+                </select>
+            </div>
+
+            <div class="adv-row">
+                <span class="adv-label">Ordre :</span>
+                <label><input type="radio" name="ordre" value="asc" <?= ($_GET['ordre'] ?? '')=='asc' ? 'checked' : '' ?>> Croissant</label>
+                <label><input type="radio" name="ordre" value="desc" <?= ($_GET['ordre'] ?? '')=='desc' ? 'checked' : '' ?>> Décroissant</label>
+            </div>
+
         </div>
-
-        <!-- Options Projet -->
-        <div class="adv-row adv-options projet-options">
-            <span class="adv-label">Projet :</span>
-            <label><input type="checkbox" name="confid_projet_oui" <?= isset($_GET['confid_projet_oui']) ? 'checked' : '' ?>> Confidentiel Oui</label>
-            <label><input type="checkbox" name="confid_projet_non" <?= isset($_GET['confid_projet_non']) ? 'checked' : '' ?>> Confidentiel Non</label>
-            <label><input type="checkbox" name="statut_projet_fini" <?= isset($_GET['statut_projet_fini']) ? 'checked' : '' ?>> Statut Fini</label>
-            <label><input type="checkbox" name="statut_projet_nonfini" <?= isset($_GET['statut_projet_nonfini']) ? 'checked' : '' ?>> Statut Non fini</label>
-        </div>
-
-        <!-- Options Expérience -->
-        <div class="adv-row adv-options exp-options">
-            <span class="adv-label">Expérience :</span>
-            <label><input type="checkbox" name="statut_exp_fini" <?= isset($_GET['statut_exp_fini']) ? 'checked' : '' ?>> Statut Fini</label>
-            <label><input type="checkbox" name="statut_exp_encours" <?= isset($_GET['statut_exp_encours']) ? 'checked' : '' ?>> Statut En cours</label>
-            <label><input type="checkbox" name="statut_exp_pascommence" <?= isset($_GET['statut_exp_pascommence']) ? 'checked' : '' ?>> Pas commencé</label>
-        </div>
-
-        <button class="adv-search-btn">Rechercher</button>
     </div>
-
 </form>
-
 
 
 

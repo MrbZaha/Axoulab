@@ -156,20 +156,28 @@ function afficher_Bandeau_Haut($bdd, $userID, bool $recherche = true) {
                 <img src="../assets/logo_labo.png" alt="Logo_labo">
             </a>
 
-            <?php if ($recherche): ?>
-                <!-- Barre de recherche affichée uniquement si $recherche = true -->
-                <form class="searchbar" action="Page_explorer.php" method="GET">
-                    <input type="text" name="texte" placeholder="Rechercher..." />
-                    <button type="submit" class="searchbar-icon">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
-            <?php endif; ?>
-        </div>
+        <?php if ($recherche): ?>
+            <!-- Barre de recherche affichée uniquement si $recherche = true -->
+            <form class="searchbar" action="Page_rechercher.php" method="GET">
+                <!-- Texte saisi -->
+                <input type="text" name="texte" placeholder="Rechercher..." value="<?= htmlspecialchars($_GET['texte'] ?? '') ?>" />
+
+                <!-- Paramètres fixes -->
+                <input type="hidden" name="type[]" value="projet">
+                <input type="hidden" name="type[]" value="experience">
+                <input type="hidden" name="tri" value="A-Z">
+                <input type="hidden" name="ordre" value="asc">
+
+                <button type="submit" class="searchbar-icon">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        <?php endif; ?>
+    </div>
 
         <div id="site_nav_links">
             <ul class="liste_links">
-                <li class="main_links"><a href="Page_explorer.php" class="Links">Explorer</a></li>
+                <li class="main_links"><a href="Page_rechercher.php?texte=&type%5B0%5D=projet&type%5B1%5D=experience&tri=A-Z&ordre=asc" class="Links">Explorer</a></li>
                 <li class="main_links"><a href="page_mes_experiences.php" class="Links">Mes expériences</a></li>
                 <li class="main_links"><a href="page_mes_projets.php" class="Links">Mes projets</a></li>
 
