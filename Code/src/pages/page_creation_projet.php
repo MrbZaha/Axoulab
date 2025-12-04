@@ -140,7 +140,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // ======================= CRÉATION DU PROJET =======================
+
+// ======================= CRÉATION DU PROJET =======================
     if (isset($_POST["creer_projet"])) {
         $nom_projet = trim($_POST["nom_projet"] ?? '');
         $description = trim($_POST["description"] ?? '');
@@ -161,73 +162,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $placeholders = implode(',', array_fill(0, count($gestionnaires_selectionnes), '?'));
                 $stmt = $bdd->prepare("SELECT COUNT(*) FROM compte WHERE ID_compte IN ($placeholders) AND Etat > 1");
                 $stmt->execute($gestionnaires_selectionnes);
-                if ((int)$stmt->fetchColumn() == 0) {
-                    $erreurs[] = "Au moins un gestionnaire doit être chercheur ou administrateur.";
-                }
+            if ((int)$stmt->fetchColumn() == 0) {
+                $erreurs[] = "Au moins un gestionnaire doit être chercheur ou administrateur.";
             }
         }
+    }
 
         if (!empty($erreurs)) {
             $message = "<p style='color:red;'>" . implode("<br>", $erreurs) . "</p>";
         } else {
             try {
                 if ($etatCreateur == 1) {
-                    // ---------------------- ÉTUDIANT ----------------------
-                    // Créer le projet avec Validation = 0 (en attente de validation)
+                // ---------------------- ÉTUDIANT ----------------------
+                // Créer le projet avec Validation = 0 (en attente)
                     $id_projet = creer_projet($bdd, $nom_projet, $description, $confidentialite, $_SESSION["ID_compte"], 0);
-                    
-                    // Ajouter les participants (gestionnaires + collaborateurs)
-                    ajouter_participants($bdd, $id_projet, $gestionnaires_selectionnes, $collaborateurs_selectionnes);
-                    
-                    // Envoyer notification type 11 aux gestionnaires (avec l'ID du projet)
-                    $donnees = ['ID_projet' => $id_projet];
-                    $destinataires = array_values(array_diff($gestionnaires_selectionnes, [$_SESSION["ID_compte"]]));
-                    
-                    if (!empty($destinataires)) {
-                        envoyerNotification($bdd, 11, $_SESSION["ID_compte"], $donnees, $destinataires);
-                    }
-                    
+                
+                // L'étudiant créateur devient COLLABORATEUR sur son propre projet
+                    $tous_collaborateurs = array_unique(array_merge($collaborateurs_selectionnes, [$_SESSION["ID_compte"]]));
+                
+                // Ajouter les participants
+                    ajouter_participants($bdd, $id_projet, $gestionnaires_selectionnes, $tous_collaborateurs);
+                
+                // Envoyer notification type 11 UNIQUEMENT aux gestionnaires (pas aux collaborateurs)
+                    $donnees = [
+                        'ID_projet' => $id_projet,
+                        'Nom_projet' => $nom_projet
+                    ];
+                
+                // On retire l'étudiant créateur de la liste des destinataires (si jamais il s'est mis)
+                    $destinataires_gestionnaires = array_values(array_diff($gestionnaires_selectionnes, [$_SESSION["ID_compte"]]));
+                
+                    if (!empty($destinataires_gestionnaires)) {
+                        envoyerNotification($bdd, 11, $_SESSION["ID_compte"], $donnees, $destinataires_gestionnaires);
+                    }  
+                
                     $message = "<p style='color:green;'>Le projet a été créé et proposé aux gestionnaires pour validation.</p>";
-                    
-                    // Rediriger vers la page du projet
+                
                     header("Location: page_projet.php?id_projet=" . $id_projet);
                     exit();
 
                 } else {
-                    // ---------------------- CHERCHEUR/ADMIN ----------------------
-                    // Création directe avec Validation = 1 (validé d'office)
-                    $id_projet = creer_projet($bdd, $nom_projet, $description, $confidentialite, $_SESSION["ID_compte"], 1);
-                    ajouter_participants($bdd, $id_projet, $gestionnaires_selectionnes, $collaborateurs_selectionnes);
+                // ---------------------- CHERCHEUR/ADMIN ----------------------
+                // Création directe avec Validation = 1 (validé d'office)
+                $id_projet = creer_projet($bdd, $nom_projet, $description, $confidentialite, $_SESSION["ID_compte"], 1);
+                
+                // Le créateur devient GESTIONNAIRE sur son propre projet
+                $tous_gestionnaires = array_unique(array_merge($gestionnaires_selectionnes, [$_SESSION["ID_compte"]]));
+                
+                ajouter_participants($bdd, $id_projet, $tous_gestionnaires, $collaborateurs_selectionnes);
 
-                    // Notifications
-                    $donnees = ['ID_projet' => $id_projet];
+                $donnees = [
+                    'ID_projet' => $id_projet,
+                    'Nom_projet' => $nom_projet
+                ];
 
-                    // Notifier les autres gestionnaires (type 11)
-                    $gestionnaires_dest = array_values(array_diff($gestionnaires_selectionnes, [$_SESSION["ID_compte"]]));
-                    if (!empty($gestionnaires_dest)) {
-                        envoyerNotification($bdd, 11, $_SESSION["ID_compte"], $donnees, $gestionnaires_dest);
-                    }
-
-                    // Notifier les collaborateurs (type 16 : ajout collaborateur)
-                    $collaborateurs_dest = array_values(array_diff($collaborateurs_selectionnes, [$_SESSION["ID_compte"]]));
-                    if (!empty($collaborateurs_dest)) {
-                        envoyerNotification($bdd, 16, $_SESSION["ID_compte"], $donnees, $collaborateurs_dest);
-                    }
-
-                    header("Location: page_projet.php?id_projet=" . $id_projet);
-                    exit();
+                // Notifier les autres gestionnaires (type 11 : demande de validation de participation)
+                $gestionnaires_dest = array_values(array_diff($gestionnaires_selectionnes, [$_SESSION["ID_compte"]]));
+                if (!empty($gestionnaires_dest)) {
+                    envoyerNotification($bdd, 11, $_SESSION["ID_compte"], $donnees, $gestionnaires_dest);
                 }
 
-                // Réinitialiser les listes sélectionnées
-                $gestionnaires_selectionnes = [];
-                $collaborateurs_selectionnes = [];
+                // Notifier les collaborateurs (type 16 : ajout collaborateur - notification simple)
+                $collaborateurs_dest = array_values(array_diff($collaborateurs_selectionnes, [$_SESSION["ID_compte"]]));
+                if (!empty($collaborateurs_dest)) {
+                    envoyerNotification($bdd, 16, $_SESSION["ID_compte"], $donnees, $collaborateurs_dest);
+                }
 
-            } catch (Exception $e) {
-                $message = "<p style='color:red;'>Erreur lors de la création du projet : " . htmlspecialchars($e->getMessage()) . "</p>";
-                error_log("Erreur création projet: " . $e->getMessage());
+                header("Location: page_projet.php?id_projet=" . $id_projet);
+                exit();
             }
+
+            // Réinitialiser
+            $gestionnaires_selectionnes = [];
+            $collaborateurs_selectionnes = [];
+
+        }catch (Exception $e) {
+            $message = "<p style='color:red;'>Erreur lors de la création du projet : " . htmlspecialchars($e->getMessage()) . "</p>";
+            error_log("Erreur création projet: " . $e->getMessage());
         }
     }
+}
 }
 
 // ======================= Récupération des listes pour le datalist =======================
