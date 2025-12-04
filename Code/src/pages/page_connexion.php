@@ -81,30 +81,22 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
     $email = trim($_POST["email"]);
     $mdp = trim($_POST["mdp"]);
 
-    // Prépare la requête pour vérifier l'utilisateur
     $verification = $bdd->prepare("SELECT * FROM compte WHERE email = ?");
     $verification->execute([$email]);
 
-    // Variable pour savoir si la connexion a réussi
-    $connexion_reussie = false;
-
-    // Si l'utilisateur existe
     if ($verification->rowCount() > 0) {
         $user = $verification->fetch();
 
-        // Vérifie le mot de passe
-        if (connexion_valide($bdd,$email,$mdp)) {
+        if (connexion_valide($bdd, $email, $mdp)) {
             $_SESSION["email"] = $email;
             $_SESSION["ID_compte"] = recuperer_id_compte($bdd, $email);
             $_SESSION['tentatives_connexion'] = 0;
 
-            // Vérifier si le compte est en cours de validation
             if (en_cours_validation($bdd, $email)) {
-                 header("Location: page_validation_compte.php"); // Redirection vers la page de validation
-                 exit;
+                header("Location: page_validation_compte.php");
+                exit;
             }
 
-            // Vérifier si l'utilisateur est admin
             if (est_admin($bdd, $email)) {
                 $_SESSION['est_admin'] = true;
                 header("Location: page_admin.php");
@@ -113,24 +105,21 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
                 header("Location: Main_page_connected.php");
             }
             exit;
-        }
-
-        if (!$connexion_reussie) {
+        } else {
+            // Mot de passe incorrect
             $_SESSION['tentatives_connexion']++;
             $_SESSION['dernier_essai'] = time();
-
             $tentatives_restantes = $tentatives_max - $_SESSION['tentatives_connexion'];
-
-            if ($tentatives_restantes > 0) {
-                $erreur = "Email ou mot de passe incorrect.<br>";
-                $erreur .= "<small>Il vous reste <strong>$tentatives_restantes tentative(s)</strong>.</small>";
-            } else {
-                $erreur = "<small>Trop de tentatives échouées. Votre compte est bloqué pour <strong>15 minutes</strong></small>.";
-            }
+            $erreur = "Email ou mot de passe incorrect.<br>";
+            $erreur .= "<small>Il vous reste <strong>$tentatives_restantes tentative(s)</strong>.</small>";
         }
-    } else if (!$compte_bloque && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    } else {
+        // Email inexistant
         $_SESSION['tentatives_connexion']++;
         $_SESSION['dernier_essai'] = time();
+        $tentatives_restantes = $tentatives_max - $_SESSION['tentatives_connexion'];
+        $erreur = "Email ou mot de passe incorrect.<br>";
+        $erreur .= "<small>Il vous reste <strong>$tentatives_restantes tentative(s)</strong>.</small>";
     }
 }
 ?>
