@@ -6,6 +6,8 @@ session_start();
 $bdd = connectBDD();
 #On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
 verification_connexion($bdd);
+
+$derniers_projets=filtrer_trier_pro_exp($bdd,$types=['projet'],$tri='Date_modif',$ordre='desc');
 ?>
 
 <!DOCTYPE html>
@@ -13,8 +15,10 @@ verification_connexion($bdd);
     <head>
         <meta charset= "utf-8"/>
         <link rel="stylesheet" href="../css/Main_page_connected.css">
+        <link rel="stylesheet" href="../css/page_mes_projets.css">
         <link rel="stylesheet" href="../css/Bandeau_haut.css">
         <link rel="stylesheet" href="../css/Bandeau_bas.css">
+
         <!-- Permet d'afficher la loupe pour le bandeau de recherche -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <title>AxouLab</title>
@@ -23,51 +27,37 @@ verification_connexion($bdd);
     <?php
     afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);
     ?>
-    <div class="slider">
-      <!-- Radios -->
-      <input type="radio" name="slider" id="slide1" checked>
-      <input type="radio" name="slider" id="slide2">
-      <input type="radio" name="slider" id="slide3">
+      <div class="slider">
+        <!-- Radios -->
+        <input type="radio" name="slider" id="slide1" checked>
+        <input type="radio" name="slider" id="slide2">
+        <input type="radio" name="slider" id="slide3">
 
-      <!-- Slides -->
-      <div class="slides">
-        <div class="slide s1">
-          <img src="../assets/exemple1.jpg" alt="Image 1">
-          <label for="slide3" class="prev">◀</label>
-          <label for="slide2" class="next">▶</label>
+        <!-- Images -->
+        <div class="slides">
+            <img src="../assets/exemple1.png" alt="Image 1">
+            <img src="../assets/exemple2.png" alt="Image 2">
+            <img src="../assets/exemple3.png" alt="Image 3">
         </div>
 
-        <div class="slide s2">
-          <img src="../assets/exemple2.jpg" alt="Image 2">
-          <label for="slide1" class="prev">◀</label>
-          <label for="slide3" class="next">▶</label>
+        <!-- Points -->
+        <div class="dots">
+            <label for="slide1"></label>
+            <label for="slide2"></label>
+            <label for="slide3"></label>
         </div>
-
-        <div class="slide s3">
-          <img src="../assets/exemple3.jpg" alt="Image 3">
-          <label for="slide2" class="prev">◀</label>
-          <label for="slide1" class="next">▶</label>
-        </div>
-      </div>
     </div>
 
     <h1 style="text-align:center; color:#003366;">Derniers Projets</h1>
 
-    <div class="grille-projets">
-
-    <?php while ($donnees = $reponse->fetch()) { ?>
-        <div class="projet">
-            <h2><?= htmlspecialchars($donnees['Nom_du_projet']) ?></h2>
-            <p><?= htmlspecialchars($donnees['Description']) ?></p>
-            <p><em>Créé le <?= htmlspecialchars($donnees['Date_de_creation']) ?></em></p>
-        </div>
-    <?php } 
-        ?>
+    <div class="projets">
+      <section class="section-projets">
+        <?php afficher_projets_pagines($derniers_projets, $page_en_cours=1, $items_par_page=3); ?>
+      </section>    
     </div>
-    <!-- Ne pas oublier d'ajouter les "ils nous soutiennent" -->
+    
 
     <?php
-    $reponse->closeCursor();
     afficher_Bandeau_Bas(); ?>
 
 </body>
