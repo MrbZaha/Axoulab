@@ -312,14 +312,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!empty($materiels_selectionnes)) {
                     associer_materiel_experience($bdd, $id_experience, $materiels_selectionnes);
                 }
-                //notifications
-                $idProjet = $_POST['id_projet'];
-                $idEnvoyeur = $_SESSION['ID_compte'];
-                $idExperience = $bdd->lastInsertId(); // ID de l'expérience insérée
-
-                // Notifier automatiquement les gestionnaires
-                notifier_gestionnaires_experience($bdd, $idProjet, $idEnvoyeur, $idExperience);
-
+                
                 // Redirection
                 header("Location: page_experience.php?id_projet=" . $id_projet . "&id_experience=" . $id_experience);
                 exit();
