@@ -266,7 +266,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 
         <?php if ($recherche): ?>
             <!-- Barre de recherche affichée uniquement si $recherche = true -->
-            <form class="searchbar" action="Page_rechercher.php" method="GET">
+            <form class="searchbar" action="page_rechercher.php" method="GET">
                 <!-- Texte saisi -->
                 <input type="text" name="texte" placeholder="Rechercher..." value="<?= htmlspecialchars($_GET['texte'] ?? '') ?>" />
 
@@ -285,7 +285,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 
         <div id="site_nav_links">
             <ul class="liste_links">
-                <li class="main_links"><a href="Page_rechercher.php?texte=&type%5B0%5D=projet&type%5B1%5D=experience&tri=A-Z&ordre=asc" class="Links">Explorer</a></li>
+                <li class="main_links"><a href="page_rechercher.php?texte=&type%5B0%5D=projet&type%5B1%5D=experience&tri=A-Z&ordre=asc" class="Links">Explorer</a></li>
                 <li class="main_links"><a href="page_mes_experiences.php" class="Links">Mes expériences</a></li>
                 <li class="main_links"><a href="page_mes_projets.php" class="Links">Mes projets</a></li>
 

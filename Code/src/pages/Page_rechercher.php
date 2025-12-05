@@ -165,7 +165,7 @@ $total_pages=create_page($liste_mixte,$items_par_page);
 
 <h1>Que recherchez-vous?</h1>
 
-<form method="GET" action="Page_rechercher.php" style="text-align:center;">
+<form method="GET" action="page_rechercher.php" style="text-align:center;">
 
     <!-- Barre de recherche principale -->
     <div class="searchbar">
