@@ -630,8 +630,9 @@ function get_mes_experiences_complets(PDO $bdd, ?int $id_compte = null): array {
 // =======================   Fonction de récupération des projets =======================
 
 
-function get_mes_projets_complets(PDO $bdd, int $id_compte=NULL): array {
+function get_all_projet(PDO $bdd, int $id_compte): array {
     
+    // Récupère TOUS les projets
     $sql_projets = "
         SELECT 
             p.ID_projet, 
@@ -639,24 +640,13 @@ function get_mes_projets_complets(PDO $bdd, int $id_compte=NULL): array {
             p.Description, 
             p.Confidentiel, 
             p.Validation, 
-            pcg.Statut,
             p.Date_de_creation,
             p.Date_de_modification
         FROM projet p
-        INNER JOIN projet_collaborateur_gestionnaire pcg
-            ON p.ID_projet = pcg.ID_projet    ";
+    ";
     
-
-    // Ajout conditionnel du WHERE
-    if ($id_compte !== null) {
-        $sql_projets .= " WHERE pcg.ID_compte = :id_compte";
-        $stmt = $bdd->prepare($sql_projets);
-        $stmt->execute(['id_compte' => $id_compte]);
-    } else {
-        $stmt = $bdd->prepare($sql_projets);
-        $stmt->execute();
-    }
-
+    $stmt = $bdd->prepare($sql_projets);
+    $stmt->execute();
     $projets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($projets)) {
@@ -666,30 +656,36 @@ function get_mes_projets_complets(PDO $bdd, int $id_compte=NULL): array {
     $ids_projets = array_column($projets, 'ID_projet');
     $in = str_repeat('?,', count($ids_projets) - 1) . '?';
 
-    $sql_gestionnaires = "
+    // Récupère le statut de l'utilisateur connecté pour chaque projet
+    $sql_statut_user = "
         SELECT 
-            pcg.ID_projet, 
-            c.Nom, 
-            c.Prenom
-        FROM projet_collaborateur_gestionnaire pcg
-        INNER JOIN compte c ON pcg.ID_compte = c.ID_compte
-        WHERE pcg.Statut = 1 AND pcg.ID_projet IN ($in)
+            ID_projet,
+            Statut
+        FROM projet_collaborateur_gestionnaire
+        WHERE ID_compte = ? AND ID_projet IN ($in)
     ";
-    $stmt2 = $bdd->prepare($sql_gestionnaires);
-    $stmt2->execute($ids_projets);
-    $rows = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+    $params = array_merge([$id_compte], $ids_projets);
+    $stmt2 = $bdd->prepare($sql_statut_user);
+    $stmt2->execute($params);
+    $statuts_user = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
-    $gestionnaires = [];
-    foreach ($rows as $row) {
-        $gestionnaires[$row['ID_projet']][] = $row['Prenom'] . ' ' . $row['Nom'];
+    // Organise les statuts par ID_projet
+    $statut_par_projet = [];
+    foreach ($statuts_user as $row) {
+        $statut_par_projet[$row['ID_projet']] = $row['Statut'];
     }
 
+    // Enrichit chaque projet
     foreach ($projets as &$p) {
-        $p['Gestionnaires'] = $gestionnaires[$p['ID_projet']] ?? [];
         $p['Progression'] = progression_projet($bdd, (int)$p['ID_projet']);
-
+        
+        // Détermine le rôle de l'utilisateur connecté
+        if (isset($statut_par_projet[$p['ID_projet']])) {
+            $p['Statut'] = $statut_par_projet[$p['ID_projet']] == 1 ? 'Gestionnaire' : 'Collaborateur';
+        } else {
+            $p['Statut'] = 'Aucun';
+        }
     }
-
     return $projets;
 }
 
@@ -1008,7 +1004,8 @@ function accepter_utilisateur($bdd, $id_user) {
 // =======================  Fonction de tri des projets et/ou expériences =======================
 
 
-function filtrer_trier_pro_exp(PDO $bdd,
+function filtrer_trier_pro_exp(PDO $bdd, 
+    int $id_compte,
     array $types = ['projet','experience'], // types à inclure
     string $tri = 'A-Z',                    // critère de tri : 'A-Z', 'date_modif', 'date_creation'
     string $ordre = 'asc',                  // 'asc' ou 'desc'
@@ -1022,7 +1019,7 @@ function filtrer_trier_pro_exp(PDO $bdd,
 
     // --- Filtrer les projets si "projet" est dans le tableau
     if (in_array('projet', $types)) {
-        $projets = get_mes_projets_complets($bdd); 
+        $projets = get_all_projet($bdd, $id_compte); 
         foreach ($projets as &$p) {
             $p["Type"] = "projet";
         }

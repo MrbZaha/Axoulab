@@ -1,6 +1,31 @@
 <?php
-require_once __DIR__ . '/../back_php/init_DB.php';
 require __DIR__ . '/../back_php/fonctions_site_web.php';
+
+function get_mes_projets_complets(PDO $bdd, int $id_compte=NULL): array {
+    
+    $sql_projets = "
+        SELECT 
+            p.ID_projet, 
+            p.Nom_projet AS Nom, 
+            p.Description, 
+            p.Confidentiel, 
+            p.Validation, 
+            pcg.Statut,
+            p.Date_de_creation,
+            p.Date_de_modification
+        FROM projet p
+        INNER JOIN projet_collaborateur_gestionnaire pcg
+            ON p.ID_projet = pcg.ID_projet    ";
+    
+    $sql_projets .= " WHERE pcg.ID_compte = :id_compte";
+    $stmt = $bdd->prepare($sql_projets);
+    $stmt->execute(['id_compte' => $id_compte]);
+    $projets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if (empty($projets)) {
+        return [];
+    }
+    return $projets;
+}
 
 $bdd = connectBDD();
 #On vérifie si l'utilisateur est bien connecté avant d'accéder à la page

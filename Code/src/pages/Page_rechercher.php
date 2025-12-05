@@ -30,7 +30,7 @@ function afficher_projets_experiences_pagines(array $items, int $page_actuelle =
                         ? htmlspecialchars(substr($description, 0, 200)) . '…'
                         : htmlspecialchars($description);
                     $date = htmlspecialchars($item['Date_de_creation']);
-                    $role = $item['Statut'] ? "Gestionnaire" : "Collaborateur";
+                    $role = $item['Statut'];
                     $progress = (int)($item['Progression'] ?? 0);
                     ?>
     
@@ -144,7 +144,7 @@ if (isset($_GET['statut_exp_pascommence'])) {
 
 $items_par_page=10;
 
-$liste_mixte=filtrer_trier_pro_exp($bdd, $projet_exp, $tri, $ordre, $texte, $confid, $statut_proj, $statut_exp);
+$liste_mixte=filtrer_trier_pro_exp($bdd, $id_compte, $projet_exp, $tri, $ordre, $texte, $confid, $statut_proj, $statut_exp);
 $total_pages=create_page($liste_mixte,$items_par_page);
 ?>
 
