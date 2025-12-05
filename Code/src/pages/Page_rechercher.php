@@ -12,8 +12,6 @@ function afficher_projets_experiences_pagines(array $items, int $page_actuelle =
     // Calcul de la tranche à afficher
     $debut = ($page_actuelle - 1) * $items_par_page;
     $items_page = array_slice($items, $debut, $items_par_page);
-    
-
     ?>
     <div class="liste">
         <?php if (empty($items_page)): ?>
