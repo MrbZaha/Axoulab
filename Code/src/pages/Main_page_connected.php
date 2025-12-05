@@ -7,7 +7,7 @@ $bdd = connectBDD();
 #On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
 verification_connexion($bdd);
 
-$derniers_projets=filtrer_trier_pro_exp($bdd,$types=['projet'],$tri='Date_modif',$ordre='desc');
+//$derniers_projets=filtrer_trier_pro_exp($bdd,$types=['projet'],$tri='Date_modif',$ordre='desc');
 ?>
 
 <!DOCTYPE html>
