@@ -12,16 +12,17 @@ function afficher_projets_experiences_pagines(array $items, int $page_actuelle =
     // Calcul de la tranche à afficher
     $debut = ($page_actuelle - 1) * $items_par_page;
     $items_page = array_slice($items, $debut, $items_par_page);
-    
-
     ?>
+
     <div class="liste">
         <?php if (empty($items_page)): ?>
             <p class="no-items">Aucun projet ou expérience à afficher</p>
+
         <?php else: ?>
             <?php foreach ($items_page as $item): ?>
+
                 <?php if (($item['Type'] ?? '') === 'projet'): 
-                    // Variables projets
+
                     $id = htmlspecialchars($item['ID_projet']);
                     $nom = htmlspecialchars($item['Nom']);
                     $description = $item['Description'];
@@ -30,7 +31,9 @@ function afficher_projets_experiences_pagines(array $items, int $page_actuelle =
                         : htmlspecialchars($description);
                     $date = htmlspecialchars($item['Date_de_creation']);
                     $role = $item['Statut'] ? "Gestionnaire" : "Collaborateur";
+                    $progress = (int)($item['Progression'] ?? 0);
                     ?>
+    
                     <a class='projet-card' href='page_projet.php?id_projet=<?= $id ?>'>
                         <h3><?= $nom ?></h3>
                         <p><?= $desc ?></p>
@@ -38,8 +41,13 @@ function afficher_projets_experiences_pagines(array $items, int $page_actuelle =
                         <p><strong>Rôle :</strong> <?= $role ?></p>
                     </a>
 
-                <?php elseif (($item['Type'] ?? '') === 'experience'): 
-                    // Variables expériences
+
+
+                <?php elseif (($item['Type'] ?? '') === 'experience'): ?>
+
+
+                    <!-- Pas modifié -->
+                    <?php
                     $id_experience = htmlspecialchars($item['ID_experience']);
                     $nom = htmlspecialchars($item['Nom']);
                     $description = $item['Description'];
@@ -53,6 +61,7 @@ function afficher_projets_experiences_pagines(array $items, int $page_actuelle =
                     $nom_projet = htmlspecialchars($item['Nom'] ?? 'Sans projet');
                     $id_projet = htmlspecialchars($item['ID_projet']);
                     ?>
+
                     <a class='experience-card' href='page_experience.php?id_projet=<?= $id_projet ?>&id_experience=<?= $id_experience ?>'>
                         <div class="experience-header">
                             <h3><?= $nom ?></h3>
@@ -69,8 +78,8 @@ function afficher_projets_experiences_pagines(array $items, int $page_actuelle =
             <?php endforeach; ?>
         <?php endif; ?>
     </div>
-    <?php
-}
+
+<?php }
 
 
 function afficher_pagination_mixte(int $page_actuelle, int $total_pages, string $param = 'page'): void {
