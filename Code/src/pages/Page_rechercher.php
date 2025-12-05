@@ -227,17 +227,16 @@ $total_pages=create_page($liste_mixte,$items_par_page);
 </form>
 
 
+<div class="projets">
+    <section class="section-projets">
+            <?php 
+        // Affiche les projets et expériences filtrés/tris
+        afficher_projets_experiences_pagines($liste_mixte, $page_actuelle, $items_par_page);
 
-
-
-<div class="liste-mixte">
-    <?php 
-    // Affiche les projets et expériences filtrés/tris
-    afficher_projets_experiences_pagines($liste_mixte, $page_actuelle, $items_par_page);
-
-    // Pagination
-    afficher_pagination_mixte($page_actuelle, $total_pages, 'page');
-    ?>
+        // Pagination
+        afficher_pagination_mixte($page_actuelle, $total_pages, 'page');
+        ?>
+    </section>
 </div>
 
 <?php afficher_Bandeau_Bas() ?>

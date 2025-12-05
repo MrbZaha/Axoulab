@@ -49,7 +49,7 @@ function recuperer_id_compte($bdd, $email) {
 
 // =======================  AFFICHAGE BANDEAU DU HAUT =======================
 /* Affiche le Bandeau du haut */
-function afficher_Bandeau_Haut($bdd, $userID) {
+function afficher_Bandeau_Haut($bdd, $userID,$recherche=True) {
 // ------------------- TRAITEMENT DES NOTIFICATIONS POST -------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' 
     && isset($_POST['id_notif'], $_POST['action_notif'], $_POST['is_projet'])) {
