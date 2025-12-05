@@ -216,7 +216,7 @@ function get_collaborateurs(PDO $bdd, int $id_projet): array {
 
 function get_experiences(PDO $bdd, int $id_projet): array {
     $sql = "
-        SELECT 
+        SELECT DISTINCT
             e.ID_experience,
             e.Description,
             e.Date_reservation,
@@ -315,10 +315,16 @@ $page_title = $projet ? htmlspecialchars($projet['Nom_projet']) : "Projet";
 </head>
 <body>
 <?php afficher_Bandeau_Haut($bdd, $id_compte); ?>
-<h1>Projets</h1>
+<h1>Projet</h1>
+<div class="actions-projet">
 <div class="create-experience">
 <form action= "page_creation_experience_1.php?id_projet=<?= $id_projet ?>" method= "post">
     <input type= "submit" value= "Ajouter une expérience" />
+</div>
+<div class="modifier-projet">
+<form action= "page_modification_projet.php?id_projet=<?= $id_projet ?>" method= "post">
+    <input type= "submit" value= "Modifier le projet" />
+</div>
 </div>
 <?php if ($erreur): ?>
     <?php afficher_erreur($erreur); ?>
