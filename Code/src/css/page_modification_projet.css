@@ -1,0 +1,351 @@
+/* —— CONTAINER PRINCIPAL ———————————————————————— */
+.project-box {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #ffffff;
+    border: 1px solid #e8e8e8;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    font-family: "Inter", sans-serif;
+}
+
+/* —— TITRE ———————————————————————— */
+h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 25px;
+    font-family: "Georgia", serif;
+    color: #1c1c1c;
+}
+
+/* —— MESSAGES ———————————————————————— */
+.success-message {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    border-radius: 12px;
+    padding: 20px;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 25px;
+    animation: slideIn 0.3s ease;
+}
+
+.success-message i {
+    margin-right: 8px;
+    font-size: 1.2rem;
+}
+
+.error-message {
+    background: #fdeaea;
+    border: 1px solid #f5bcbc;
+    color: #b30000;
+    border-radius: 12px;
+    padding: 20px;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 25px;
+    animation: slideIn 0.3s ease;
+}
+
+.error-message i {
+    margin-right: 8px;
+    font-size: 1.2rem;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* —— FORMULAIRE ———————————————————————— */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+form label {
+    font-weight: 600;
+    color: #1d3c5a;
+    margin-bottom: 5px;
+    font-size: 1rem;
+}
+
+form input[type="text"],
+form textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #d0d0d0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: "Inter", sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+form input[type="text"]:focus,
+form textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+form textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* —— RADIO BUTTONS (Confidentiel) ———————————————————————— */
+.user-type {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.user-type input[type="radio"] {
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.user-type label {
+    font-weight: 400;
+    cursor: pointer;
+    margin: 0;
+}
+
+/* —— SECTIONS PARTICIPANTS ———————————————————————— */
+.participants-section {
+    margin-top: 10px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+}
+
+.info-text {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 12px;
+    font-style: italic;
+}
+
+.selection-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.selection-container input[type="text"] {
+    flex: 1;
+    margin: 0;
+}
+
+.btn-ajouter {
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-ajouter:hover {
+    background-color: #2b86c6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* —— LISTE DES PERSONNES SÉLECTIONNÉES ———————————————————————— */
+.liste-selectionnes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-height: 50px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #d0d0d0;
+}
+
+.liste-vide {
+    color: #999;
+    font-style: italic;
+    padding: 8px;
+}
+
+.tag-personne {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: white;
+    transition: all 0.2s;
+}
+
+.tag-etudiant {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.tag-chercheur {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.tag-admin {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.tag-personne:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn-croix {
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    padding: 0;
+    line-height: 1;
+}
+
+.btn-croix:hover {
+    background: rgba(255, 255, 255, 0.5);
+    transform: scale(1.1);
+}
+
+/* —— BOUTONS D'ACTION ———————————————————————— */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn-cancel,
+.btn-submit {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-cancel {
+    background-color: #95a5a6;
+    color: white;
+}
+
+.btn-cancel:hover {
+    background-color: #7f8c8d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-submit {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.btn-submit:hover {
+    background-color: #27ae60;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-cancel i,
+.btn-submit i {
+    margin-right: 8px;
+}
+
+/* —— BOUTON RETOUR ———————————————————————— */
+.back-button-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-back:hover {
+    background-color: #2b86c6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-back i {
+    margin-right: 8px;
+}
+
+/* —— RESPONSIVE ———————————————————————— */
+@media (max-width: 768px) {
+    .project-box {
+        padding: 20px;
+        margin: 20px 15px;
+    }
+
+    h2 {
+        font-size: 1.6rem;
+    }
+
+    .selection-container {
+        flex-direction: column;
+    }
+
+    .btn-ajouter {
+        width: 100%;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-cancel,
+    .btn-submit {
+        width: 100%;
+    }
+
+    .tag-personne {
+        font-size: 0.85rem;
+        padding: 6px 10px;
+    }
+}

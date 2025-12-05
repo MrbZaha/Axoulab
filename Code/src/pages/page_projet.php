@@ -321,10 +321,12 @@ $page_title = $projet ? htmlspecialchars($projet['Nom_projet']) : "Projet";
 <form action= "page_creation_experience_1.php?id_projet=<?= $id_projet ?>" method= "post">
     <input type= "submit" value= "Ajouter une expérience" />
 </div>
+</form>
 <div class="modifier-projet">
 <form action= "page_modification_projet.php?id_projet=<?= $id_projet ?>" method= "post">
     <input type= "submit" value= "Modifier le projet" />
 </div>
+</form>
 </div>
 <?php if ($erreur): ?>
     <?php afficher_erreur($erreur); ?>
