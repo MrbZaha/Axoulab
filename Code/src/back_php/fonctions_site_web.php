@@ -76,6 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 
         switch ($action) {
             case "valider":
+
                 $nouvelEtat = 1;
                 if ($typeNotif == 16) {
                     // Notification simple d'ajout collaborateur - pas de réponse
@@ -102,6 +103,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         $update = $bdd->prepare("UPDATE $table SET Valider = ? WHERE $idCol = ?");
         $update->execute([$nouvelEtat, $idNotif]);
 
+        // --- Validation expérience par gestionnaire ---
+       if (!$isProjet && $typeNotif == 1 && $nouvelEtat == 1) {
+            $idExperience = $notif['ID_experience'] ?? null;
+            if ($idExperience) {
+                $updateExp = $bdd->prepare("UPDATE experience SET Validation = 1, Date_de_modification = NOW() WHERE ID_experience = ?");
+                $updateExp->execute([$idExperience]);
+            }
+        }
         // === GESTION SPÉCIFIQUE POUR LES PROJETS ===
         if ($isProjet && $typeNotif == 11) {
             // Récupérer l'état du créateur du projet

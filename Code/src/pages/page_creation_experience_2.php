@@ -145,17 +145,18 @@ function est_debut_reservation($reservations, $heure) {
 }
 
 // ======================= FONCTIONS CRÉATION EXPÉRIENCE =======================
-function creer_experience($bdd, $nom_experience, $description, $date_reservation, $heure_debut, $heure_fin, $nom_salle) {
+function creer_experience($bdd, $nom_experience, $validation, $description, $date_reservation, $heure_debut, $heure_fin, $statut_experience = 'En attente') {
     $sql = $bdd->prepare("
-        INSERT INTO experience (Nom, Description, Date_reservation, Heure_debut, Heure_fin, Statut_experience, Validation)
-        VALUES (?, ?, ?, ?, ?, 'En attente', 0)
+        INSERT INTO experience (Nom, Validation, Description, Date_reservation, Heure_debut, Heure_fin, Statut_experience)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     ");
 
-    if ($sql->execute([$nom_experience, $description, $date_reservation, $heure_debut, $heure_fin])) {
+    if ($sql->execute([$nom_experience, $validation, $description, $date_reservation, $heure_debut, $heure_fin, $statut_experience])) {
         return $bdd->lastInsertId();
     }
     return false;
 }
+
 
 function associer_experience_projet($bdd, $id_projet, $id_experience) {
     $sql = $bdd->prepare("
@@ -286,41 +287,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // Traitement de la création finale
     if (isset($_POST['creer_experience'])) {
-        if (!$id_projet || $id_projet <= 0) {
-            $message = "<p style='color:red;'>Erreur : ID du projet invalide.</p>";
-        } elseif (empty($_POST['date_reservation']) || empty($_POST['heure_debut']) || empty($_POST['heure_fin'])) {
-            $message = "<p style='color:red;'>Erreur : Veuillez sélectionner un créneau horaire.</p>";
-        } else {
-            $date_reservation = $_POST['date_reservation'];
-            $heure_debut = $_POST['heure_debut'];
-            $heure_fin = $_POST['heure_fin'];
-            $nom_salle = $_POST['nom_salle'];
-            
-            // Créer l'expérience
-            $id_experience = creer_experience($bdd, $nom_experience, $description, $date_reservation, $heure_debut, $heure_fin, $nom_salle);
-            
-            if ($id_experience) {
-                // Associer au projet
-                associer_experience_projet($bdd, $id_projet, $id_experience);
-                
-                // Ajouter les expérimentateurs
-                if (!empty($experimentateurs_ids)) {
-                    ajouter_experimentateurs($bdd, $id_experience, $experimentateurs_ids);
-                }
-                
-                // Associer les matériels sélectionnés
-                if (!empty($materiels_selectionnes)) {
-                    associer_materiel_experience($bdd, $id_experience, $materiels_selectionnes);
-                }
-                
-                // Redirection
-                header("Location: page_experience.php?id_projet=" . $id_projet . "&id_experience=" . $id_experience);
-                exit();
-            } else {
-                $message = "<p style='color:red;'>Erreur lors de la création de l'expérience.</p>";
+
+    if (!$id_projet || $id_projet <= 0) {
+        $message = "<p style='color:red;'>Erreur : ID du projet invalide.</p>";
+    } elseif (empty($_POST['date_reservation']) || empty($_POST['heure_debut']) || empty($_POST['heure_fin'])) {
+        $message = "<p style='color:red;'>Erreur : Veuillez sélectionner un créneau horaire.</p>";
+    } else {
+        $date_reservation = $_POST['date_reservation'];
+        $heure_debut = $_POST['heure_debut'];
+        $heure_fin = $_POST['heure_fin'];
+        $nom_salle = $_POST['nom_salle'];
+
+        // Déterminer si l'utilisateur est gestionnaire
+        $stmt = $bdd->prepare("SELECT 1 FROM projet_collaborateur_gestionnaire WHERE ID_projet = ? AND ID_compte = ? AND Statut = 1");
+        $stmt->execute([$id_projet, $_SESSION['ID_compte']]);
+        $is_gestionnaire = $stmt->fetch() ? true : false;
+
+        $validation = $is_gestionnaire ? 1 : 0;
+
+        // Créer l'expérience
+        $id_experience = creer_experience($bdd, $nom_experience, $validation, $description, $date_reservation, $heure_debut, $heure_fin);
+        if ($id_experience) {
+            // Associer au projet
+            associer_experience_projet($bdd, $id_projet, $id_experience);
+
+            // Ajouter les expérimentateurs
+            if (!empty($experimentateurs_ids)) {
+                ajouter_experimentateurs($bdd, $id_experience, $experimentateurs_ids);
             }
+
+            // Associer les matériels sélectionnés
+            if (!empty($materiels_selectionnes)) {
+                associer_materiel_experience($bdd, $id_experience, $materiels_selectionnes);
+            }
+
+            // Envoyer la notification uniquement si l'utilisateur n'est pas gestionnaire
+            if (!$is_gestionnaire) {
+                $idEnvoyeur = $_SESSION['ID_compte'];
+
+                // Récupérer les gestionnaires du projet
+                $stmt = $bdd->prepare("SELECT ID_compte FROM projet_collaborateur_gestionnaire WHERE ID_projet = ? AND Statut = 1");
+                $stmt->execute([$id_projet]);
+                $gestionnaires = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+                // Retirer l’envoyeur s’il est gestionnaire
+                $destinataires = array_diff($gestionnaires, [$idEnvoyeur]);
+
+                if (!empty($destinataires)) {
+                    envoyerNotification($bdd, 1, $idEnvoyeur, ['ID_experience' => $id_experience], $destinataires);
+                }
+            }
+
+            // Redirection automatique
+            header("Location: page_experience.php?id_projet=$id_projet&id_experience=$id_experience");
+            exit();
+        } else {
+            $message = "<p style='color:red;'>Erreur lors de la création de l'expérience.</p>";
         }
     }
+}
 }
 
 // Vérifier si on a un ID_projet valide
