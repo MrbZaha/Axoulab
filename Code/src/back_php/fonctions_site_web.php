@@ -1275,7 +1275,7 @@ function afficher_projets_pagines(array $projets, int $page_actuelle = 1, int $i
                     ? htmlspecialchars(substr($description, 0, 200)) . '…'
                     : htmlspecialchars($description);
                 $date = htmlspecialchars($p['Date_de_creation']);
-                $role = $p['Statut'] ? "Gestionnaire" : "Collaborateur";
+                $role = $p['Statut'];
                 ?>
                 
                 <a class='projet-card' href='page_projet.php?id_projet=<?= $id ?>'>
