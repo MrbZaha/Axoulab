@@ -1,9 +1,9 @@
 <?php
-include_once "../back_php/fonctions_site_web.php";
+require_once __DIR__ . '/../back_php/init_DB.php';
+require __DIR__ . '/../back_php/fonctions_site_web.php';
 
+$_SESSION['ID_compte'] = 3; // TEMPORAIRE pour test
 $bdd = connectBDD();
-#On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
-verification_connexion($bdd);
 $id_compte = $_SESSION['ID_compte'];
 $id_experience = isset($_GET['id_experience']) ? (int)$_GET['id_experience'] : 0;
 
@@ -123,12 +123,13 @@ function get_experimentateurs(PDO $bdd, int $id_experience): array {
 function get_salles_et_materiel(PDO $bdd, int $id_experience): array {
     $sql = "
         SELECT 
-            sm.Nom_salle,
-            sm.Materiel
-        FROM materiel_experience se
-        JOIN salle_materiel sm ON se.ID_materiel = sm.ID_materiel
+            sm.Salle,
+            sm.Materiel,
+            sm.Nombre
+        FROM salle_experience se
+        JOIN salle_materiel sm ON se.ID_salle = sm.ID_salle
         WHERE se.ID_experience = :id_experience
-        ORDER BY sm.Nom_salle, sm.Materiel
+        ORDER BY sm.Salle, sm.Materiel
     ";
     
     $stmt = $bdd->prepare($sql);
@@ -156,15 +157,16 @@ function afficher_experience(array $experience, array $experimentateurs, array $
     
     foreach ($salles_materiel as $item) {
         // Ajouter la salle (éviter les doublons)
-        if (!in_array($item['Nom_salle'], $salles)) {
-            $salles[] = $item['Nom_salle'];
+        if (!in_array($item['Salle'], $salles)) {
+            $salles[] = $item['Salle'];
         }
         
         // Ajouter le matériel avec son nombre
         if (!empty($item['Materiel'])) {
             $materiels[] = [
                 'nom' => $item['Materiel'],
-                'salle' => $item['Nom_salle']
+                'nombre' => $item['Nombre'],
+                'salle' => $item['Salle']
             ];
         }
     }
@@ -202,13 +204,13 @@ function afficher_experience(array $experience, array $experimentateurs, array $
                         </p>
                         
                         <p><strong>Validation :</strong> 
-                            <?= $experience['Validation'] ? 'Validée' : 'En attente' ?>
+                            <?= $experience['Validation'] ? '✅ Validée' : '⏳ En attente' ?>
                         </p>
                         
                         <?php if (!empty($experience['Nom_projet'])): ?>
                             <h4>Projet lié</h4>
                             <p>
-                                <a href="page_projet.php?id_projet=<?= $experience['ID_projet'] ?>" class="link-projet">
+                                <a href="projet.php?id_projet=<?= $experience['ID_projet'] ?>" class="link-projet">
                                     <?= htmlspecialchars($experience['Nom_projet']) ?>
                                 </a>
                             </p>
@@ -233,6 +235,7 @@ function afficher_experience(array $experience, array $experimentateurs, array $
                                 <div class="materiel-card">
                                     <p><strong><?= htmlspecialchars($mat['nom']) ?></strong></p>
                                     <p>Salle : <?= htmlspecialchars($mat['salle']) ?></p>
+                                    <p>Nombre : <?= htmlspecialchars($mat['nombre']) ?></p>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -295,7 +298,7 @@ function charger_donnees_experience(PDO $bdd, int $id_compte, int $id_experience
     
     if (!$stmt->fetch()) {
         return [
-            'erreur' => "Désolé, cette expérience n'existe pas.",
+            'erreur' => "❌ Désolé, cette expérience n'existe pas.",
             'experience' => null,
             'experimentateurs' => [],
             'salles_materiel' => []
@@ -305,7 +308,7 @@ function charger_donnees_experience(PDO $bdd, int $id_compte, int $id_experience
     // Vérifier l'accès
     if (!verifier_acces_experience($bdd, $id_compte, $id_experience)) {
         return [
-            'erreur' => "Vous n'avez pas accès à cette expérience.",
+            'erreur' => "⛔ Vous n'avez pas accès à cette expérience.",
             'experience' => null,
             'experimentateurs' => [],
             'salles_materiel' => []
@@ -324,7 +327,7 @@ function charger_donnees_experience(PDO $bdd, int $id_compte, int $id_experience
 // ========== EXÉCUTION ==========
 
 if ($id_experience === 0) {
-    $erreur = "ID d'expérience manquant.";
+    $erreur = "❌ ID d'expérience manquant.";
     $experience = null;
     $experimentateurs = [];
     $salles_materiel = [];
@@ -345,21 +348,20 @@ $page_title = $experience ? htmlspecialchars($experience['Nom']) : "Expérience"
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?></title>
-    <link rel="stylesheet" href="../css/page_experience.css">
+    <link rel="stylesheet" href="../css/experience.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<?php afficher_Bandeau_Haut($bdd, $id_compte); ?>
 <body>
-<div class="experiences">
-<?php if ($erreur):
-         afficher_erreur($erreur);
-      else:
-         afficher_experience($experience, $experimentateurs, $salles_materiel);
-      endif; ?>
-</div>
-</body>
-<?php afficher_Bandeau_Bas(); ?>
+<?php afficher_Bandeau_Haut($bdd, $id_compte); ?>
 
+<?php if ($erreur): ?>
+    <?php afficher_erreur($erreur); ?>
+<?php else: ?>
+    <?php afficher_experience($experience, $experimentateurs, $salles_materiel); ?>
+<?php endif; ?>
+
+<?php afficher_Bandeau_Bas(); ?>
+</body>
 </html>

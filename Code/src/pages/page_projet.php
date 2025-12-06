@@ -1,10 +1,15 @@
 <?php
-include_once "../back_php/fonctions_site_web.php";
+// --- En-tête : includes et connexion BDD ---
+// require/init, session, connexion à la BDD
+require __DIR__ . '/../back_php/fonctions_site_web.php';
 
 $bdd = connectBDD();
-#On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
+// On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
 verification_connexion($bdd);
 
+// --- Vérification et récupération des paramètres ---
+// Récupère l'ID du compte en session et l'id_projet passé en GET.
+// Définit la variable $erreur si l'id_projet est absent.
 $id_compte = $_SESSION['ID_compte'];
 $id_projet = isset($_GET['id_projet']) ? (int)$_GET['id_projet'] : 0;
 
@@ -16,24 +21,18 @@ if ($id_projet === 0) {
 }
 
 
-// Fonctions d'affichage
-function afficher_erreur(string $erreur): void {
-    ?>
-    <div class="project-container">
-        <div class="error-message">
-            <?= htmlspecialchars($erreur) ?>
-        </div>
-    </div>
-    <?php
-}
-
-
-function afficher_experiences(array $experiences): void {
-    foreach ($experiences as $exp): ?>
-        <?php afficher_carte_experience($exp); ?>
-    <?php endforeach;
-}
-
+/**
+ * Vérifie si l'utilisateur a le droit d'accéder au projet.
+ *
+ * Un projet est accessible si :
+ *  - il n'est PAS confidentiel
+ *  - OU si l'utilisateur est gestionnaire (Statut = 1)
+ *
+ * @param PDO $bdd Connexion PDO à la base de données
+ * @param int $id_compte ID du compte utilisateur
+ * @param int $id_projet ID du projet à vérifier
+ * @return bool true si accès autorisé, false sinon
+ */
 function verifier_confidentialite(PDO $bdd, int $id_compte, int $id_projet): bool {
     $sql = "
         SELECT 
@@ -65,84 +64,19 @@ function verifier_confidentialite(PDO $bdd, int $id_compte, int $id_projet): boo
     // Projet confidentiel → accessible UNIQUEMENT aux gestionnaires
     return isset($result['Statut']) && (int)$result['Statut'] === 1;
 }
-function afficher_projet(array $projet, array $gestionnaires, array $collaborateurs, array $experiences): void {
-    ?>
-    <div class="projets">
-
-        <h2 class="project-title"><?= htmlspecialchars($projet['Nom_projet']) ?></h2>
-
-        <div class="project-main">
-            <?php afficher_description_projet($projet); ?>
-            <?php afficher_informations_projet($projet, $gestionnaires, $collaborateurs); ?>
-        </div>
-
-        <div class="experiences">
-            <h3>Expériences liées au projet (<?= count($experiences) ?>)</h3>
-
-            <?php if (!empty($experiences)): ?>
-                <?php foreach ($experiences as $exp): ?>
-                    <?php afficher_carte_experience($exp); ?>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p>Aucune expérience liée.</p>
-            <?php endif; ?>
-        </div>
-    </div>
-    <?php
-}
-
-function afficher_informations_projet(array $projet, array $gestionnaires, array $collaborateurs): void {
-    ?>
-    <div class="project-info card">
-        <h3>Informations générales</h3>
-
-        <p><strong>Confidentiel :</strong> <?= $projet['Confidentiel'] ? "Oui" : "Non" ?></p>
-        <p><strong>Validation :</strong> <?= $projet['Validation'] ? "Validé" : "En attente" ?></p>
-        <p><strong>Votre rôle :</strong> 
-            <?= $projet['Statut'] == 1 ? "Gestionnaire" : ($projet['Statut'] == 2 ? "Collaborateur" : "Aucun") ?>
-        </p>
-        <p><strong>Date de création :</strong> <?= date("d/m/Y", strtotime($projet['Date_de_creation'])) ?></p>
-
-        <h4>Gestionnaire(s)</h4>
-        <p><?= !empty($gestionnaires) ? implode(", ", $gestionnaires) : "Aucun" ?></p>
-
-        <h4>Collaborateur(s)</h4>
-        <p><?= !empty($collaborateurs) ? implode(", ", $collaborateurs) : "Aucun" ?></p>
-    </div>
-    <?php
-}
-function afficher_carte_experience(array $exp): void {
-    $id = htmlspecialchars($exp['ID_experience']);
-    $nom = htmlspecialchars($exp['Nom']);
-    $desc = htmlspecialchars(substr($exp['Description'], 0, 180)) . "…";
-    $date = htmlspecialchars($exp['Date_reservation']);
-    $heure = htmlspecialchars($exp['Heure_debut']) . " - " . htmlspecialchars($exp['Heure_fin']);
-    $salle = isset($exp['Nom_salle']) ? htmlspecialchars($exp['Nom_salle']) : "Non spécifié";
-
-    ?>
-    <a class="experience-card card" href="page_experience.php?id_experience=<?= $id ?>">
-        <h4><?= $nom ?></h4>
-        <p><?= $desc ?></p>
-
-        <hr>
-
-        <p><strong>Date :</strong> <?= $date ?></p>
-        <p><strong>Horaire :</strong> <?= $heure ?></p>
-        <p><strong>Salle :</strong> <?= $salle ?></p>
-    </a>
-    <?php
-}
-
-function afficher_description_projet(array $projet): void {
-    ?>
-    <div class="project-description card">
-        <h3>Description</h3>
-        <p><?= nl2br(htmlspecialchars($projet['Description'])) ?></p>
-    </div>
-    <?php
-}
 
 
+/**
+ * Récupère toutes les informations d’un projet SI l’accès est autorisé.
+ *
+ * Renvoie un tableau associatif contenant les infos du projet.
+ * Si l'utilisateur n'a pas accès ou si le projet n'existe pas → return null.
+ *
+ * @param PDO $bdd Connexion à la BDD
+ * @param int $id_compte ID de l’utilisateur
+ * @param int $id_projet ID du projet
+ * @return array|null Informations du projet ou null
+ */
 function get_info_projet(PDO $bdd, int $id_compte, int $id_projet) {
     // Vérification d'accès avant tout
     if (!verifier_confidentialite($bdd, $id_compte, $id_projet)) {
@@ -176,6 +110,16 @@ function get_info_projet(PDO $bdd, int $id_compte, int $id_projet) {
     return $projet ?: null;
 }
 
+/**
+ * Renvoie la liste des gestionnaires du projet.
+ *
+ * Les gestionnaires sont ceux avec Statut = 1.
+ * Le format retourné : ["Prénom Nom", "Prénom Nom", ...]
+ *
+ * @param PDO $bdd
+ * @param int $id_projet
+ * @return array Liste des gestionnaires
+ */
 function get_gestionnaires(PDO $bdd, int $id_projet): array {
     $sql = "
         SELECT c.Nom, c.Prenom
@@ -195,12 +139,22 @@ function get_gestionnaires(PDO $bdd, int $id_projet): array {
     return $gestionnaires;
 }
 
+/**
+ * Renvoie la liste des collaborateurs du projet.
+ *
+ * Les collaborateurs sont ceux avec Statut = 2.
+ * Le format retourné : ["Prénom Nom", "Prénom Nom", ...]
+ *
+ * @param PDO $bdd
+ * @param int $id_projet
+ * @return array Liste des collaborateurs
+ */
 function get_collaborateurs(PDO $bdd, int $id_projet): array {
     $sql = "
         SELECT c.Nom, c.Prenom
         FROM projet_collaborateur_gestionnaire pcg
         JOIN compte c ON pcg.ID_compte = c.ID_compte
-        WHERE pcg.ID_projet = :id_projet AND pcg.Statut = 0
+        WHERE pcg.ID_projet = :id_projet AND pcg.Statut = 2
     ";
     
     $stmt = $bdd->prepare($sql);
@@ -214,6 +168,22 @@ function get_collaborateurs(PDO $bdd, int $id_projet): array {
     return $collaborateurs;
 }
 
+/**
+ * Récupère toutes les expériences liées à un projet.
+ *
+ * Chaque expérience contient :
+ *  - Nom
+ *  - Description
+ *  - Date et heures
+ *  - Salle utilisée
+ *  - Statut, validation, résultat
+ *
+ * Les expériences sont triées par date et heure décroissantes.
+ *
+ * @param PDO $bdd
+ * @param int $id_projet
+ * @return array Liste d'expériences (tableau associatif)
+ */
 function get_experiences(PDO $bdd, int $id_projet): array {
     $sql = "
         SELECT DISTINCT
@@ -229,18 +199,53 @@ function get_experiences(PDO $bdd, int $id_projet): array {
             sm.Nom_salle
         FROM experience e
         INNER JOIN projet_experience pe ON e.ID_experience = pe.ID_experience
-        INNER JOIN materiel_experience me ON e.ID_experience = me.ID_experience
-        INNER JOIN salle_materiel sm ON me.ID_materiel = sm.ID_materiel
-        WHERE pe.ID_projet = :id_projet
-        ORDER BY e.Date_reservation DESC, e.Heure_debut DESC
+        INNER JOIN materiel_experience me ON e.ID_experience = me.ID
+            p.Validation, 
+            pcg.Statut,
+            p.Date_de_creation
+        FROM projet p
+        LEFT JOIN projet_collaborateur_gestionnaire pcg
+            ON p.ID_projet = pcg.ID_projet AND pcg.ID_compte = :id_compte
+        WHERE p.ID_projet = :id_projet
     ";
-    
-    $stmt = $bdd->prepare($sql);
-    $stmt->execute(['id_projet' => $id_projet]);
-    
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $stmt = $bdd->prepare($sql_projet);
+    $stmt->execute([
+        'id_compte' => $id_compte,
+        'id_projet' => $id_projet
+    ]);
+
+    $projet = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $projet ?: null;
 }
 
+/**
+ * Charge toutes les données nécessaires à l'affichage de la page projet.
+ *
+ * Effectue les étapes suivantes :
+ *  1. Vérifie si le projet existe
+ *  2. Vérifie si l'utilisateur a accès (confidentialité)
+ *  3. Charge :
+ *      - Informations du projet
+ *      - Gestionnaires
+ *      - Collaborateurs
+ *      - Expériences
+ *
+ * Retourne un tableau contenant :
+ *   [
+ *      'erreur' => null|string,
+ *      'projet' => array|null,
+ *      'gestionnaires' => array,
+ *      'collaborateurs' => array,
+ *      'experiences' => array
+ *   ]
+ *
+ * @param PDO $bdd
+ * @param int $id_compte
+ * @param int $id_projet
+ * @return array
+ */
 function charger_donnees_projet(PDO $bdd, int $id_compte, int $id_projet): array {
     // Vérifier si le projet existe
     $sql_check = "SELECT ID_projet FROM projet WHERE ID_projet = :id_projet";
@@ -299,7 +304,6 @@ if ($id_projet === 0) {
 // Titre de la page
 $page_title = $projet ? htmlspecialchars($projet['Nom_projet']) : "Projet";
 ?>
-
 
 
 <!DOCTYPE html>
