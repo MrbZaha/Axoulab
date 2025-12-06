@@ -1,6 +1,6 @@
 <?php
 session_start();
-require "../back_php/fonctions_site_web.php";
+include_once "../back_php/fonctions_site_web.php";
 $bdd = connectBDD();
 $bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 

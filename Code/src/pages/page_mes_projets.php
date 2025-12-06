@@ -21,9 +21,22 @@ function get_mes_projets_complets(PDO $bdd, int $id_compte=NULL): array {
     $stmt = $bdd->prepare($sql_projets);
     $stmt->execute(['id_compte' => $id_compte]);
     $projets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
     if (empty($projets)) {
         return [];
     }
+    
+    // Utiliser & pour modifier par référence
+    foreach ($projets as &$projet) {
+        if ($projet['Statut'] == 0) {
+            $projet['Statut'] = 'Collaborateur';
+        }
+        else {
+            $projet['Statut'] = 'Gestionnaire';
+        }
+    }
+    unset($projet); // Bonne pratique : détruire la référence après la boucle
+    
     return $projets;
 }
 
@@ -77,13 +90,13 @@ if ($page_termines > $total_pages_termines) $page_termines = $total_pages_termin
 <div class="projets">
     <section class="section-projets">
         <h2>Projets en cours (<?= count($projets_en_cours) ?>)</h2>
-        <?php afficher_projets_pagines($projets_en_cours, $page_en_cours, $items_par_page); ?>
+        <?php afficher_projets_pagines($bdd, $projets_en_cours, $page_en_cours, $items_par_page); ?>
         <?php afficher_pagination($page_en_cours, $total_pages_en_cours, 'en_cours'); ?>
     </section>
 
     <section class="section-projets">
         <h2>Projets terminés (<?= count($projets_termines) ?>)</h2>
-        <?php afficher_projets_pagines($projets_termines, $page_termines, $items_par_page); ?>
+        <?php afficher_projets_pagines($bdd, $projets_termines, $page_termines, $items_par_page); ?>
         <?php afficher_pagination($page_termines, $total_pages_termines, 'termines'); ?>
     </section>
 </div>

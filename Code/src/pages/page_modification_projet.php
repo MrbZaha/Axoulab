@@ -1,5 +1,5 @@
 <?php
-require __DIR__ . '/../back_php/fonctions_site_web.php';
+include_once "../back_php/fonctions_site_web.php";
 
 $bdd = connectBDD();
 verification_connexion($bdd);
