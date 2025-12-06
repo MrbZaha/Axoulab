@@ -1230,7 +1230,7 @@ function filtrer_experience(
 // =======================  Fonction de calcul de progression de projet =======================
 
 
-function progression_projet(PDO $bdd, int $IDprojet): int {
+function progression_projet(PDO $bdd, int $IDprojet): array {
     $sql_projet_exp = "
         SELECT 
             p.ID_projet,
@@ -1240,17 +1240,16 @@ function progression_projet(PDO $bdd, int $IDprojet): int {
             ON p.ID_projet = pex.ID_projet    
         INNER JOIN experience AS ex
             ON pex.ID_experience = ex.ID_experience
-        WHERE p.ID_projet= :id_projet";
+        WHERE p.ID_projet = :id_projet";
     $stmt = $bdd->prepare($sql_projet_exp);
     $stmt->execute(['id_projet' => $IDprojet]);
     $proj_exp = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
     if (empty($proj_exp)) {
-        return 0; // pas d'expériences = progression 0%
+        return ['finies' => 0, 'total' => 0]; // pas d'expériences
     }
 
-    // Exemple : Statut_experience = 'fini'
+    // Compter les expériences finies (Statut_experience = 2)
     $finies = 0;
     foreach ($proj_exp as $exp) {
         if ((int)$exp['Statut_experience'] === 2) {
@@ -1258,15 +1257,72 @@ function progression_projet(PDO $bdd, int $IDprojet): int {
         }
     }
 
-    // Pourcentage arrondi
-    $progression = (int) round(($finies / count($proj_exp)) * 100);
+    return [
+        'finies' => $finies,
+        'total' => count($proj_exp)
+    ];
+}
 
-    return $progression;
+function afficher_barre_progression(int $finies, int $total): string {
+    // Calculer le pourcentage pour la largeur de la barre
+    $pourcentage = $total > 0 ? ($finies / $total) * 100 : 0;
+    
+    // Déterminer la couleur selon le niveau de progression
+    $couleur = '#27ae60'; // Vert
+    
+    $html = '
+    <div class="barre-progression-container">
+        <div class="barre-progression-fond">
+            <div class="barre-progression-remplissage" style="width: ' . $pourcentage . '%; background-color: ' . $couleur . ';">
+                <span class="barre-progression-texte">' . $finies . '/' . $total . '</span>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        .barre-progression-container {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .barre-progression-fond {
+            width: 100%;
+            height: 30px;
+            background-color: #ecf0f1;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .barre-progression-remplissage {
+            height: 100%;
+            transition: width 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+            position: relative;
+            min-width: 60px; /* Pour que le texte soit toujours visible */
+        }
+        
+        .barre-progression-texte {
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>';
+    
+    return $html;
 }
 
 // =======================  Fonction d'affichage des projets =======================
 
-function afficher_projets_pagines(array $projets, int $page_actuelle = 1, int $items_par_page = 6): void {
+function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle = 1, int $items_par_page = 6): void {
     $debut = ($page_actuelle - 1) * $items_par_page;
     $projets_page = array_slice($projets, $debut, $items_par_page);
     
@@ -1278,6 +1334,7 @@ function afficher_projets_pagines(array $projets, int $page_actuelle = 1, int $i
             <?php foreach ($projets_page as $p): ?>
                 <?php 
                 $id = htmlspecialchars($p['ID_projet']);
+                $progression = progression_projet($bdd, $id);
                 $nom = htmlspecialchars($p['Nom']);
                 $description = $p['Description'];
                 $desc = strlen($description) > 200 
@@ -1290,6 +1347,9 @@ function afficher_projets_pagines(array $projets, int $page_actuelle = 1, int $i
                 <a class='projet-card' href='page_projet.php?id_projet=<?= $id ?>'>
                     <h3><?= $nom ?></h3>
                     <p><?= $desc ?></p>
+                    
+                    <?php echo afficher_barre_progression($progression['finies'], $progression['total']); ?>
+                    
                     <p><strong>Date de création :</strong> <?= $date ?></p>
                     <p><strong>Rôle :</strong> <?= $role ?></p>
                 </a>
@@ -1298,6 +1358,5 @@ function afficher_projets_pagines(array $projets, int $page_actuelle = 1, int $i
     </div>
     <?php
 }
-
 
 ?>

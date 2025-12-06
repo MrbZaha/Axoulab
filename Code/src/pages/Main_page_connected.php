@@ -53,7 +53,7 @@ $derniers_projets=filtrer_trier_pro_exp($bdd, $id_compte, $types=['projet'],$tri
 
     <div class="projets">
       <section class="section-projets">
-        <?php afficher_projets_pagines($derniers_projets, $page_en_cours=1, $items_par_page=3); ?>
+        <?php afficher_projets_pagines($bdd, $derniers_projets, $page_en_cours=1, $items_par_page=3); ?>
       </section>    
     </div>
     
