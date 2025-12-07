@@ -7,7 +7,7 @@ $bdd = connectBDD();
 $id_compte = $_SESSION['ID_compte'];
 #On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
 verification_connexion($bdd);
-
+maj_bdd_experience($bdd);
 $derniers_projets=filtrer_trier_pro_exp($bdd, $id_compte, $types=['projet'],$tri='Date_modif',$ordre='desc');
 ?>
 

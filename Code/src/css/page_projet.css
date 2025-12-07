@@ -1,4 +1,4 @@
-/* —— CONTAINER ———————————————————————— */
+/* —— CONTAINER PRINCIPAL ———————————————————————— */
 .projets {
     max-width: 1000px;
     margin: 40px auto;
@@ -6,32 +6,129 @@
     font-family: "Inter", sans-serif;
 }
 
-/* Titre */
+/* Titre principal */
 h1 {
     text-align: center;
     font-size: 2.3rem;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
     font-family: "Georgia", serif;
     color: #1c1c1c;
+}
+
+/* —— ACTIONS (BOUTONS) ———————————————————————— */
+.actions-projet {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-bottom: 30px;
+}
+
+.actions-projet form {
+    margin: 0;
+}
+
+.actions-projet input[type="submit"] {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.actions-projet input[type="submit"]:hover {
+    background-color: #2b86c6;
+    transform: translateY(-2px);
+}
+
+.actions-projet form:last-child input[type="submit"] {
+    background-color: #2ecc71;
+}
+
+.actions-projet form:last-child input[type="submit"]:hover {
+    background-color: #27ae60;
+}
+
+/* —— CONTAINER PROJET ———————————————————————— */
+.projet-container {
+    background: #fff;
+}
+
+/* —— EN-TÊTE PROJET ———————————————————————— */
+.projet-header {
+    background: linear-gradient(135deg, #1d3c5a 0%, #2c5f8d 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 14px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
+
+.projet-header h2 {
+    font-size: 2rem;
+    font-family: "Georgia", serif;
+    margin: 0 0 15px 0;
+}
+
+.projet-badges {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* —— BADGES ———————————————————————— */
+.badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge.valide {
+    background-color: #27ae60;
+    color: white;
+}
+
+.badge.en-attente {
+    background-color: #f39c12;
+    color: white;
+}
+
+.badge.confidentiel {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.badge.en-cours {
+    background-color: #3498db;
+    color: white;
+}
+
+.badge.termine {
+    background-color: #95a5a6;
+    color: white;
 }
 
 /* —— LAYOUT DESCRIPTION + INFO ———————————————————————— */
 .project-main {
     display: grid;
     grid-template-columns: 2fr 1fr;
-    gap: 30px;
+    gap: 25px;
     margin-bottom: 40px;
 }
 
-/* —— CARDS ———————————————————————— */
+/* —— CARDS (DESCRIPTION, INFO, EXPÉRIENCES) ———————————————————————— */
 .project-description,
-.project-info,
-.experience-card {
+.project-info {
     background: #ffffff;
     border: 1px solid #e8e8e8;
     border-radius: 14px;
-    padding: 18px 30px 25px 30px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    padding: 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
 }
 
 /* —— TITRES DE SECTION ———————————————————————— */
@@ -41,18 +138,27 @@ h1 {
     font-size: 1.4rem;
     font-family: "Georgia", serif;
     color: #1d3c5a;
-    margin-bottom: 15px;
-    padding-bottom: 8px;
+    margin: 0 0 18px 0;
+    padding-bottom: 10px;
     border-bottom: 2px solid #e9eef4;
 }
 
-/* Sous-titres */
+/* Sous-titres dans info */
 .project-info h4 {
     font-size: 1rem;
-    margin-top: 20px;
-    margin-bottom: 8px;
+    margin-top: 22px;
+    margin-bottom: 10px;
     font-weight: 700;
     color: #143049;
+}
+
+.project-info h4:first-of-type {
+    margin-top: 0;
+}
+
+.project-info h4 i {
+    margin-right: 8px;
+    color: #3498db;
 }
 
 /* Paragraphes */
@@ -61,31 +167,77 @@ h1 {
     color: #4a4a4a;
     font-size: 0.95rem;
     line-height: 1.6;
+    margin-bottom: 10px;
 }
 
-/* Labels d'informations */
-.project-info p strong {
-    min-width: 130px;
+.project-description .date-creation {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e8e8e8;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+/* Listes dans project-info */
+.project-info ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.project-info ul li {
+    padding: 6px 0;
+    color: #555;
+    font-size: 0.93rem;
+}
+
+.project-info ul li::before {
+    content: "•";
+    color: #3498db;
+    font-weight: bold;
     display: inline-block;
-    color: #1d3c5a;
+    width: 1em;
+    margin-right: 8px;
 }
 
-/* —— EXPÉRIENCES LIST ———————————————————————— */
+.project-info .vide {
+    color: #999;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+/* —— SECTION EXPÉRIENCES ———————————————————————— */
 .experiences {
-    margin-top: 50px;
+    margin-top: 40px;
 }
 
 .experiences h3 {
     margin-bottom: 25px;
 }
 
-/* —— EXPÉRIENCE CARD ———————————————————————— */
+.experiences h3 i {
+    margin-right: 10px;
+    color: #3498db;
+}
+
+.experiences .vide {
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    padding: 40px 20px;
+    background: #f9f9f9;
+    border-radius: 10px;
+}
+
+/* —— EXPERIENCE CARD ———————————————————————— */
 .experience-card {
-    display: block;
+    background: #ffffff;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    padding: 25px;
     margin-bottom: 20px;
-    text-decoration: none;
-    color: #333;
-    transition: 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .experience-card:hover {
@@ -93,92 +245,139 @@ h1 {
     box-shadow: 0 6px 18px rgba(0,0,0,0.10);
 }
 
-/* Titre expérience */
+/* En-tête de la carte expérience */
+.experience-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
 .experience-card h4 {
-    font-size: 1.2rem;
-    margin-bottom: 8px;
+    font-size: 1.3rem;
+    margin: 0;
     color: #1d3c5a;
     font-family: "Georgia", serif;
 }
 
-/* Texte */
-.experience-card p {
-    font-size: 0.9rem;
-    color: #505050;
-    margin-bottom: 6px;
+/* Description expérience */
+.experience-description {
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 18px;
 }
 
-/* —— ERREURS ———————————————————————— */
+/* Détails (date, heure, salle) */
+.experience-details {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+    padding: 12px 0;
+    border-top: 1px solid #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.experience-details p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.experience-details i {
+    margin-right: 6px;
+    color: #3498db;
+}
+
+/* Résultat */
+.experience-resultat {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.experience-resultat strong {
+    display: block;
+    color: #1d3c5a;
+    margin-bottom: 8px;
+}
+
+.experience-resultat p {
+    margin: 0;
+    color: #555;
+    font-size: 0.93rem;
+    line-height: 1.5;
+}
+
+/* Bouton voir plus */
+.btn-voir-plus {
+    display: inline-block;
+    background-color: #3498db;
+    color: white;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-voir-plus:hover {
+    background-color: #2b86c6;
+    transform: translateX(3px);
+}
+
+.btn-voir-plus i {
+    margin-left: 6px;
+}
+
+/* —— MESSAGE D'ERREUR ———————————————————————— */
 .error-message {
     background: #fdeaea;
     border: 1px solid #f5bcbc;
     color: #b30000;
     border-radius: 12px;
-    padding: 20px;
+    padding: 25px;
     font-size: 1rem;
     text-align: center;
     margin-top: 30px;
 }
 
-.actions-projets {
-    max-width: 850px;   /* même largeur que tes pages */
-    margin: 20px auto;  /* centré */
-    padding: 0 20px;    /* même padding */
-    display: flex;
-    justify-content: space-between; /* Un bouton à gauche, l'autre à droite */
-    align-items: center;
-}
-
-.create-experience,
-.modifier-projet {
-    margin: 0;        /* plus de marges verticales */
-    padding: 0;
-    text-align: right; /* par sécurité */
-}
-
-/* Actions (boutons) alignées avec le bord droit des cartes */
-.actions-projet {
-    max-width: 1000px;
-    margin: 8px auto 18px auto;
-    padding: 0 20px;
-    display: flex;
-    gap: 12px;
-    justify-content: flex-end;
-}
-
-/* boutons */
-.actions-projet .create-experience input[type="submit"],
-.actions-projet .modifier-projet input[type="submit"] {
-    background-color: #3498db;
-    color: #fff;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-}
-
-.actions-projet .modifier-projet input[type="submit"] {
-    background-color: #2ecc71;
-}
-
-.actions-projet .create-experience input[type="submit"]:hover {
-    background-color: #2b86c6;
-}
-.actions-projet .modifier-projet input[type="submit"]:hover {
-    background-color: #27ae60;
-}
-
-/* si besoin pour petits écrans : empiler et centrer */
-@media (max-width: 768px) {
-    .actions-projet {
-        justify-content: center;
-    }
+.error-message p {
+    margin: 0;
 }
 
 /* —— RESPONSIVE ———————————————————————— */
 @media (max-width: 850px) {
     .project-main {
         grid-template-columns: 1fr;
+    }
+    
+    .actions-projet {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    .projet-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .experience-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .experience-details {
+        flex-direction: column;
+        gap: 8px;
     }
 }

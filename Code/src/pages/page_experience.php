@@ -243,6 +243,7 @@ function afficher_experience(array $experience, array $experimentateurs, array $
     </div>
     <?php
 }
+
 function maj_bdd_experience(PDO $bdd) {
     $now = new DateTime();
     $now_datetime = new DateTime($now->format('Y-m-d H:i'));
