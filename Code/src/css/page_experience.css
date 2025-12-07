@@ -24,10 +24,28 @@
     padding: 20px;
 }
 
-.experiences {
-    max-width: 900px;
+/* Conteneur principal des pages d'expérience : limiter la largeur et centrer */
+.projets {
+    max-width: 1000px; /* largeur souhaitée, ajustez si besoin */
     margin: 0 auto;
     padding: 20px;
+    box-sizing: border-box;
+}
+
+/* S'assurer que le container interne ne dépasse pas et reste centré */
+.project-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 12px;
+    box-sizing: border-box;
+}
+
+/* Optionnel : limiter aussi les sections d'expériences */
+.experiences {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 10px 12px;
+    box-sizing: border-box;
 }
 
 h1 {
