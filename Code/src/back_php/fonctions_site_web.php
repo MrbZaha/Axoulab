@@ -1375,4 +1375,79 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
     <?php
 }
 
+/**
+ 
+*Modifie le statut d'une expérience.*
+*@param PDO $bdd Connexion à la base de données
+*@param int $id ID de l'expérience
+*@param int $value Nouveau statut (0 = pas commencée, 1 = en cours, 2 = terminée)
+*@return void*/
+function modifie_value_exp(PDO $bdd, int $id, int $value): void {
+    $sql_maj_bdd = "
+        UPDATE experience
+        SET Statut_experience = :Statut_experience
+        WHERE ID_experience = :id
+    ";
+
+    $stmt = $bdd->prepare($sql_maj_bdd);
+    $stmt->execute([
+        ':Statut_experience' => $value,
+        ':id' => $id
+    ]);
+}
+/**
+ 
+*Met à jour automatiquement le statut des expériences en fonction de la date/heure actuelle.
+*Statuts :
+*0 : Expérience pas encore commencée (avant Heure_debut)
+*1 : Expérience en cours (entre Heure_debut et Heure_fin)
+*2 : Expérience terminée (après Heure_fin)
+*
+*@param PDO $bdd Connexion à la base de données
+*@return void*/
+function maj_bdd_experience(PDO $bdd): void {
+    $now = new DateTime();
+    $now_datetime = new DateTime($now->format('Y-m-d H:i'));
+
+    // Sélection de toutes les expériences (sauf celles déjà terminées si vous voulez optimiser)
+    $sql = "
+        SELECT 
+            ID_experience, 
+            Date_reservation, 
+            Heure_debut,
+            Heure_fin, 
+            Statut_experience
+        FROM experience
+        WHERE Statut_experience IN (0, 1)
+    ";
+$stmt = $bdd->prepare($sql);
+    $stmt->execute();
+    $experiences = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($experiences as $exp) {
+        // Création des DateTime pour le début et la fin de l'expérience
+        $exp_datetime_debut = new DateTime($exp['Date_reservation'] . ' ' . $exp['Heure_debut']);
+        $exp_datetime_fin = new DateTime($exp['Date_reservation'] . ' ' . $exp['Heure_fin']);
+
+        $nouveau_statut = null;
+
+        // Déterminer le nouveau statut
+        if ($now_datetime < $exp_datetime_debut) {
+            // L'expérience n'a pas encore commencé
+            $nouveau_statut = 0;
+        } elseif ($now_datetime >= $exp_datetime_debut && $now_datetime <= $exp_datetime_fin) {
+            // L'expérience est en cours
+            $nouveau_statut = 1;
+        } elseif ($now_datetime > $exp_datetime_fin) {
+            // L'expérience est terminée
+            $nouveau_statut = 2;
+        }
+
+        // Mettre à jour uniquement si le statut a changé
+        if ($nouveau_statut !== null && (int)$exp['Statut_experience'] !== $nouveau_statut) {
+            modifie_value_exp($bdd, $exp['ID_experience'], $nouveau_statut);
+        }
+    }
+}
+
 ?>

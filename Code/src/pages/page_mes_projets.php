@@ -1,52 +1,7 @@
 <?php
-require __DIR__ . '/../back_php/fonctions_site_web.php';
+require_once __DIR__ . '/../back_php/fonctions_site_web.php';
+require_once __DIR__ . '/../back_php/fonction_page/fonction_page_mes_projets.php';
 
-function get_mes_projets_complets(PDO $bdd, int $id_compte=NULL): array {
-    
-    $sql_projets = "
-        SELECT 
-            p.ID_projet, 
-            p.Nom_projet AS Nom, 
-            p.Description, 
-            p.Confidentiel, 
-            p.Validation, 
-            pcg.Statut,
-            p.Date_de_creation,
-            p.Date_de_modification
-        FROM projet p
-        INNER JOIN projet_collaborateur_gestionnaire pcg
-            ON p.ID_projet = pcg.ID_projet    ";
-    
-    $sql_projets .= " WHERE pcg.ID_compte = :id_compte";
-    $stmt = $bdd->prepare($sql_projets);
-    $stmt->execute(['id_compte' => $id_compte]);
-    $projets = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    if (empty($projets)) {
-        return [];
-    }
-    
-    // Utiliser & pour modifier par référence
-    foreach ($projets as &$projet) {
-        if ($projet['Statut'] == 0) {
-            $projet['Statut'] = 'Collaborateur';
-        }
-        else {
-            $projet['Statut'] = 'Gestionnaire';
-        }
-    }
-    unset($projet); // Bonne pratique : détruire la référence après la boucle
-    
-    return $projets;
-}
-
-$bdd = connectBDD();
-#On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
-verification_connexion($bdd);
-
-
-// Récupération et filtrage des projets
-$id_compte = $_SESSION['ID_compte'];
 $projets = get_mes_projets_complets($bdd, $id_compte);
 
 // Séparation en deux listes
