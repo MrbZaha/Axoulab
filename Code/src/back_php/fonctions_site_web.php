@@ -772,30 +772,27 @@ function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1
     <?php
 }
 
-function afficher_pagination(int $page_actuelle, int $total_pages, string $type = 'a_venir'): void {
+function afficher_pagination(int $page_actuelle, int $total_pages): void {
     if ($total_pages <= 1) return;
     
     // Préserver l'autre paramètre de page dans l'URL
-    # Debug :  Ces 2 lignes changeront probablement car ne fonctionnent pas avec la page admin
-    $autre_type = ($type === 'a_venir') ? 'terminees' : 'a_venir';
-    $autre_page = isset($_GET["page_$autre_type"]) ? (int)$_GET["page_$autre_type"] : 1;
     
     ?>
     <div class="pagination">
         <?php if ($page_actuelle > 1): ?>
-            <a href="?page_<?= $type ?>=<?= $page_actuelle - 1 ?>&page_<?= $autre_type ?>=<?= $autre_page ?>" class="page-btn">« Précédent</a>
+            <a href="?page=<?= $page_actuelle - 1 ?>" class="page-btn">« Précédent</a>
         <?php endif;
         
         for ($i = 1; $i <= $total_pages; $i++):
             if ($i == $page_actuelle): ?>
                 <span class="page-btn active"><?= $i ?></span>
             <?php else: ?>
-                <a href="?page_<?= $type ?>=<?= $i ?>&page_<?= $autre_type ?>=<?= $autre_page ?>" class="page-btn"><?= $i ?></a>
+                <a href="?page=<?= $i ?>" class="page-btn"><?= $i ?></a>
             <?php endif; 
         endfor;
         
         if ($page_actuelle < $total_pages): ?>
-            <a href="?page_<?= $type ?>=<?= $page_actuelle + 1 ?>&page_<?= $autre_type ?>=<?= $autre_page ?>" class="page-btn">Suivant »</a>
+            <a href="?page=<?= $page_actuelle + 1 ?>" class="page-btn">Suivant »</a>
         <?php endif; ?>
     </div>
     <?php

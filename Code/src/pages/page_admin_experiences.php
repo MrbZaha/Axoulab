@@ -26,7 +26,7 @@ $experiences = array_values($experiences);
 
 // Configuration pagination
 $items_par_page = 6;
-$page = isset($_GET['pages']) ? max(1, (int)$_GET['page']) : 1;
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 
 $total_pages = create_page($experiences, $items_par_page);
 
