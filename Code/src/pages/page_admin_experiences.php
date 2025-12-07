@@ -19,7 +19,7 @@ if (est_admin($bdd, $_SESSION["email"])){
 
 ///////////////////////////////////////////////////////////////////////////////
 //On récupère l'ensemble des expériences
-$experiences = get_mes_experiences_complets($bdd, $_SESSION['ID_compte'], 0); 
+$experiences = get_mes_experiences_complets($bdd); 
 
 // Réindexation des tableaux
 $experiences = array_values($experiences);

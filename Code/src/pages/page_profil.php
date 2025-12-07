@@ -140,7 +140,6 @@ if (!file_exists($path)) {
         <input type="file" name="photo" id="photo" onchange="this.form.submit()" hidden>
       </form>
 
-      <!-- Debug : Attention, tous les profils sont notés comme étant étudiants-->
       <span class="role"> <?= get_etat($etat) ?> </span>
        <form action="../back_php/logout.php" method="post">
       <input type="submit" value="Déconnexion" class="btn-deconnect">

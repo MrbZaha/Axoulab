@@ -30,13 +30,6 @@ function mot_de_passe_identique($mdp1, $mdp2) {
     return $mdp1 === $mdp2;
 }
 
-// =======================  VALIDATION EMAIL AXOULAB =======================
-/* Vérifie que l'email est au format prenom.nom@axoulab.fr
-   Retourne true si le format est correct, false sinon */
-function verifier_email_axoulab($email) {
-    return preg_match('/^[a-zA-Z]+\.[a-zA-Z]+@axoulab\.fr$/', $email);
-}
-
 // Connexion à la base
 $bdd = connectBDD();
 
@@ -63,7 +56,7 @@ if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["
     } elseif ($utilisateur === "chercheur") {
         $etat = 2;   // chercheur
     } else {
-        $etat = 0;   // compte pas validé
+        $etat = 0;   // Debug, cette option n'est plus censée exister compte pas validé
     }
 
     // ======================= VALIDATION EMAIL =======================

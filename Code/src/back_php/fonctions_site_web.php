@@ -18,6 +18,13 @@ function connectBDD() {
     }
 }
 
+// =======================  VALIDATION EMAIL AXOULAB =======================
+/* Vérifie que l'email est au format prenom.nom@axoulab.fr
+   Retourne true si le format est correct, false sinon */
+function verifier_email_axoulab($email) {
+    return preg_match('/^[a-zA-Z]+\.[a-zA-Z]+@axoulab\.fr$/', $email);
+}
+
 // ======================= VÉRIFICATION EMAIL EXISTANT =======================
 /* Vérifie si une adresse email existe déjà dans la base de données
    Retourne true si l'email existe, false sinon */
@@ -513,7 +520,6 @@ function get_last_notif($bdd, $IDuser, $limit = 10) {
             'is_projet' => ($type >= 11)
         ];
     }
-
     return $result;
 }
 
@@ -558,7 +564,7 @@ function get_mes_experiences_complets(PDO $bdd, ?int $id_compte = null): array {
 
     // --- 1. Requête principale
     $sql_experiences = "
-        SELECT 
+        SELECT DISTINCT
             e.ID_experience, 
             e.Nom, 
             e.Validation, 
@@ -640,7 +646,6 @@ function get_mes_experiences_complets(PDO $bdd, ?int $id_compte = null): array {
 
 
 function get_all_projet(PDO $bdd, int $id_compte): array {
-    
     // Récupère TOUS les projets
     $sql_projets = "
         SELECT 
@@ -697,9 +702,6 @@ function get_all_projet(PDO $bdd, int $id_compte): array {
     }
     return $projets;
 }
-
-
-
 
 // =======================  Gère le nombre de pages qui devront être créées =======================
 function create_page(array $items, int $items_par_page = 6): int {
@@ -1000,6 +1002,12 @@ function supprimer_experience($bdd, $id_experience) {
 function supprimer_utilisateur($bdd, $id_user) {
     $stmt = $bdd->prepare("DELETE FROM compte WHERE ID_compte = ?");
     $stmt->execute([$id_user]);
+}
+
+// =======================  Suppression d'un outil à partir de son identifiant =======================
+function supprimer_materiel($bdd, $id_materiel) {
+    $stmt = $bdd->prepare("DELETE FROM salle_materiel WHERE ID_materiel = ?");
+    $stmt->execute([$id_materiel]);
 }
 
 // =======================  Acceptation de l'inscription d'un utilisateur =======================

@@ -55,7 +55,7 @@ else {
             <a href="page_admin_experiences.php"> Expériences</a>
         </div>
         <div class=inside_square>
-            <a href="page_admin_materiel_salles.php"> Matériel et salles</a>
+            <a href="page_admin_materiel_salle.php"> Matériel et salles</a>
         </div>
     </div>
 

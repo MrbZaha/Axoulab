@@ -35,16 +35,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
 ///////////////////////////////////////////////////////////////////////////////
 // Dans le cas où l'on cherche à modifier les informations d'un utilisateur
 // Si une action GET est reçue
-if (isset($_GET['action']) && $_GET['action'] === 'modifier') {
-    if (isset($_GET['id'])) {
-        $id_utilisateur = intval($_GET['id']);
-        // supprimer_experience($bdd, $id_experience);
-
-        // On recharge la page proprement (cela empêche de supprimer deux fois)
-        header("Location: page_admin_utilisateurs.php?modification=ok");
-        exit;
-    }
+if (isset($_POST['action']) && $_POST['action'] === 'modifier') {
+    modifier_utilisateur($bdd, intval($_POST['id']));
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Dans le cas où l'on cherche à accepter la création d'un compte
@@ -54,12 +48,52 @@ if (isset($_GET['action']) && $_GET['action'] === 'accepter') {
         $id_utilisateur = intval($_GET['id']);
         accepter_utilisateur($bdd, $id_utilisateur);
 
-        // On recharge la page proprement (cela empêche de supprimer deux fois)
+        // On recharge la page proprement (cela empêche d'accepter deux fois)
         header("Location: page_admin_utilisateurs.php?accept=ok");
         exit;
     }
 }
 
+// =======================  Traitement des informations modifiées  =======================
+function modifier_utilisateur($bdd, $id){
+    if (isset($_POST["nom_$id"], $_POST["prenom_$id"], $_POST["date_$id"], $_POST["etat_$id"], $_POST["email_$id"])) {
+        // Récupération des données et nettoyage
+        $nom = trim($_POST["nom_$id"]);
+        $prenom = trim($_POST["prenom_$id"]);
+        $datedenaissance = trim($_POST["date_$id"]);
+        $etat = intval($_POST["etat_$id"]); // permet de savoir si c'est un étudiant, prof ou admin
+        $email = trim($_POST["email_$id"]);
+
+        // ======================= MODIFICATION DANS LA BASE DE DONNÉES =======================
+        try {
+            $stmt = $bdd->prepare("
+                UPDATE compte
+                SET Nom = ?,
+                    Prenom = ?,
+                    Date_de_naissance = ?,
+                    Email = ?,
+                    Etat = ?
+                WHERE ID_compte = ?
+            ");
+
+            $stmt->execute([
+                $nom,
+                $prenom,
+                $datedenaissance,
+                $email,
+                $etat,
+                $id
+            ]);
+            $message = "<p style='color:green;'>La modification du compte a été effectué correctement !</p>";
+        }
+        catch (Exception $e) {
+            $message = "<p style='color:red;'>Une erreur est survenue : " . $e->getMessage() . "</p>";
+        }
+    } else {
+    $message = "<p style='color:red;'>Une erreur est survenue. Veuillez réessayer ultérieurement</p>";
+
+    }
+}
 
 
 // =======================  Fonction pour récupérer l'ensemble des utilisateurs =======================
@@ -70,7 +104,6 @@ function get_utilisateurs($bdd) {
         Prenom,
         Date_de_naissance,
         Email,
-        Mdp,
         Etat,
         validation
         FROM compte
@@ -89,87 +122,101 @@ function afficher_utilisateurs_pagines($utilisateurs, $page_actuelle, $items_par
     $utilisateur_page = array_slice($utilisateurs, $debut, $items_par_page);
     
     ?>
-    <div class="liste">
         <?php if (empty($utilisateur_page)): ?>
             <p class="no-experiences">Aucun utilisateur à afficher</p>
-        <?php else:
-            // On récupère l'ensemble des critères pour chacun des utilisateurs
-            foreach ($utilisateur_page as $user):
-                $id_utilisateur = htmlspecialchars($user['ID_compte']);
-                $nom = htmlspecialchars($user['Nom']);
-                $prenom = htmlspecialchars($user['Prenom']);  
-                $date_naissance = htmlspecialchars($user['Date_de_naissance']);
-                $email = htmlspecialchars($user['Email']);
-                $mdp = htmlspecialchars($user['Mdp']);
-                $etat = htmlspecialchars($user['Etat']);
-                $validation = htmlspecialchars($user['validation']);
-                ?>
-                
-                <div class="experience-header">
-                    <h3><?= $nom ?> <?= $prenom?></h3>
-                </div>
+        <?php else: ?>
 
-                <div class="experience-details">
-                    <p><strong>Date :</strong> <?= $date_naissance ?></p>
-                    <p><strong>Horaires :</strong> <?= $email ?>
-                    <p><strong>mot de passe :</strong> <?= $mdp ?></p>
-                    <p><strong>Statut :</strong> <?= get_etat($etat) ?></p>
-                    <p><strong>État de validation :</strong> <?= $validation ?></p>
-                    <!-- lance une fonction qui ajoute 3 boutons : acceptation, modification et suppression -->
-
-                    <div class="right-section">
-                        <div class="box">
-                        <?php if (!$validation == 1) {
-                            // Ajoute un bouton pour accepter l'utilisateur si nécessaire 
-                            ?>
-                            <a href="page_admin_utilisateurs.php?action=accepter&id=<?php echo $id_utilisateur; ?>"
-                                class="btn btnBlanc"
-                                onclick="event.stopPropagation();">
-                                Accepter</a>
-                            <?php } ?>
-                            <a href="page_admin_utilisateurs.php?action=modifier&id=<?php echo $id_utilisateur; ?>"
-                                class="btn btnBlanc"
-                                onclick="event.stopPropagation();">
-                                Modifier</a>
-                            <a href="page_admin_utilisateurs.php?action=supprimer&id=<?php echo $id_utilisateur; ?>"
-                                class="btn btnRouge"
-                                onclick="event.stopPropagation();">
-                                Supprimer</a>
-                        </div>
-                    </div>
-                </div>
-            <?php endforeach;
-        endif; ?>
-    </div>
+    <table class="whole_table">
+        <thead class="tablehead">
+            <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Date de naissance</th>
+                <th>Email</th>
+                <th>Statut</th>
+                <th>Validation</th>
+                <th>Modifier</th>
+                <th>Supprimer</th>
+            </tr>
+        </thead>
+        <tbody>
     <?php
+        foreach ($utilisateur_page as $user):
+            $id  = htmlspecialchars($user['ID_compte']);
+            $nom = htmlspecialchars($user['Nom']);
+            $prenom = htmlspecialchars($user['Prenom']);
+            $dateN = htmlspecialchars($user['Date_de_naissance']);
+            $email = htmlspecialchars($user['Email']);
+            $etat = htmlspecialchars($user['Etat']);
+            $validation = htmlspecialchars($user['validation']);
+    ?>
+        <tr>
+            <form action="page_admin_utilisateurs.php" method="POST">
+                <!-- On affiche le nom -->
+                <td>
+                    <input type="text" name="nom_<?= $id ?>" value="<?= $nom ?>">
+                </td>
+                <!-- On affiche le prénom -->
+                <td>
+                    <input type="text" name="prenom_<?= $id ?>" value="<?= $prenom ?>">
+                </td>
+                <!-- On affiche la date de naissance -->
+                <td>
+                    <input type="date" name="date_<?= $id ?>" value="<?= $dateN ?>">
+                </td>
+                <!-- On affiche l'email -->
+                <td>
+                    <input type="email" name="email_<?= $id ?>" value="<?= $email ?>">
+                </td>
+                <!-- On affiche le statut de l'utilisateur -->
+                <td>
+                    <input type="hidden" name="etat_<?= $id ?>" value="<?= get_etat($etat) ?>">
+                </td>
+                <!-- Affichage du bouton de validation si nécessaire -->
+                <td>
+                    <?php if ($validation != 1): ?>
+                        <a class="btn btnBlanc"
+                            href="page_admin_utilisateurs.php?action=accepter&id=<?= $id ?>">
+                            Valider
+                        </a>
+                    <?php else: ?>
+                        Validé(e)
+                    <?php endif; ?>
+                </td>
 
+                <td>
+                    <input type="hidden" name="action" value="modifier">
+                    <input type="hidden" name="id" value="<?= $id ?>">
+                    <button class="btn btnBlanc" type="submit">Modifier</button>
+                </td>
 
+                <td>
+                    <?php if ($_SESSION['ID_compte'] != $id): ?>
+                        <a class="btn btnRouge"
+                            href="page_admin_utilisateurs.php?action=supprimer&id=<?= $id ?>">
+                            Supprimer
+                        </a>
+                    <?php else: ?>
+                        <span class="btn btnGris">Supprimer</span>
+                    <?php endif; ?>
+                </td>
+            </form>
+        </tr>
 
-    $sql_utilisateurs = "
-        SELECT ID_compte,
-        Nom,
-        Prenom,
-        Date_de_naissance,
-        Email,
-        Mdp,
-        Etat,
-        validation
-        FROM compte
-    ";  
-        $stmt = $bdd->prepare($sql_utilisateurs);
-        $stmt->execute();
+    <?php endforeach; ?>
+        </tbody>
+    </table>
+        <?php endif; ?>
 
-    $utilisateurs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    return $utilisateurs;   
+    <?php
 }
-
 
 // On récupère la liste des utilisateurs
 $utilisateurs = array_values(get_utilisateurs($bdd));
 
 // On set la page que l'on observe
 $items_par_page = 20;
-$page = isset($_GET['pages']) ? max(1, (int)$_GET['page']) : 1;
+$page = isset($_GET['pages']) ? max(1, (int)$_GET['pages']) : 1;
 $total_pages = create_page($utilisateurs, $items_par_page);
 
 // Vérification que la page demandée existe
@@ -182,9 +229,10 @@ if ($page > $total_pages) $page = $total_pages;
 <html lang="en">
     <head>
         <meta charset= "utf-8"/>
-        <link rel="stylesheet" href="../css/page_mes_experiences.css"> <!-- Utilisé pour l'affichage des exp-->
+        <link rel="stylesheet" href="../css/page_mes_experiences.css"> <!-- Utilisé pour l'affichage des utilisateurs -->
+        <link rel="stylesheet" href="../css/page_admin_utilisateurs.css"> <!-- Utilisé pour l'affichage des exp-->
 
-        <link rel="stylesheet" href="../css/admin.css">
+        <!-- <link rel="stylesheet" href="../css/admin.css"> -->
         <link rel="stylesheet" href="../css/Bandeau_haut.css">
         <link rel="stylesheet" href="../css/Bandeau_bas.css">
         <link rel="stylesheet" href="../css/boutons.css">
@@ -195,29 +243,29 @@ if ($page > $total_pages) $page = $total_pages;
 
     </head>
     <body>
+    <?php 
+    // Affiche le message si présent
+    if (!empty($message)) echo $message;
+    ?>
 
     <!-- import du header de la page -->
     <?php
     afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);
-    #bandeau_page("Dashboard", true)
     ?>
     <!-- Afficher le titre de la page en bandeau-->
     <div class=bandeau>
         <p> <?php echo "Utilisateurs"; ?></p>
     </div> 
 
-
     <!-- Crée un grand div qui aura des bords arrondis et sera un peu gris-->
     <div class="back_square">
     <!-- Affichage des expériences une à une-->
         <section class="section-experiences">
-            <h2>Utilisateurs (<?= count($utilisateurs) ?>)</h2>  <!--Titre affichant le nombre d'expérience-->
+            <h2>Utilisateurs (<?= count($utilisateurs) ?>)</h2>  <!--Titre affichant le nombre d'utilisateurs-->
             <?php afficher_utilisateurs_pagines($utilisateurs, $page, $items_par_page, $bdd); ?>
             <?php afficher_pagination($page, $total_pages); ?>
         </section>
-        <!-- À l'intérieur, avec aspect spécifique et boutons -->
     </div>
-
 
     <!-- Permet d'afficher le footer de la page -->
     <?php afficher_Bandeau_Bas(); ?>

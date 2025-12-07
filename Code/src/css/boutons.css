@@ -23,6 +23,12 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
+.btnGris {
+    background: #b4b4b4;
+    color: rgb(112, 112, 112);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
 .btnRouge {
     background: #f76f3d;
     color: white;
