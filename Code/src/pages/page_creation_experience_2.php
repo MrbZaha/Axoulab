@@ -1,209 +1,7 @@
 <?php
-session_start();
-require __DIR__ . '/../back_php/fonctions_site_web.php';
+require_once __DIR__ . '/../back_php/fonctions_site_web.php';
+require_once __DIR__ . '/../back_php/fonction_page/fonction_page_creation_experience_2.php';
 
-$bdd = connectBDD();
-verification_connexion($bdd);
-
-// ======================= FONCTIONS PLANNING =======================
-function recup_salles($bdd) {
-    $sql = "SELECT DISTINCT Nom_salle FROM salle_materiel ORDER BY Nom_salle";
-    $stmt = $bdd->prepare($sql);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function recuperer_materiels_salle($bdd, $nom_salle) {
-    $sql = "
-        SELECT ID_materiel, Materiel
-        FROM salle_materiel
-        WHERE Nom_salle = :nom_salle
-    ";
-    $stmt = $bdd->prepare($sql);
-    $stmt->execute(['nom_salle' => $nom_salle]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function recuperer_id_materiel_par_nom($bdd, $nom_materiel, $nom_salle) {
-    $sql = "
-        SELECT ID_materiel
-        FROM salle_materiel
-        WHERE Materiel = :materiel AND Nom_salle = :nom_salle
-        LIMIT 1
-    ";
-    $stmt = $bdd->prepare($sql);
-    $stmt->execute(['materiel' => $nom_materiel, 'nom_salle' => $nom_salle]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $result ? $result['ID_materiel'] : null;
-}
-
-function recuperer_reservations_semaine($bdd, $nom_salle, $date_debut, $date_fin) {
-    $sql = "
-        SELECT 
-            e.ID_experience,
-            e.Nom AS nom_experience,
-            DATE(e.Date_reservation) AS Date_reservation,
-            e.Heure_debut,
-            e.Heure_fin,
-            e.Description,
-            e.Statut_experience,
-            p.Nom_projet,
-            GROUP_CONCAT(DISTINCT sm.Materiel SEPARATOR ', ') AS materiels_utilises,
-            GROUP_CONCAT(DISTINCT CONCAT(c.Prenom, ' ', c.Nom) SEPARATOR ', ') AS experimentateurs
-        FROM experience e
-        INNER JOIN materiel_experience em ON em.ID_experience = e.ID_experience
-        INNER JOIN salle_materiel sm ON sm.ID_materiel = em.ID_materiel
-        LEFT JOIN projet_experience pe ON pe.ID_experience = e.ID_experience
-        LEFT JOIN projet p ON p.ID_projet = pe.ID_projet
-        LEFT JOIN experience_experimentateur ee ON ee.ID_experience = e.ID_experience
-        LEFT JOIN compte c ON c.ID_compte = ee.ID_compte
-        WHERE sm.Nom_salle = :nom_salle
-        AND DATE(e.Date_reservation) BETWEEN :date_debut AND :date_fin
-        GROUP BY e.ID_experience, e.Nom, e.Date_reservation, e.Heure_debut, e.Heure_fin, e.Description, e.Statut_experience, p.Nom_projet
-        ORDER BY e.Date_reservation, e.Heure_debut
-    ";
-
-    $stmt = $bdd->prepare($sql);
-    $stmt->execute([
-        'nom_salle' => $nom_salle,
-        'date_debut' => $date_debut,
-        'date_fin' => $date_fin
-    ]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-function get_dates_semaine($date_reference = null) {
-    if ($date_reference === null) { $date_reference = date('Y-m-d'); }
-    $date = new DateTime($date_reference);
-    $jour_semaine = (int)$date->format('N');
-    $date->modify('-' . ($jour_semaine - 1) . ' days');
-    $jours = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
-    $dates_semaine = [];
-    for ($i=0;$i<7;$i++){
-        $dates_semaine[] = [
-            'date' => $date->format('Y-m-d'),
-            'jour' => $jours[$i],
-            'numero_jour' => $i+1,
-            'date_formatee' => $date->format('d/m/Y')
-        ];
-        $date->modify('+1 day');
-    }
-    return $dates_semaine;
-}
-
-function creneau_est_occupe($reservations, $jour, $heure) {
-    $creneaux = [];
-    foreach ($reservations as $reservation) {
-        $res_date = $reservation['Date_reservation'];
-        if ($res_date === $jour['date']) {
-            $hd = (int)date('G', strtotime($reservation['Heure_debut']));
-            $hf = (int)date('G', strtotime($reservation['Heure_fin']));
-            if ($heure >= $hd && $heure < $hf) {
-                $creneaux[] = $reservation;
-            }
-        }
-    }
-    return $creneaux;
-}
-
-function organiser_reservations_par_creneau($reservations, $dates_semaine, $heures) {
-    $planning = [];
-    
-    // Initialiser le planning
-    foreach ($dates_semaine as $jour) {
-        $planning[$jour['date']] = [];
-        foreach ($heures as $heure) {
-            $planning[$jour['date']][$heure] = [];
-        }
-    }
-    
-    // Remplir le planning
-    foreach ($reservations as $res) {
-        $date = $res['Date_reservation'];
-        $heure_debut = (int)date('G', strtotime($res['Heure_debut']));
-        $heure_fin = (int)date('G', strtotime($res['Heure_fin']));
-        
-        // Ajouter la réservation à toutes les heures concernées
-        for ($h = $heure_debut; $h < $heure_fin; $h++) {
-            if (isset($planning[$date][$h])) {
-                $planning[$date][$h][] = $res;
-            }
-        }
-    }
-    
-    return $planning;
-}
-
-function est_debut_reservation($reservations, $heure) {
-    foreach ($reservations as $res) {
-        $heure_debut = (int)date('G', strtotime($res['Heure_debut']));
-        if ($heure_debut === $heure) {
-            return true;
-        }
-    }
-    return false;
-}
-
-// ======================= FONCTIONS CRÉATION EXPÉRIENCE =======================
-function creer_experience($bdd, $nom_experience, $description, $date_reservation, $heure_debut, $heure_fin, $nom_salle) {
-    $sql = $bdd->prepare("
-        INSERT INTO experience (Nom, Description, Date_reservation, Heure_debut, Heure_fin, Statut_experience, Validation)
-        VALUES (?, ?, ?, ?, ?, 'En attente', 0)
-    ");
-
-    if ($sql->execute([$nom_experience, $description, $date_reservation, $heure_debut, $heure_fin])) {
-        return $bdd->lastInsertId();
-    }
-    return false;
-}
-
-function associer_experience_projet($bdd, $id_projet, $id_experience) {
-    $sql = $bdd->prepare("
-        INSERT INTO projet_experience (ID_projet, ID_experience)
-        VALUES (?, ?)
-    ");
-    return $sql->execute([$id_projet, $id_experience]);
-}
-
-function ajouter_experimentateurs($bdd, $id_experience, $experimentateurs) {
-    $sql = $bdd->prepare("
-        INSERT INTO experience_experimentateur (ID_experience, ID_compte)
-        VALUES (?, ?)
-    ");
-
-    foreach ($experimentateurs as $id_compte) {
-        $sql->execute([$id_experience, $id_compte]);
-    }
-}
-
-function associer_materiel_experience($bdd, $id_experience, $materiels_ids) {
-    $sql_insert = $bdd->prepare("
-        INSERT INTO materiel_experience (ID_experience, ID_materiel)
-        VALUES (?, ?)
-    ");
-    
-    foreach ($materiels_ids as $id_materiel) {
-        $sql_insert->execute([$id_experience, $id_materiel]);
-    }
-}
-
-function get_nom_projet($bdd, $id_projet){
-    $sql = "
-        SELECT 
-            p.Nom_projet
-        FROM projet p
-        WHERE p.ID_projet = :id_projet
-    ";
-
-    $stmt = $bdd->prepare($sql);
-    $stmt->execute([
-        'id_projet' => $id_projet,
-    ]);
-    $nom_projet = $stmt->fetchColumn();
-    return $nom_projet;
-}
-
-// ======================= TRAITEMENT DES DONNÉES =======================
 $message = "";
 $nom_experience = "";
 $description = "";
@@ -296,28 +94,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $heure_fin = $_POST['heure_fin'];
             $nom_salle = $_POST['nom_salle'];
             
-            // Créer l'expérience
-            $id_experience = creer_experience($bdd, $nom_experience, $description, $date_reservation, $heure_debut, $heure_fin, $nom_salle);
+            // Vérifier la disponibilité de TOUS les matériels sélectionnés
+            $materiels_indisponibles = [];
+            foreach ($materiels_selectionnes as $id_materiel) {
+                $verif = verifier_disponibilite_materiel($bdd, $id_materiel, $date_reservation, $heure_debut, $heure_fin);
+                
+                if (!$verif['disponible']) {
+                    // Récupérer le nom du matériel
+                    $sql_nom = "SELECT Materiel FROM salle_materiel WHERE ID_materiel = :id";
+                    $stmt_nom = $bdd->prepare($sql_nom);
+                    $stmt_nom->execute(['id' => $id_materiel]);
+                    $nom_materiel = $stmt_nom->fetchColumn();
+                    
+                    $materiels_indisponibles[] = [
+                        'nom' => $nom_materiel,
+                        'conflit' => $verif['conflit']
+                    ];
+                }
+            }
             
-            if ($id_experience) {
-                // Associer au projet
-                associer_experience_projet($bdd, $id_projet, $id_experience);
-                
-                // Ajouter les expérimentateurs
-                if (!empty($experimentateurs_ids)) {
-                    ajouter_experimentateurs($bdd, $id_experience, $experimentateurs_ids);
+            // Si des matériels sont indisponibles, afficher l'erreur
+            if (!empty($materiels_indisponibles)) {
+                $message = "<div style='background:#fdeaea;border:1px solid #f5bcbc;color:#b30000;border-radius:8px;padding:15px;margin:20px 0;'>";
+                $message .= "<strong>Impossible de créer l'expérience :</strong><br><br>";
+                foreach ($materiels_indisponibles as $mat) {
+                    $message .= "Le matériel <strong>" . htmlspecialchars($mat['nom']) . "</strong> est déjà utilisé pour l'expérience « " . htmlspecialchars($mat['conflit']) . " » sur ce créneau horaire.<br>";
                 }
-                
-                // Associer les matériels sélectionnés
-                if (!empty($materiels_selectionnes)) {
-                    associer_materiel_experience($bdd, $id_experience, $materiels_selectionnes);
-                }
-                
-                // Redirection
-                header("Location: page_experience.php?id_projet=" . $id_projet . "&id_experience=" . $id_experience);
-                exit();
+                $message .= "<br>Veuillez retirer ce(s) matériel(s) ou choisir un autre créneau.";
+                $message .= "</div>";
             } else {
-                $message = "<p style='color:red;'>Erreur lors de la création de l'expérience.</p>";
+                // Tous les matériels sont disponibles, créer l'expérience
+                $id_experience = creer_experience($bdd, $nom_experience, $description, $date_reservation, $heure_debut, $heure_fin, $nom_salle);
+                
+                if ($id_experience) {
+                    // Associer au projet
+                    associer_experience_projet($bdd, $id_projet, $id_experience);
+                    
+                    // Ajouter les expérimentateurs
+                    if (!empty($experimentateurs_ids)) {
+                        ajouter_experimentateurs($bdd, $id_experience, $experimentateurs_ids);
+                    }
+                    
+                    // Associer les matériels sélectionnés
+                    if (!empty($materiels_selectionnes)) {
+                        associer_materiel_experience($bdd, $id_experience, $materiels_selectionnes);
+                    }
+                    
+                    // Redirection
+                    header("Location: page_experience.php?id_projet=" . $id_projet . "&id_experience=" . $id_experience);
+                    exit();
+                } else {
+                    $message = "<p style='color:red;'>Erreur lors de la création de l'expérience.</p>";
+                }
             }
         }
     }
@@ -445,39 +273,6 @@ $heures = range(8, 19);
 $planning = organiser_reservations_par_creneau($reservations, $dates_semaine, $heures);
 ?>
 
-<style>
-/* Overlay visible au hover uniquement avec CSS */
-.reservation-continue {
-    position: relative;
-}
-
-.reservation-overlay {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: white;
-    border: 2px solid #333;
-    border-radius: 8px;
-    padding: 12px;
-    min-width: 280px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    z-index: 1000;
-    margin-top: 5px;
-    pointer-events: none;
-}
-
-.reservation-continue:hover .reservation-overlay {
-    display: block;
-}
-
-.reservation-continue:hover {
-    transform: scale(1.02);
-    z-index: 10;
-}
-</style>
-
 <table aria-describedby="planning" id="planning-table">
     <thead>
         <tr>
@@ -600,8 +395,7 @@ $planning = organiser_reservations_par_creneau($reservations, $dates_semaine, $h
                                id="date_reservation" 
                                name="date_reservation" 
                                value="<?= $creneau_selectionne ? htmlspecialchars($creneau_selectionne['date']) : '' ?>"
-                               required 
-                               readonly>
+                               required >
                     </div>
 
                     <div class="form-group">
@@ -610,8 +404,7 @@ $planning = organiser_reservations_par_creneau($reservations, $dates_semaine, $h
                                id="heure_debut" 
                                name="heure_debut" 
                                value="<?= $creneau_selectionne ? htmlspecialchars($creneau_selectionne['heure_debut']) : '' ?>"
-                               required 
-                               readonly>
+                               required >
                     </div>
 
                     <div class="form-group">
@@ -620,8 +413,7 @@ $planning = organiser_reservations_par_creneau($reservations, $dates_semaine, $h
                                id="heure_fin" 
                                name="heure_fin" 
                                value="<?= $creneau_selectionne ? htmlspecialchars($creneau_selectionne['heure_fin']) : '' ?>"
-                               required 
-                               readonly>
+                               required >
                     </div>
 
                     <!-- Section Matériels -->

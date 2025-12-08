@@ -129,6 +129,36 @@ thead th {
 /* Messages et erreurs */
 .error-message { padding:16px; background:#fff0f0; border:1px solid #f2c2c2; color:#b21; border-radius:8px; text-align:center; max-width:640px; margin:12px auto; }
 
+
+.reservation-continue {
+    position: relative;
+}
+
+.reservation-overlay {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 2px solid #333;
+    border-radius: 8px;
+    padding: 12px;
+    min-width: 280px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 1000;
+    margin-top: 5px;
+    pointer-events: none;
+}
+
+.reservation-continue:hover .reservation-overlay {
+    display: block;
+}
+
+.reservation-continue:hover {
+    transform: scale(1.02);
+    z-index: 10;
+}
 /* Responsive */
 @media (max-width: 980px) {
     .col-jour { min-width:100px; height:auto; position:relative; }
