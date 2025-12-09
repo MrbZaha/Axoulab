@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../fonctions_site_web.php';  // Sans "back_php/" !
+
 //fonction utilisée dans cette page
 // ======================= VÉRIFICATION FORCE DU MOT DE PASSE =======================
 /* Vérifie que le mot de passe respecte les règles de sécurité :

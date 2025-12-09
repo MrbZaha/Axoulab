@@ -3,8 +3,8 @@
 session_start();
 
 // Inclusion des fonctions pour la base de données
-include_once "../back_php/fonctions_site_web.php";
-include_once "../back_php/fonction_page_profil";
+require_once __DIR__ . '/../back_php/fonctions_site_web.php';
+require_once __DIR__ . '/../back_php/fonction_page/fonction_page_profil.php';
 
 $user_ID = $_SESSION["ID_compte"];
 

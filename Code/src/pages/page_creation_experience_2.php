@@ -1,6 +1,7 @@
 <?php
-require_once __DIR__ . '/../back_php/fonctions_site_web.php';
-require_once __DIR__ . '/../back_php/fonction_page/fonction_page_creation_experience_2.php';
+require_once '/../back_php/fonctions_site_web.php';
+require_once '/../back_php/fonction_page/fonction_page_creation_experience_2.php';
+
 
 $message = "";
 $nom_experience = "";
@@ -12,7 +13,6 @@ $creneau_selectionne = null;
 
 // Récupération des données de la page 1
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupérer id_projet
     if (isset($_POST['id_projet']) && !empty($_POST['id_projet'])) {
         $id_projet = intval($_POST['id_projet']);
     }
@@ -29,12 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $experimentateurs_ids = array_filter(array_map('intval', explode(',', $_POST['experimentateurs_ids'])));
     }
     
-    // Récupérer la liste des matériels sélectionnés
     if (isset($_POST['materiels_selectionnes'])) {
         $materiels_selectionnes = array_filter(array_map('intval', explode(',', $_POST['materiels_selectionnes'])));
     }
     
-    // Récupérer le créneau sélectionné
     if (isset($_POST['date_reservation']) && isset($_POST['heure_debut']) && isset($_POST['heure_fin'])) {
         $creneau_selectionne = [
             'date' => $_POST['date_reservation'],
@@ -43,17 +41,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
     }
     
-    // Gérer les actions d'ajout/retrait de matériel
+    // Gérer les actions d'ajout/retrait de matériel et sélection créneau
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
             case 'ajouter_materiel':
                 if (!empty($_POST['Materiel']) && isset($_POST['nom_salle'])) {
                     $nom_materiel = trim($_POST['Materiel']);
                     $nom_salle = $_POST['nom_salle'];
-                    
-                    // Récupérer l'ID du matériel par son nom
                     $id_materiel = recuperer_id_materiel_par_nom($bdd, $nom_materiel, $nom_salle);
-                    
                     if ($id_materiel && !in_array($id_materiel, $materiels_selectionnes)) {
                         $materiels_selectionnes[] = $id_materiel;
                     }
@@ -64,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (isset($_POST['id_retirer']) && !empty($_POST['id_retirer'])) {
                     $id_a_retirer = intval($_POST['id_retirer']);
                     $materiels_selectionnes = array_diff($materiels_selectionnes, [$id_a_retirer]);
-                    $materiels_selectionnes = array_values($materiels_selectionnes); // Réindexer le tableau
+                    $materiels_selectionnes = array_values($materiels_selectionnes);
                 }
                 break;
                 
@@ -81,8 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
         }
     }
-    
-    // Traitement de la création finale
+
+    // ======================= Création de l'expérience =======================
     if (isset($_POST['creer_experience'])) {
         if (!$id_projet || $id_projet <= 0) {
             $message = "<p style='color:red;'>Erreur : ID du projet invalide.</p>";
@@ -93,58 +88,80 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $heure_debut = $_POST['heure_debut'];
             $heure_fin = $_POST['heure_fin'];
             $nom_salle = $_POST['nom_salle'];
-            
-            // Vérifier la disponibilité de TOUS les matériels sélectionnés
+
+            // Vérifier la disponibilité de tous les matériels
             $materiels_indisponibles = [];
             foreach ($materiels_selectionnes as $id_materiel) {
                 $verif = verifier_disponibilite_materiel($bdd, $id_materiel, $date_reservation, $heure_debut, $heure_fin);
-                
                 if (!$verif['disponible']) {
-                    // Récupérer le nom du matériel
                     $sql_nom = "SELECT Materiel FROM salle_materiel WHERE ID_materiel = :id";
                     $stmt_nom = $bdd->prepare($sql_nom);
                     $stmt_nom->execute(['id' => $id_materiel]);
                     $nom_materiel = $stmt_nom->fetchColumn();
-                    
                     $materiels_indisponibles[] = [
                         'nom' => $nom_materiel,
                         'conflit' => $verif['conflit']
                     ];
                 }
             }
-            
-            // Si des matériels sont indisponibles, afficher l'erreur
+
             if (!empty($materiels_indisponibles)) {
                 $message = "<div style='background:#fdeaea;border:1px solid #f5bcbc;color:#b30000;border-radius:8px;padding:15px;margin:20px 0;'>";
                 $message .= "<strong>Impossible de créer l'expérience :</strong><br><br>";
                 foreach ($materiels_indisponibles as $mat) {
-                    $message .= "Le matériel <strong>" . htmlspecialchars($mat['nom']) . "</strong> est déjà utilisé pour l'expérience « " . htmlspecialchars($mat['conflit']) . " » sur ce créneau horaire.<br>";
+                    $message .= "Le matériel <strong>" . htmlspecialchars($mat['nom']) . "</strong> est déjà utilisé pour l'expérience « " . htmlspecialchars($mat['conflit']) . " » sur ce créneau.<br>";
                 }
                 $message .= "<br>Veuillez retirer ce(s) matériel(s) ou choisir un autre créneau.";
                 $message .= "</div>";
             } else {
-                // Tous les matériels sont disponibles, créer l'expérience
-                $id_experience = creer_experience($bdd, $nom_experience, $description, $date_reservation, $heure_debut, $heure_fin, $nom_salle);
-                
-                if ($id_experience) {
-                    // Associer au projet
-                    associer_experience_projet($bdd, $id_projet, $id_experience);
-                    
-                    // Ajouter les expérimentateurs
-                    if (!empty($experimentateurs_ids)) {
-                        ajouter_experimentateurs($bdd, $id_experience, $experimentateurs_ids);
+                try {
+                    // Créer l'expérience
+                    $id_experience = creer_experience($bdd, $nom_experience, $description, $date_reservation, $heure_debut, $heure_fin, $nom_salle);
+
+                    if ($id_experience) {
+                        // Associer au projet
+                        associer_experience_projet($bdd, $id_projet, $id_experience);
+
+                        // Ajouter les expérimentateurs
+                        if (!empty($experimentateurs_ids)) {
+                            ajouter_experimentateurs($bdd, $id_experience, $experimentateurs_ids);
+                        }
+
+                        // Associer les matériels
+                        if (!empty($materiels_selectionnes)) {
+                            associer_materiel_experience($bdd, $id_experience, $materiels_selectionnes);
+                        }
+
+                        // ======================= Notifications =======================
+                        // Récupérer les gestionnaires du projet
+                        $stmt_gest = $bdd->prepare("
+                            SELECT ID_compte FROM participants 
+                            WHERE ID_projet = ? AND Role = 'gestionnaire'
+                        ");
+                        $stmt_gest->execute([$id_projet]);
+                        $gestionnaires = $stmt_gest->fetchAll(PDO::FETCH_COLUMN);
+
+                        // Retirer le créateur si présent
+                        $destinataires = array_values(array_diff($gestionnaires, [$_SESSION['ID_compte']]));
+
+                        // Envoyer notification type 1 aux gestionnaires
+                        if (!empty($destinataires)) {
+                            $donnees = [
+                                'ID_experience' => $id_experience,
+                                'Nom_experience' => $nom_experience
+                            ];
+                            envoyerNotification($bdd, 1, $_SESSION['ID_compte'], $donnees, $destinataires);
+                        }
+
+                        // Redirection
+                        header("Location: page_experience.php?id_projet=" . $id_projet . "&id_experience=" . $id_experience);
+                        exit();
+                    } else {
+                        $message = "<p style='color:red;'>Erreur lors de la création de l'expérience.</p>";
                     }
-                    
-                    // Associer les matériels sélectionnés
-                    if (!empty($materiels_selectionnes)) {
-                        associer_materiel_experience($bdd, $id_experience, $materiels_selectionnes);
-                    }
-                    
-                    // Redirection
-                    header("Location: page_experience.php?id_projet=" . $id_projet . "&id_experience=" . $id_experience);
-                    exit();
-                } else {
-                    $message = "<p style='color:red;'>Erreur lors de la création de l'expérience.</p>";
+                } catch (Exception $e) {
+                    $message = "<p style='color:red;'>Erreur lors de la création de l'expérience : " . htmlspecialchars($e->getMessage()) . "</p>";
+                    error_log("Erreur création expérience: " . $e->getMessage());
                 }
             }
         }

@@ -3,8 +3,8 @@
 session_start();
 
 // Inclure le fichier de fonctions
-include_once '../back_php/fonctions_site_web.php';
-include_once '../back_php/fonction_page_connexion.php';
+require_once __DIR__ . '/../back_php/fonctions_site_web.php';
+require_once __DIR__ . '/../back_php/fonction_page/fonction_page_connexion.php';
 
 // Connexion à la base de données
 

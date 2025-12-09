@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../fonctions_site_web.php';  // Sans "back_php/" !
+
 // =======================  VÉRIFIER SI COMPTE EN COURS DE VALIDATION =======================
 /* Vérifie si le compte est en cours de validation
    Retourne true si validation ,  false sinon */
