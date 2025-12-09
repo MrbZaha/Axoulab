@@ -81,7 +81,7 @@ function recuperer_id_materiel_par_nom(PDO $bdd, string $nom_materiel, string $n
  *               - 'materiels_utilises' (string) : Liste des matériels utilisés (concaténés)
  *               - 'experimentateurs' (string) : Liste des expérimentateurs impliqués (concaténés)
  */
-function recuperer_reservations_semaine(PDO $bdd, string $nom_salle,date $date_debut,date $date_fin) {
+function recuperer_reservations_semaine(PDO $bdd, string $nom_salle,string $date_debut,string $date_fin) {
     $sql = "
         SELECT 
             e.ID_experience,
