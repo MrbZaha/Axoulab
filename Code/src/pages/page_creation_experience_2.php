@@ -135,8 +135,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // ======================= Notifications =======================
                         // Récupérer les gestionnaires du projet
                         $stmt_gest = $bdd->prepare("
-                            SELECT ID_compte FROM participants 
-                            WHERE ID_projet = ? AND Role = 'gestionnaire'
+                            SELECT ID_compte FROM projet_collaborateur_gestionnaire 
+                            WHERE ID_projet = ? AND Statut = 1
                         ");
                         $stmt_gest->execute([$id_projet]);
                         $gestionnaires = $stmt_gest->fetchAll(PDO::FETCH_COLUMN);
