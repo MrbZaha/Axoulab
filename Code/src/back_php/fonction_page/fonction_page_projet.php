@@ -15,14 +15,36 @@ if ($id_projet === 0) {
 }
 
 /**
- * Vérifie la confidentialité d'un projet
+ * Vérifie si l'utilisateur a le droit d'accéder au projet.
  *
- * @param PDO $bdd : Connexion à la base de données
- * @param int $id_compte : ID de l'expérience
- * @param int $id_projet : ID_projet
- * @return Boolean : 0 Si non confidentiel, 1 sinon
+ * Un projet est accessible si :
+ *  - l'utilisateur est un administrateur (Etat = 2)
+ *  - OU le projet n'est PAS confidentiel
+ *  - OU l'utilisateur est gestionnaire du projet (Statut = 1)
+ *
+ * @param PDO $bdd Connexion PDO à la base de données
+ * @param int $id_compte ID du compte utilisateur
+ * @param int $id_projet ID du projet à vérifier
+ * @return bool true si accès autorisé, false sinon
  */
 function verifier_confidentialite(PDO $bdd, int $id_compte, int $id_projet): bool {
+    // Vérifier si l'utilisateur est admin
+    $sql_admin = "
+        SELECT Etat
+        FROM compte
+        WHERE ID_compte = :id_compte
+    ";
+
+    $stmt_admin = $bdd->prepare($sql_admin);
+    $stmt_admin->execute(['id_compte' => $id_compte]);
+    $result_admin = $stmt_admin->fetch(PDO::FETCH_ASSOC);
+
+    // Si admin (Etat = 3), accès total
+    if ($result_admin && (int)$result_admin['Etat'] === 3) {
+        return true;
+    }
+
+    // Sinon, vérifier les droits normaux
     $sql = "
         SELECT 
             p.Confidentiel,
@@ -45,10 +67,12 @@ function verifier_confidentialite(PDO $bdd, int $id_compte, int $id_projet): boo
         return false;
     }
 
+    // Projet NON confidentiel → accessible à tout le monde
     if ((int)$result['Confidentiel'] === 0) {
         return true;
     }
 
+    // Projet confidentiel → accessible UNIQUEMENT aux gestionnaires
     return isset($result['Statut']) && (int)$result['Statut'] === 1;
 }
 
@@ -258,13 +282,13 @@ function afficher_projet(array $projet, array $gestionnaires, array $collaborate
             <h2><?= htmlspecialchars($projet['Nom_projet']) ?></h2>
             <div class="projet-badges">
                 <?php if ($projet['Validation'] == 1): ?>
-                    <span class="badge valide">✓ Validé</span>
+                    <span class="badge valide">Validé</span>
                 <?php else: ?>
-                    <span class="badge en-attente">⏳ En attente</span>
+                    <span class="badge en-attente">En attente</span>
                 <?php endif; ?>
                 
                 <?php if ($projet['Confidentiel'] == 1): ?>
-                    <span class="badge confidentiel">🔒 Confidentiel</span>
+                    <span class="badge confidentiel">Confidentiel</span>
                 <?php endif; ?>
             </div>
         </div>

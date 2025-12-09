@@ -18,13 +18,6 @@ function connectBDD() {
     }
 }
 
-// =======================  VALIDATION EMAIL AXOULAB =======================
-/* Vérifie que l'email est au format prenom.nom@axoulab.fr
-   Retourne true si le format est correct, false sinon */
-function verifier_email_axoulab($email) {
-    return preg_match('/^[a-zA-Z]+\.[a-zA-Z]+@axoulab\.fr$/', $email);
-}
-
 // ======================= VÉRIFICATION EMAIL EXISTANT =======================
 /* Vérifie si une adresse email existe déjà dans la base de données
    Retourne true si l'email existe, false sinon */
@@ -74,16 +67,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     $notif = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($notif) {
+        // ===== RÉCUPÉRATION DES IDs UNE SEULE FOIS AU DÉBUT =====
         $idProjet = $notif['ID_projet'] ?? null;
+        $idExperience = $notif['ID_experience'] ?? null;
         $idEnvoyeurOriginal = $notif['ID_compte_envoyeur'];
         $typeNotif = $notif['Type_notif'];
+        
+        // DEBUG - Ajout temporaire pour diagnostic
+        error_log("DEBUG NOTIF: idNotif=$idNotif, typeNotif=$typeNotif, isProjet=$isProjet, idProjet=$idProjet, idExperience=$idExperience");
+        error_log("DEBUG NOTIF DATA: " . print_r($notif, true));
 
         $nouvelEtat = 0;
         $typeRetour = 0;
 
         switch ($action) {
             case "valider":
-
                 $nouvelEtat = 1;
                 if ($typeNotif == 16) {
                     // Notification simple d'ajout collaborateur - pas de réponse
@@ -111,13 +109,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         $update->execute([$nouvelEtat, $idNotif]);
 
         // --- Validation expérience par gestionnaire ---
-       if (!$isProjet && $typeNotif == 1 && $nouvelEtat == 1) {
-            $idExperience = $notif['ID_experience'] ?? null;
+        if (!$isProjet && $typeNotif == 1 && $nouvelEtat == 1) {
             if ($idExperience) {
                 $updateExp = $bdd->prepare("UPDATE experience SET Validation = 1, Date_de_modification = NOW() WHERE ID_experience = ?");
                 $updateExp->execute([$idExperience]);
             }
         }
+
         // === GESTION SPÉCIFIQUE POUR LES PROJETS ===
         if ($isProjet && $typeNotif == 11) {
             // Récupérer l'état du créateur du projet
@@ -181,11 +179,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
                     // Notifier l'étudiant créateur du refus (type 13)
                     envoyerNotification($bdd, 13, $idUtilisateur, ['ID_projet' => $idProjet, 'Nom_projet' => $nomProjet], [$idEnvoyeurOriginal]);
 
-                    // Supprimer physiquement le projet après un délai (optionnel)
-                    // Pour l'instant on le garde avec Validation = 2 pour l'historique
-                    // $deleteProjet = $bdd->prepare("DELETE FROM projet WHERE ID_projet = ?");
-                    // $deleteProjet->execute([$idProjet]);
-                    
                     $typeRetour = null; // Déjà envoyé ci-dessus
                     
                 } elseif ($nouvelEtat == 3) {
@@ -230,32 +223,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
             }
         }
 
-        // Envoyer notification de retour si nécessaire (cas généraux non traités ci-dessus)
+        // ===== ENVOI DE NOTIFICATION DE RETOUR (CAS GÉNÉRAUX) =====
         if (!empty($typeRetour)) {
-            // Récupérer le nom du projet/expérience
+            // Préparer les données selon le type
             if ($isProjet) {
-                $stmtNom = $bdd->prepare("SELECT Nom_projet FROM projet WHERE ID_projet = ?");
-                $stmtNom->execute([$idProjet]);
-                $nomItem = $stmtNom->fetchColumn();
-                $donneesNotif = ['ID_projet' => $idProjet, 'Nom_projet' => $nomItem];
+                if ($idProjet) {
+                    $stmtNom = $bdd->prepare("SELECT Nom_projet FROM projet WHERE ID_projet = ?");
+                    $stmtNom->execute([$idProjet]);
+                    $nomItem = $stmtNom->fetchColumn();
+                    $donneesNotif = ['ID_projet' => $idProjet, 'Nom_projet' => $nomItem];
+                } else {
+                    error_log("DEBUG: ID_projet manquant pour la notif $idNotif");
+                    $donneesNotif = null;
+                }
             } else {
-                $idExperience = $notif['ID_experience'] ?? null;
-                $stmtNom = $bdd->prepare("SELECT Nom FROM experience WHERE ID_experience = ?");
-                $stmtNom->execute([$idExperience]);
-                $nomItem = $stmtNom->fetchColumn();
-                $donneesNotif = ['ID_experience' => $idExperience, 'Nom_experience' => $nomItem];
-            }
+                if ($idExperience) {
+                    $stmtNom = $bdd->prepare("SELECT Nom FROM experience WHERE ID_experience = ?");
+                    $stmtNom->execute([$idExperience]);
+                    $nomItem = $stmtNom->fetchColumn();
+                    $donneesNotif = ['ID_experience' => $idExperience, 'Nom_experience' => $nomItem];
+                } else {
+                    error_log("DEBUG: ID_experience manquant pour la notif $idNotif");
+                    $donneesNotif = null;
+                }
+            }   
             
-            // Éviter les doublons
-            $colID = $isProjet ? 'ID_projet' : 'ID_experience';
-            $valID = $isProjet ? $idProjet : ($notif['ID_experience'] ?? null);
-            
-            $verif = $bdd->prepare("SELECT COUNT(*) FROM $table 
-                WHERE $colID = ? AND ID_compte_envoyeur = ? AND ID_compte_receveur = ? AND Type_notif = ?");
-            $verif->execute([$valID, $idUtilisateur, $idEnvoyeurOriginal, $typeRetour]);
-            
-            if (!$verif->fetchColumn()) {
-                envoyerNotification($bdd, $typeRetour, $idUtilisateur, $donneesNotif, [$idEnvoyeurOriginal]);
+            // Envoyer seulement si on a les données
+            if ($donneesNotif) {
+                // Éviter les doublons
+                $colID = $isProjet ? 'ID_projet' : 'ID_experience';
+                $valID = $isProjet ? $idProjet : $idExperience;
+                
+                $verif = $bdd->prepare("SELECT COUNT(*) FROM $table 
+                    WHERE $colID = ? AND ID_compte_envoyeur = ? AND ID_compte_receveur = ? AND Type_notif = ?");
+                $verif->execute([$valID, $idUtilisateur, $idEnvoyeurOriginal, $typeRetour]);
+                
+                if (!$verif->fetchColumn()) {
+                    envoyerNotification($bdd, $typeRetour, $idUtilisateur, $donneesNotif, [$idEnvoyeurOriginal]);
+                }
             }
         }
 
@@ -263,8 +268,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         $delete = $bdd->prepare("DELETE FROM $table WHERE $idCol = ?");
         $delete->execute([$idNotif]);
 
-        // Recharger la page
-        header("Location: " . $_SERVER['PHP_SELF']);
+        // Recharger la page en préservant les paramètres GET
+        $redirect_url = $_SERVER['PHP_SELF'];
+        if (!empty($_GET)) {
+            $redirect_url .= '?' . http_build_query($_GET);
+        }
+        header("Location: " . $redirect_url);
         exit;
     }
 }
@@ -520,6 +529,7 @@ function get_last_notif($bdd, $IDuser, $limit = 10) {
             'is_projet' => ($type >= 11)
         ];
     }
+
     return $result;
 }
 
@@ -564,7 +574,7 @@ function get_mes_experiences_complets(PDO $bdd, ?int $id_compte = null): array {
 
     // --- 1. Requête principale
     $sql_experiences = "
-        SELECT DISTINCT
+        SELECT 
             e.ID_experience, 
             e.Nom, 
             e.Validation, 
@@ -646,6 +656,7 @@ function get_mes_experiences_complets(PDO $bdd, ?int $id_compte = null): array {
 
 
 function get_all_projet(PDO $bdd, int $id_compte): array {
+    
     // Récupère TOUS les projets
     $sql_projets = "
         SELECT 
@@ -702,6 +713,9 @@ function get_all_projet(PDO $bdd, int $id_compte): array {
     }
     return $projets;
 }
+
+
+
 
 // =======================  Gère le nombre de pages qui devront être créées =======================
 function create_page(array $items, int $items_par_page = 6): int {
@@ -999,12 +1013,6 @@ function supprimer_experience($bdd, $id_experience) {
 function supprimer_utilisateur($bdd, $id_user) {
     $stmt = $bdd->prepare("DELETE FROM compte WHERE ID_compte = ?");
     $stmt->execute([$id_user]);
-}
-
-// =======================  Suppression d'un outil à partir de son identifiant =======================
-function supprimer_materiel($bdd, $id_materiel) {
-    $stmt = $bdd->prepare("DELETE FROM salle_materiel WHERE ID_materiel = ?");
-    $stmt->execute([$id_materiel]);
 }
 
 // =======================  Acceptation de l'inscription d'un utilisateur =======================
@@ -1364,18 +1372,36 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
     <?php
 }
 
-
 /**
- * Met à jour automatiquement le statut des expériences en fonction de la date/heure actuelle.
- * 
- * Statuts :
- * - 0 : Expérience pas encore commencée (avant Heure_debut)
- * - 1 : Expérience en cours (entre Heure_debut et Heure_fin)
- * - 2 : Expérience terminée (après Heure_fin)
- *
- * @param PDO $bdd Connexion à la base de données
- * @return void
- */
+ 
+*Modifie le statut d'une expérience.*
+*@param PDO $bdd Connexion à la base de données
+*@param int $id ID de l'expérience
+*@param int $value Nouveau statut (0 = pas commencée, 1 = en cours, 2 = terminée)
+*@return void*/
+function modifie_value_exp(PDO $bdd, int $id, int $value): void {
+    $sql_maj_bdd = "
+        UPDATE experience
+        SET Statut_experience = :Statut_experience
+        WHERE ID_experience = :id
+    ";
+
+    $stmt = $bdd->prepare($sql_maj_bdd);
+    $stmt->execute([
+        ':Statut_experience' => $value,
+        ':id' => $id
+    ]);
+}
+/**
+ 
+*Met à jour automatiquement le statut des expériences en fonction de la date/heure actuelle.
+*Statuts :
+*0 : Expérience pas encore commencée (avant Heure_debut)
+*1 : Expérience en cours (entre Heure_debut et Heure_fin)
+*2 : Expérience terminée (après Heure_fin)
+*
+*@param PDO $bdd Connexion à la base de données
+*@return void*/
 function maj_bdd_experience(PDO $bdd): void {
     $now = new DateTime();
     $now_datetime = new DateTime($now->format('Y-m-d H:i'));
@@ -1391,8 +1417,7 @@ function maj_bdd_experience(PDO $bdd): void {
         FROM experience
         WHERE Statut_experience IN (0, 1)
     ";
-    
-    $stmt = $bdd->prepare($sql);
+$stmt = $bdd->prepare($sql);
     $stmt->execute();
     $experiences = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -1422,25 +1447,4 @@ function maj_bdd_experience(PDO $bdd): void {
     }
 }
 
-/**
- * Modifie le statut d'une expérience.
- *
- * @param PDO $bdd Connexion à la base de données
- * @param int $id ID de l'expérience
- * @param int $value Nouveau statut (0 = pas commencée, 1 = en cours, 2 = terminée)
- * @return void
- */
-function modifie_value_exp(PDO $bdd, int $id, int $value): void {
-    $sql_maj_bdd = "
-        UPDATE experience
-        SET Statut_experience = :Statut_experience
-        WHERE ID_experience = :id
-    ";
-
-    $stmt = $bdd->prepare($sql_maj_bdd);
-    $stmt->execute([
-        ':Statut_experience' => $value,
-        ':id' => $id
-    ]);
-}
 ?>

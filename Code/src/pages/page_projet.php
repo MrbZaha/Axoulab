@@ -40,10 +40,10 @@ $page_title = $projet ? htmlspecialchars($projet['Nom_projet']) : "Projet";
     <?php if (!$erreur): ?>
         <div class="actions-projet">
             <form action="page_creation_experience_1.php?id_projet=<?= $id_projet ?>" method="post">
-                <input type="submit" value="➕ Ajouter une expérience" />
+                <input type="submit" value="Ajouter une expérience" />
             </form>
             <form action="page_modification_projet.php?id_projet=<?= $id_projet ?>" method="post">
-                <input type="submit" value="✏️ Modifier le projet" />
+                <input type="submit" value="Modifier le projet" />
             </form>
         </div>
     <?php endif; ?>
