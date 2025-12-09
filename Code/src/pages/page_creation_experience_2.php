@@ -1,6 +1,6 @@
 <?php
-require_once '/../back_php/fonctions_site_web.php';
-require_once '/../back_php/fonction_page/fonction_page_creation_experience_2.php';
+require_once __DIR__ . '/../back_php/fonctions_site_web.php';
+require_once __DIR__ . '/../back_php/fonction_page/fonction_page_creation_experience_2.php';
 
 
 $message = "";
@@ -135,8 +135,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // ======================= Notifications =======================
                         // Récupérer les gestionnaires du projet
                         $stmt_gest = $bdd->prepare("
-                            SELECT ID_compte FROM participants 
-                            WHERE ID_projet = ? AND Role = 'gestionnaire'
+                            SELECT ID_compte FROM projet_collaborateur_gestionnaire 
+                            WHERE ID_projet = ? AND Statut = 1
                         ");
                         $stmt_gest->execute([$id_projet]);
                         $gestionnaires = $stmt_gest->fetchAll(PDO::FETCH_COLUMN);
