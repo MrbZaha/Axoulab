@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 try {
                     // Créer l'expérience
-                    $id_experience = creer_experience($bdd, $nom_experience, $description, $date_reservation, $heure_debut, $heure_fin, $nom_salle);
+                    $id_experience = creer_experience($bdd, $nom_experience, $description, $date_reservation,$date_creation, $heure_debut, $heure_fin, $nom_salle);
 
                     if ($id_experience) {
                         // Associer au projet
@@ -172,6 +172,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if (!$id_projet || $id_projet <= 0) {
     $message = "<p style='color:red;'>Erreur : Aucun projet sélectionné. Veuillez retourner à l'étape 1.</p>";
 }
+
+$date_creation = (new DateTime())->format('Y-m-d'); // '2025-12-10'
 
 // ======================= PLANNING =======================
 $salles = recup_salles($bdd);

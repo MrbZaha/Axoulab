@@ -297,13 +297,13 @@ function est_debut_reservation($reservations, $heure) {
  *
  * @return int|false ID de l'expérience créée ou false en cas d'échec
  */
-function creer_experience($bdd, $nom_experience, $description, $date_reservation, $heure_debut, $heure_fin, $nom_salle) {
+function creer_experience($bdd, $nom_experience, $description, $date_reservation, $date_creation, $heure_debut, $heure_fin, $nom_salle) {
     $sql = $bdd->prepare("
-        INSERT INTO experience (Nom, Description, Date_reservation, Heure_debut, Heure_fin, Statut_experience, Validation)
+        INSERT INTO experience (Nom, Description, Date_reservation, Date_de_creation ,Heure_debut, Heure_fin, Statut_experience, Validation)
         VALUES (?, ?, ?, ?, ?, 'En attente', 0)
     ");
 
-    if ($sql->execute([$nom_experience, $description, $date_reservation, $heure_debut, $heure_fin])) {
+    if ($sql->execute([$nom_experience, $description, $date_reservation,$date_creation, $heure_debut, $heure_fin])) {
         return $bdd->lastInsertId();
     }
     return false;
