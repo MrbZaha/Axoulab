@@ -23,13 +23,6 @@ function get_projet_from_experience(PDO $bdd, int $id_experience) {
     return $stmt->fetchColumn();
 }
 
-function get_experimentateurs_ids(PDO $bdd, int $id_experience): array {
-    $sql = "SELECT ID_compte FROM experience_experimentateur
-            WHERE ID_experience = :id_experience";
-    $stmt = $bdd->prepare($sql);
-    $stmt->execute(['id_experience' => $id_experience]);
-    return $stmt->fetchAll(PDO::FETCH_COLUMN);
-}
 
 function get_experience_pour_modification(PDO $bdd, int $id_experience): ?array {
     $sql = "SELECT ID_experience, Nom, Description 
