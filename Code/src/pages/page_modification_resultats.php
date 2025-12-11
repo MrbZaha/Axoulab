@@ -159,10 +159,8 @@ $messages = [];
 $successHtml = null;
 
 // --- POST handling: suppression, upload, save ---
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
-
-
-    // --- Upload images ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_only'])) {
+    // --- Upload images UNIQUEMENT (sans enregistrer le texte) ---
     $uploadedFiles = [];
     if (!empty($_FILES['images']['name'][0])) {
         for ($i = 0; $i < count($_FILES['images']['name']); $i++) {
@@ -189,19 +187,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
 
             @chmod($uploadDir . $newName, 0644);
             $uploadedFiles[] = $newName;
-            $existingFiles = list_images_for_experience($uploadDir);
             $messages[] = "Fichier uploadé : $newName";
         }
     }
-
-    // --- Récupération texte brut ---
+    $existingFiles = list_images_for_experience($uploadDir);
+    
+    // Récupérer le texte pour le garder dans le textarea
     $text = $_POST['content'] ?? '';
+    $initial_textarea_value = $text;
+}
 
-    // --- Générer aperçu HTML uniquement (BDD reste brut) ---
+else if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['preview'])) {
+    // --- Générer UNIQUEMENT la prévisualisation (sans enregistrer en BDD) ---
+    $text = $_POST['content'] ?? '';
+    $initial_textarea_value = $text;
+
+    // Générer aperçu HTML
     $successHtml = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
     $successHtml = nl2br($successHtml);
 
-    // Remplacer [[file:xxx]] et [[img1]]..[[imgN]] dans l'aperçu
+    // Remplacer [[file:xxx]]
     if (preg_match_all('/\[\[file:([^\]]+)\]\]/', $text, $matches)) {
         foreach ($matches[1] as $filename) {
             $filename = basename($filename);
@@ -212,31 +217,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             }
         }
     }
+}
 
-    foreach ($uploadedFiles as $idx => $fname) {
-        $placeholder = '[[' . 'img' . ($idx+1) . ']]';
-        $imgTag = '<img class="inserted-image" src="' . htmlspecialchars($webUploadDir . $fname, ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($fname, ENT_QUOTES, 'UTF-8') . '">';
-        $successHtml = str_replace($placeholder, $imgTag, $successHtml);
-    }
-
-    // --- Enregistrer texte brut en BDD ---
+else if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
+    // --- Enregistrer en BDD UNIQUEMENT ---
+    $text = $_POST['content'] ?? '';
+    
     if (empty($errors)) {
         if (update_resultats_experience($bdd, $id_experience, $text)) {
-            $messages[] = "Les résultats ont été enregistrés.";
+            $messages[] = "Les résultats ont été enregistrés en base de données.";
         } else {
             $errors[] = "Erreur lors de l'enregistrement en base.";
         }
     }
+    $initial_textarea_value = $text;
+    
+    // Générer aussi la preview après enregistrement
+    $successHtml = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    $successHtml = nl2br($successHtml);
 
-} else {
+    if (preg_match_all('/\[\[file:([^\]]+)\]\]/', $text, $matches)) {
+        foreach ($matches[1] as $filename) {
+            $filename = basename($filename);
+            $path = $webUploadDir . $filename;
+            if (is_file($uploadDir . $filename)) {
+                $imgTag = '<img class="inserted-image" src="' . htmlspecialchars($path, ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($filename, ENT_QUOTES, 'UTF-8') . '">';
+                $successHtml = str_replace('[[' . 'file:' . $filename . ']]', $imgTag, $successHtml);
+            }
+        }
+    }
+} 
+
+else {
     // GET : récupérer texte brut
     $text = get_resultats_experience($bdd, $id_experience) ?? '';
     $initial_textarea_value = $text;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress'])) {
-
-        // --- Suppression de fichiers ---
+    // --- Suppression de fichiers ---
     if (!empty($_POST['delete_files']) && is_array($_POST['delete_files'])) {
         foreach ($_POST['delete_files'] as $toDelete) {
             $file = basename($toDelete);
@@ -248,6 +267,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress'])) {
         }
         $existingFiles = list_images_for_experience($uploadDir);
     }
+    
+    // Récupérer le texte pour le garder
+    $text = $_POST['content'] ?? '';
+    $initial_textarea_value = $text;
 }
 ?>
 
@@ -267,11 +290,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress'])) {
 <body>
 <?php afficher_Bandeau_Haut($bdd, $id_compte); ?>
 
-<div style="max-width:1400px; margin:30px auto 20px auto; display:flex; justify-content:space-between; align-items:center;">
-    <h1 style="margin:0; font-size:24px;">Résultats — expérience <?= htmlspecialchars($id_experience) ?></h1>
-    <a href="#help" class="help-button">
-        <i class="fa fa-question-circle"></i> Aide
-    </a>
+<div style="max-width:1400px; margin:20px auto 20px auto;">
+    <!-- Bouton en haut à gauche -->
+    <div style="margin-bottom: 15px;">
+        <a href="page_experience.php?id_experience=<?= $id_experience ?>" class="button" style="padding:8px 14px; font-size:14px; display:inline-block;">
+            ← Retour
+        </a>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h1 style="margin:0; font-size:24px;">Résultats — expérience <?= htmlspecialchars($id_experience) ?></h1>
+        <a href="#help" class="help-button">
+            <i class="fa fa-question-circle"></i> Aide
+        </a>
+    </div>
 </div>
 
 
@@ -291,7 +323,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress'])) {
 
     <div class="content-area">
         <!-- Zone de texte principale -->
-        <form method="post" enctype="multipart/form-data" id="mainForm">
+        <form method="post" enctype="multipart/form-data">
             <label class="form-label" for="content">Texte (tu peux inclure des balises HTML autorisées - images via placeholders)</label>
             <textarea id="content" name="content" placeholder="Écris ton texte ici..."><?= isset($initial_textarea_value) ? htmlspecialchars($initial_textarea_value, ENT_QUOTES, 'UTF-8') : (isset($_POST['content']) ? htmlspecialchars($_POST['content'], ENT_QUOTES, 'UTF-8') : '') ?></textarea>
 
@@ -326,34 +358,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress'])) {
                 <?php endif; ?>
             </div>
 
-            <!-- Section téléversement et sauvegarde côte à côte -->
+            <!-- Section téléversement et prévisualisation côte à côte -->
             <div class="upload-save-section">
                 <div class="upload-area">
                     <label class="form-label" for="images">Téléverser des images (png, jpg, gif, webp) — max 5MB chacune</label>
-                    <input id="images" type="file" name="images[]" accept="image/*" multiple>
+                    <div style="display: flex; gap: 10px; align-items: flex-end;">
+                        <input id="images" type="file" name="images[]" accept="image/*" multiple style="flex: 1;">
+                        <button type="submit" name="upload_only" class="button">Ajouter les fichiers</button>
+                    </div>
                 </div>
                 
-                <div class="save-area">
-                    <div class="form-actions" style="margin-top:28px;">
-                        <button type="submit" name="save" class="button">Enregistrer</button>
-                        <span class="small">Après enregistrement, la page sera ré-affichée avec le rendu.</span>
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #eee; text-align: center;" class="save-area">
+                        <button type="submit" name="preview" class="button" style="font-size: 16px; padding: 12px 24px;">Prévisualiser</button>
                     </div>
                 </div>
             </div>
-        </form>
 
-        <!-- Prévisualisation en pleine largeur -->
-        <?php if ($successHtml): ?>
-            <div class="preview">
-                <strong>Aperçu rendu (ce qui est enregistré en BDD):</strong>
-                <div style="margin-top:8px;">
-                    <?= $successHtml /* déjà safe : contient <img> autorisées et <br> */ ?>
+            <!-- Prévisualisation en pleine largeur -->
+            <?php if ($successHtml): ?>
+                <div class="preview">
+                    <strong>Aperçu du rendu :</strong>
+                    <div style="margin-top:8px;">
+                        <?= $successHtml /* déjà safe : contient <img> autorisées et <br> */ ?>
+                    </div>
                 </div>
+            <?php endif; ?>
+
+            <!-- Bouton enregistrer en base à la fin -->
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #eee; text-align: center;">
+                <button type="submit" name="save" class="button" style="font-size: 16px; padding: 12px 24px;">
+                    💾 Enregistrer
+                </button>
             </div>
-        <?php endif; ?>
+        </form>
     </div>
 </div>
-
 <!-- Overlay d'aide -->
 <div id="help" class="help-overlay">
     <div class="help-content">

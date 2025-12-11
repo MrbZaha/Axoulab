@@ -47,7 +47,23 @@ function verifier_acces_experience(PDO $bdd, int $id_compte, int $id_experience)
     if ($stmt->fetch()) {
         return 'modification'; // L'utilisateur est expérimentateur
     }
+
+    // Vérifier si l'utilisateur est ADMIN
+    $sql_ADMIN = "
+        SELECT 1 
+        FROM compte 
+        WHERE ID_compte = :id_compte
+        AND Etat = 3
+    ";
+    $stmt = $bdd->prepare($sql_ADMIN);
+    $stmt->execute([
+        'id_compte' => $id_compte
+    ]);
     
+    if ($stmt->fetch()) {
+        return 'modification'; // L'utilisateur est ADMIN
+    }
+
     // Sinon, vérifier via le projet lié
     $sql_projet = "
         SELECT 
@@ -73,6 +89,10 @@ function verifier_acces_experience(PDO $bdd, int $id_compte, int $id_experience)
         return 'none'; // Pas de projet lié ou projet inexistant
     }
 
+    // Si personne ADMIN -> droit de modification
+    else if (isset($result['Etat']) && (int)$result['Etat'] === 3) {
+        return 'modification';
+    }
     // Si personne gestionnaire -> droit de modification
     else if (isset($result['Statut']) && (int)$result['Statut'] === 1) {
         return 'modification';

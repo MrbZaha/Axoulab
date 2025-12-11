@@ -352,14 +352,7 @@ function afficher_projet(array $projet, array $gestionnaires, array $collaborate
                                 <p><i class="fas fa-door-open"></i> <?= htmlspecialchars($exp['Nom_salle']) ?></p>
                             <?php endif; ?>
                         </div>
-                        
-                        <?php if (!empty($exp['Resultat'])): ?>
-                            <div class="experience-resultat">
-                                <strong>Résultat :</strong>
-                                <p><?= nl2br(htmlspecialchars($exp['Resultat'])) ?></p>
-                            </div>
-                        <?php endif; ?>
-                        
+                                                
                         <a href="page_experience.php?id_experience=<?= $exp['ID_experience'] ?>" class="btn-voir-plus">
                             Voir les détails <i class="fas fa-arrow-right"></i>
                         </a>

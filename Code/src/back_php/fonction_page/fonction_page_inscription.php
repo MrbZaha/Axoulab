@@ -55,7 +55,6 @@ function mot_de_passe_identique($mdp1, $mdp2) {
     return $mdp1 === $mdp2;
 }
 
-<<<<<<< HEAD
 function verifier_email_axoulab($email) {
     // Nettoyer l'email (en minuscules)
     $email = strtolower(trim($email));
@@ -78,7 +77,6 @@ function verifier_email_axoulab($email) {
     }
 }
 
-=======
 // =======================  INSÉRER UN UTILISATEUR =======================
 /* Insère un nouvel utilisateur dans la base de données
    Retourne true si insertion réussie, false sinon */
@@ -86,5 +84,4 @@ function inserer_utilisateur($bdd, $nom, $prenom, $date, $etat, $email, $mdp_has
     $sql = $bdd->prepare("INSERT INTO compte (Nom, Prenom, date_de_naissance, etat, email, Mdp) VALUES (?, ?, ?, ?, ?, ?)");
     return $sql->execute([$nom, $prenom, $date, $etat, $email, $mdp_hash]);
 }
->>>>>>> 91f1f7f94cc32f2c0d97f05f55f14fe61734f9ee
 ?>
