@@ -5,10 +5,10 @@
 // facile à maintenir et réutilisable sur plusieurs pages.
 
 // =======================  CONNEXION À LA BASE DE DONNÉES =======================
-/* Fonction pour connecter la base de données avec PDO
+function connectBDD() {
+    /* Fonction pour connecter la base de données avec PDO
    Utilise try/catch pour gérer les erreurs de connexion
    Retourne l'objet PDO si connexion réussie */
-function connectBDD() {
     try {
         $bdd = new PDO("mysql:host=localhost;dbname=projet_site_web;charset=utf8","root","");
         return $bdd;
@@ -19,18 +19,18 @@ function connectBDD() {
 }
 
 // ======================= VÉRIFICATION EMAIL EXISTANT =======================
-/* Vérifie si une adresse email existe déjà dans la base de données
-   Retourne true si l'email existe, false sinon */
 function email_existe($bdd, $email) {
+    /* Vérifie si une adresse email existe déjà dans la base de données
+   Retourne true si l'email existe, false sinon */
     $stmt = $bdd->prepare("SELECT * FROM compte WHERE email = ?");
     $stmt->execute([$email]);
     return $stmt->rowCount() > 0;
 }
 
 // =======================  CONNEXION VALIDE =======================
-/* Vérifie si un utilisateur peut se connecter (email + mot de passe corrects)
-   Retourne true si connexion possible, false sinon */
 function connexion_valide($bdd, $email, $mdp) {
+    /* Vérifie si un utilisateur peut se connecter (email + mot de passe corrects)
+   Retourne true si connexion possible, false sinon */
     return email_existe($bdd, $email) && mot_de_passe_correct($bdd, $email, $mdp);
 }
 
