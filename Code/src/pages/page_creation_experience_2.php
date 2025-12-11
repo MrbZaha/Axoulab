@@ -133,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $date_creation = (new DateTime())->format('Y-m-d');
                     
                     // Créer l'expérience
-                    $id_experience = creer_experience($bdd, $nom_experience, $description, $date_reservation, $date_creation, $heure_debut, $heure_fin, $nom_salle);
+                    $id_experience = creer_experience($bdd, $validation, $nom_experience, $description, $date_reservation, $date_creation, $heure_debut, $heure_fin, $nom_salle);
 
                     if ($id_experience) {
                         // Associer au projet
