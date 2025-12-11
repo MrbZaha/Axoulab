@@ -191,6 +191,7 @@ if (!empty($collaborateurs_selectionnes)) {
     <link rel="stylesheet" href="../css/page_creation_projet.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 <?php afficher_Bandeau_Haut($bdd, $_SESSION["ID_compte"]); ?>

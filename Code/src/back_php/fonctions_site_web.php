@@ -671,7 +671,6 @@ if (empty($experiences)) {
 
 
 function get_all_projet(PDO $bdd, int $id_compte): array {
-    
     // Récupère TOUS les projets
     $sql_projets = "
         SELECT 
@@ -720,6 +719,8 @@ function get_all_projet(PDO $bdd, int $id_compte): array {
         $p['Progression'] = progression_projet($bdd, (int)$p['ID_projet']);
         
         // Détermine le rôle de l'utilisateur connecté
+        // 0 = Collaborateur
+        // 1 = gestionnaire
         if (isset($statut_par_projet[$p['ID_projet']])) {
             $p['Statut'] = $statut_par_projet[$p['ID_projet']] == 1 ? 'Gestionnaire' : 'Collaborateur';
         } else {
@@ -728,8 +729,6 @@ function get_all_projet(PDO $bdd, int $id_compte): array {
     }
     return $projets;
 }
-
-
 
 
 // =======================  Gère le nombre de pages qui devront être créées =======================
@@ -742,7 +741,7 @@ function create_page(array $items, int $items_par_page = 6): int {
 }
 
 // =======================  affichage des expériences sur plusieurs pages =======================
-function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1, int $items_par_page = 6): void {
+function afficher_experiences_pagines(PDO $bdd, array $experiences, int $page_actuelle = 1, int $items_par_page = 6, bool $page_admin = false): void {
     // On récupère l'indice de la première expérience qui sera affichée
     $debut = ($page_actuelle - 1) * $items_par_page;
     $experiences_page = array_slice($experiences, $debut, $items_par_page);
@@ -778,19 +777,18 @@ function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1
                         <p><strong>Horaires :</strong> <?= $heure_debut ?> - <?= $heure_fin ?></p>
                         <p><strong>Salle :</strong> <?= $salle ?></p>
                         <?php if (est_admin($bdd, $_SESSION["email"])) {
-                            // lance une fonction qui ajoute 2 boutons : modification et suppression 
-                            ?>
-                            <div class="right-section">
-                                <div class="box">
+                            if ($page_admin == true) {
+                                // Si on est admin ET qu'on est sur une page admin
+                                // ajoute 2 boutons : modification et suppression 
+                                ?>
                                     <button class="btn btnBlanc"  
-                                        onclick="event.stopPropagation(); location.href='page_modifier_experience.php'">
+                                        onclick="event.stopPropagation(); location.href='page_modification_experience.php'">
                                         Modifier</button>
                                     <a href="page_admin_experiences.php?action=supprimer&id=<?php echo $id_experience; ?>"
                                         class="btn btnRouge"
                                         onclick="event.stopPropagation();">
                                         Supprimer</a>
-                                </div>
-                            </div>
+                            <?php } ?>
                         <?php } ?>
                     </div>
                     </div>
@@ -1027,6 +1025,12 @@ function supprimer_experience($bdd, $id_experience) {
 function supprimer_utilisateur($bdd, $id_user) {
     $stmt = $bdd->prepare("DELETE FROM compte WHERE ID_compte = ?");
     $stmt->execute([$id_user]);
+}
+
+// =======================  Suppression d'un utilisateur à partir de son identifiant =======================
+function supprimer_projet($bdd, $id_projet) {
+    $stmt = $bdd->prepare("DELETE FROM projet WHERE ID_projet = ?");
+    $stmt->execute([$id_projet]);
 }
 
 // =======================  Acceptation de l'inscription d'un utilisateur =======================
@@ -1425,7 +1429,7 @@ function maj_bdd_experience(PDO $bdd): void {
 
 // =======================  Fonction d'affichage des projets =======================
 
-function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle = 1, int $items_par_page = 6): void {
+function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle = 1, int $items_par_page = 6, bool $page_admin = false): void {
     $debut = ($page_actuelle - 1) * $items_par_page;
     $projets_page = array_slice($projets, $debut, $items_par_page);
     
@@ -1433,9 +1437,8 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
     <div class="liste">
         <?php if (empty($projets_page)): ?>
             <p class="no-projects">Aucun projet en cours</p>
-        <?php else: ?>
-            <?php foreach ($projets_page as $p): ?>
-                <?php 
+        <?php else: 
+            foreach ($projets_page as $p):
                 $id = htmlspecialchars($p['ID_projet']);
                 $progression = progression_projet($bdd, $id);
                 $nom = htmlspecialchars($p['Nom']);
@@ -1447,15 +1450,30 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
                 $role = $p['Statut'];
                 ?>
                 
-                <a class='projet-card' href='page_projet.php?id_projet=<?= $id ?>'>
-                    <h3><?= $nom ?></h3>
-                    <p><?= $desc ?></p>
-                    
-                    <?php echo afficher_barre_progression($progression['finies'], $progression['total']); ?>
-                    
-                    <p><strong>Date de création :</strong> <?= $date ?></p>
-                    <p><strong>Rôle :</strong> <?= $role ?></p>
-                </a>
+                <div class='projet-card' onclick="location.href='page_projet.php?id_projet=<?= $id ?>'">
+                        <h3><?= $nom ?></h3>
+                        <p><?= $desc ?></p>
+                        
+                        <?php echo afficher_barre_progression($progression['finies'], $progression['total']); ?>
+                    <div class="projet-details">
+                        <p><strong>Date de création :</strong> <?= $date ?></p>
+                        <p><strong>Rôle :</strong> <?= $role ?></p>
+                        <?php if (est_admin($bdd, $_SESSION["email"])) {
+                            if ($page_admin == true) {
+                                // Si on est admin ET qu'on est sur une page admin
+                                // ajoute 2 boutons : modification et suppression 
+                                ?>
+                                    <button class="btn btnBlanc"  
+                                        onclick="event.stopPropagation(); location.href='page_modification_projet.php'">
+                                        Modifier</button>
+                                    <a href="page_admin_projets.php?action=supprimer&id=<?php echo $id; ?>"
+                                        class="btn btnRouge"
+                                        onclick="event.stopPropagation();">
+                                        Supprimer</a>
+                            <?php } ?>
+                        <?php } ?>
+                    </div>
+                </div>
             <?php endforeach; ?>
         <?php endif; ?>
     </div>

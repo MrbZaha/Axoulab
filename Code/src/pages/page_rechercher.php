@@ -16,7 +16,7 @@ function afficher_projets_experiences_pagines(array $items, int $page_actuelle =
 
     <div class="liste">
         <?php if (empty($items_page)): ?>
-            <p class="no-items">Aucun projet ou expérience à afficher</p>
+            <p class="no-items">Aucun projet ni aucune expérience à afficher</p>
 
         <?php else: ?>
             <?php foreach ($items_page as $item): ?>
@@ -58,7 +58,7 @@ function afficher_projets_experiences_pagines(array $items, int $page_actuelle =
                     $heure_debut = htmlspecialchars($item['Heure_debut']);
                     $heure_fin = htmlspecialchars($item['Heure_fin']);
                     $salle = htmlspecialchars($item['Salle'] ?? 'Non définie');
-                    $nom_projet = htmlspecialchars($item['Nom'] ?? 'Sans projet');
+                    $nom_projet = htmlspecialchars($item['Nom_projet'] ?? 'Sans projet');
                     $id_projet = htmlspecialchars($item['ID_projet']);
                     ?>
 

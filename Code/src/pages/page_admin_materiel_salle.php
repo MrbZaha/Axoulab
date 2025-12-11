@@ -93,7 +93,7 @@ function modifier_materiel($bdd, $id){
 }
 
 
-// =======================  Fonction pour récupérer l'ensemble des utilisateurs =======================
+// =======================  Fonction pour récupérer l'ensemble du matériel =======================
 function get_materiel($bdd) {
     $sql_materiel = "
         SELECT ID_materiel,
@@ -108,7 +108,7 @@ function get_materiel($bdd) {
     return $materiel;   
 }
 
-// =======================  Fonction pour afficher l'ensemble des utilisateurs =======================
+// =======================  Fonction pour afficher l'ensemble du matériel =======================
 function afficher_materiel_pagines($materiel, $page_actuelle, $items_par_page, $bdd) {
     // On récupère l'indice de la première expérience qui sera affichée
     $debut = ($page_actuelle - 1) * $items_par_page;
@@ -122,8 +122,8 @@ function afficher_materiel_pagines($materiel, $page_actuelle, $items_par_page, $
     <table class="whole_table">
         <thead class="tablehead">
             <tr>
-                <th>Matériel</th>
                 <th>Salle</th>
+                <th>Matériel</th>
                 <th>Modifier</th>
                 <th>Supprimer</th>
             </tr>
@@ -176,7 +176,7 @@ function afficher_materiel_pagines($materiel, $page_actuelle, $items_par_page, $
     <head>
         <meta charset= "utf-8"/>
         <link rel="stylesheet" href="../css/page_mes_experiences.css"> <!-- Utilisé pour l'affichage des titres -->
-        <link rel="stylesheet" href="../css/page_admin_utilisateurs.css"> <!-- Utilisé pour l'affichage du matérie-->
+        <link rel="stylesheet" href="../css/page_admin_utilisateurs.css"> <!-- Utilisé pour l'affichage du matériel-->
 
         <link rel="stylesheet" href="../css/admin.css">
         <link rel="stylesheet" href="../css/Bandeau_haut.css">
@@ -208,7 +208,7 @@ function afficher_materiel_pagines($materiel, $page_actuelle, $items_par_page, $
     <div class="back_square">
     <!-- Affichage des expériences une à une-->
         <section class="section-experiences">
-            <h2>Utilisateurs (<?= count($materiel) ?>)</h2>  <!--Titre affichant le nombre de matériel disponible-->
+            <h2>Matériel (<?= count($materiel) ?>)</h2>  <!--Titre affichant le nombre de matériel disponible-->
             <?php afficher_materiel_pagines($materiel, $page, $items_par_page, $bdd); ?>
             <?php afficher_pagination($page, $total_pages); ?>
         </section>
