@@ -148,39 +148,6 @@ function get_info_experience(PDO $bdd, int $id_experience): ?array {
     return $experience ?: null;
 }
 
-/**
- * Récupère la liste des expérimentateurs assignés à une expérience.
- *
- * Cette fonction recherche tous les comptes liés à l'expérience via la table
- * de liaison experience_experimentateur, puis formate les résultats sous forme
- * de chaînes "Prénom Nom". La liste est triée alphabétiquement par nom puis prénom.
- *
- * @param PDO $bdd Connexion PDO à la base de données
- * @param int $id_experience ID de l'expérience dont on souhaite les expérimentateurs
- *
- * @return array Tableau de chaînes de caractères au format "Prénom Nom".
- *               Exemple : ["Jean Dupont", "Marie Martin"]
- *               Retourne un tableau vide si aucun expérimentateur n'est assigné
- */
-function get_experimentateurs(PDO $bdd, int $id_experience): array {
-    $sql = "
-        SELECT c.Prenom, c.Nom
-        FROM experience_experimentateur ee
-        JOIN compte c ON ee.ID_compte = c.ID_compte
-        WHERE ee.ID_experience = :id_experience
-        ORDER BY c.Nom, c.Prenom
-    ";
-    
-    $stmt = $bdd->prepare($sql);
-    $stmt->execute(['id_experience' => $id_experience]);
-    
-    $experimentateurs = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $experimentateurs[] = $row['Prenom'] . ' ' . $row['Nom'];
-    }
-    
-    return $experimentateurs;
-}
 
 /**
  * Récupère les salles et le matériel utilisés pour une expérience.
@@ -285,7 +252,20 @@ function afficher_experience(array $experience, array $experimentateurs, array $
             
             <div class="project-container">
                 <div class="project-main">
-                    
+                    <?php
+                    global $bdd;
+                    $canModify = false;
+                    if (isset($_SESSION['ID_compte']) && isset($experience['ID_experience'])) {
+                        $canModify = verifier_acces_experience($bdd, $_SESSION['ID_compte'], $experience['ID_experience']) === 'modification';
+                    }
+                    ?>
+                    <?php if ($canModify): ?>
+                        <div class="actions-experience">
+                            <form action="page_modification_experience.php?id_experience=<?= $experience['ID_experience'] ?>" method="post">
+                                <input type="submit" value="Modifier l'expérience" />
+                            </form>
+                        </div>
+                    <?php endif; ?>
                     <!-- Description -->
                     <div class="project-description">
                         <h3>Description</h3>
@@ -333,7 +313,7 @@ function afficher_experience(array $experience, array $experimentateurs, array $
                         <?php endif; ?>
                     </div>
                 </div>
-                
+
                 <!-- Matériel utilisé -->
                 <?php if (!empty($materiels)): ?>
                     <div class="section-projets" style="margin-top: 30px;">

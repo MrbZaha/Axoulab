@@ -18,7 +18,7 @@ if ($id_projet === 0) {
  * Vérifie si l'utilisateur a le droit d'accéder au projet.
  *
  * Un projet est accessible si :
- *  - l'utilisateur est un administrateur (Etat = 2)
+ *  - l'utilisateur est un administrateur (Etat = 3)
  *  - OU le projet n'est PAS confidentiel
  *  - OU l'utilisateur est gestionnaire du projet (Statut = 1)
  *
@@ -29,52 +29,33 @@ if ($id_projet === 0) {
  */
 function verifier_confidentialite(PDO $bdd, int $id_compte, int $id_projet): bool {
     // Vérifier si l'utilisateur est admin
-    $sql_admin = "
-        SELECT Etat
-        FROM compte
-        WHERE ID_compte = :id_compte
-    ";
+    $stmt_admin = $bdd->prepare("SELECT Etat FROM compte WHERE ID_compte = ?");
+    $stmt_admin->execute([$id_compte]);
+    $etat = $stmt_admin->fetchColumn();
+    if ((int)$etat === 3) return true; // Admin
 
-    $stmt_admin = $bdd->prepare($sql_admin);
-    $stmt_admin->execute(['id_compte' => $id_compte]);
-    $result_admin = $stmt_admin->fetch(PDO::FETCH_ASSOC);
-
-    // Si admin (Etat = 3), accès total
-    if ($result_admin && (int)$result_admin['Etat'] === 3) {
-        return true;
-    }
-
-    // Sinon, vérifier les droits normaux
-    $sql = "
-        SELECT 
-            p.Confidentiel,
-            pcg.Statut
+    // Vérifier projet et droits
+    $stmt = $bdd->prepare("
+        SELECT p.Confidentiel, pcg.Statut
         FROM projet p
         LEFT JOIN projet_collaborateur_gestionnaire pcg
-            ON p.ID_projet = pcg.ID_projet AND pcg.ID_compte = :id_compte
-        WHERE p.ID_projet = :id_projet
-    ";
-
-    $stmt = $bdd->prepare($sql);
-    $stmt->execute([
-        'id_compte' => $id_compte,
-        'id_projet' => $id_projet
-    ]);
-
+            ON p.ID_projet = pcg.ID_projet AND pcg.ID_compte = ?
+        WHERE p.ID_projet = ?
+    ");
+    $stmt->execute([$id_compte, $id_projet]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$result) {
-        return false;
-    }
+    if (!$result) return false; // Projet inexistant
 
-    // Projet NON confidentiel → accessible à tout le monde
-    if ((int)$result['Confidentiel'] === 0) {
-        return true;
-    }
+    // Projet non confidentiel → tout le monde peut accéder
+    if ((int)$result['Confidentiel'] === 0) return true;
 
-    // Projet confidentiel → accessible UNIQUEMENT aux gestionnaires
-    return isset($result['Statut']) && (int)$result['Statut'] === 1;
+    // Projet confidentiel → accès seulement si Statut = 0 (collab) ou 1 (gest.)
+    if (!isset($result['Statut'])) return false; // Non trouvé → pas d'accès
+    $statut = (int)$result['Statut'];
+    return in_array($statut, [0, 1], true);
 }
+
 
 /**
  * Récupère les information d'un projet
