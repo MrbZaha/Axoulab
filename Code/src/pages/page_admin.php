@@ -17,7 +17,6 @@ else {
     layout_erreur();
 }
 
-
 ?>
 
 <!DOCTYPE html>
