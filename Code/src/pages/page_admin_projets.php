@@ -5,6 +5,8 @@ session_start();
 
 $bdd = connectBDD();
 
+$page_admin = true;  // On déclare qu'on est sur une page admin pour les fonctions qui le nécessite
+
 ///////////////////////////////////////////////////////////////////////////////
 #On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
 verification_connexion($bdd);
@@ -18,9 +20,8 @@ if (est_admin($bdd, $_SESSION["email"])){
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-# Debug
-//On récupère l'ensemble des expériences
-$projets = get_mes_experiences_complets($bdd); 
+//On récupère l'ensemble des projets
+$projets = get_all_projet($bdd, $_SESSION["ID_compte"]); 
 
 // Réindexation des tableaux
 $projets = array_values($projets);
@@ -35,7 +36,7 @@ $total_pages = create_page($projets, $items_par_page);
 if ($page > $total_pages) $page = $total_pages;
 
 ///////////////////////////////////////////////////////////////////////////////
-// Dans le cas où l'on cherche à supprimer une expérience
+// Dans le cas où l'on cherche à supprimer un projet
 // Si une action GET est reçue
 if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
     if (isset($_GET['id'])) {
@@ -43,7 +44,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
         supprimer_projet($bdd, $id_projet);
 
         // On recharge la page proprement (pour empêcher de supprimer deux fois)
-        header("Location: page_admin_experiences.php?suppression=ok");
+        header("Location: page_admin_projets.php?suppression=ok");
         exit;
     }
 }
@@ -55,7 +56,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
 <html lang="en">
     <head>
         <meta charset= "utf-8"/>
-        <link rel="stylesheet" href="../css/page_mes_experiences.css"> <!-- Utilisé pour l'affichage des projets-->
+
+        <link rel="stylesheet" href="../css/page_mes_projets.css"> <!-- Utilisé pour l'affichage des projets-->
         <link rel="stylesheet" href="../css/admin.css">
         <link rel="stylesheet" href="../css/Bandeau_haut.css">
         <link rel="stylesheet" href="../css/Bandeau_bas.css">
@@ -63,7 +65,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
 
         <!-- Permet d'afficher la loupe pour le bandeau de recherche -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-        <title> Expériences </title>
+        <title> Projets </title>
 
     </head>
     <body>
@@ -77,14 +79,13 @@ if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
         <p> <?php echo "Projets"; ?></p>
     </div> 
 
-
     <!-- Crée un grand div qui aura des bords arrondis et sera un peu gris-->
     <div class="back_square">
-    <!-- Affichage des expériences une à une-->
-        <section class="section-experiences">
+    <!-- Affichage des projets un à un-->
+        <section class="section-projets">
             <!-- Debug -->
             <h2>Projet(s) (<?= count($projets) ?>)</h2>  <!--Titre affichant le nombre d'expérience-->
-            <?php afficher_projets_pagines($projets, $page, $items_par_page); ?>
+            <?php afficher_projets_pagines($bdd, $projets, $page, $items_par_page, $page_admin); ?>
             <?php afficher_pagination($page, $total_pages); ?>
         </section>
         <!-- À l'intérieur, avec aspect spécifique et boutons -->

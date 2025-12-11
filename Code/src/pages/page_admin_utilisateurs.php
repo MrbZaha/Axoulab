@@ -199,7 +199,7 @@ function afficher_utilisateurs_pagines($utilisateurs, $page_actuelle, $items_par
                         Validé(e)
                     <?php endif; ?>
                 </td>
-
+                <!-- Affichage du bouton de modification -->
                 <td>
                     <input type="hidden" name="action" value="modifier">
                     <input type="hidden" name="id" value="<?= $id ?>">
@@ -235,7 +235,7 @@ function afficher_utilisateurs_pagines($utilisateurs, $page_actuelle, $items_par
     <head>
         <meta charset= "utf-8"/>
         <link rel="stylesheet" href="../css/page_mes_experiences.css"> <!-- Utilisé pour l'affichage des utilisateurs -->
-        <link rel="stylesheet" href="../css/page_admin_utilisateurs.css"> <!-- Utilisé pour l'affichage des exp-->
+        <link rel="stylesheet" href="../css/page_admin_utilisateurs_materiel.css"> <!-- Utilisé pour l'affichage des exp-->
 
         <link rel="stylesheet" href="../css/admin.css">
         <link rel="stylesheet" href="../css/Bandeau_haut.css">
