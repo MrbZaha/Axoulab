@@ -134,7 +134,7 @@ function get_collaborateurs(PDO $bdd, int $id_projet): array {
         SELECT c.Nom, c.Prenom
         FROM projet_collaborateur_gestionnaire pcg
         JOIN compte c ON pcg.ID_compte = c.ID_compte
-        WHERE pcg.ID_projet = :id_projet AND pcg.Statut = 2
+        WHERE pcg.ID_projet = :id_projet AND pcg.Statut = 0
     ";
     
     $stmt = $bdd->prepare($sql);
