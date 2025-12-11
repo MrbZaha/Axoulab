@@ -109,10 +109,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         $update->execute([$nouvelEtat, $idNotif]);
 
         // --- Validation expérience par gestionnaire ---
-        if (!$isProjet && $typeNotif == 1 && $nouvelEtat == 1) {
+        if (!$isProjet && $typeNotif == 1) {
             if ($idExperience) {
-                $updateExp = $bdd->prepare("UPDATE experience SET Validation = 1, Date_de_modification = NOW() WHERE ID_experience = ?");
-                $updateExp->execute([$idExperience]);
+                // Ne mettre à jour que si c'est validé (1) ou refusé (2)
+                if (in_array($nouvelEtat, [1, 2])) {
+                    $updateExp = $bdd->prepare("
+                        UPDATE experience 
+                        SET Validation = ?, Date_de_modification = NOW() 
+                        WHERE ID_experience = ?
+                    ");
+                    $updateExp->execute([$nouvelEtat, $idExperience]);
+                }
+                // Si c'est 0 (en attente), ne rien faire
             }
         }
 
@@ -396,7 +404,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 // =======================  VÉRIFIER SI ADMIN =======================
 /* Vérifie si un compte est administrateur
    Retourne true si l'utilisateur est admin, false sinon */
-function est_admin($bdd, $email) {
+function est_admin(PDO $bdd, $email) {
     $stmt = $bdd->prepare("SELECT etat FROM compte WHERE email = ?");
     $stmt->execute([$email]);
     if ($stmt->rowCount() > 0) {
@@ -572,50 +580,66 @@ function afficher_Bandeau_Bas() {
 // =======================  Récupération de l'ensemble des expériences =======================
 function get_mes_experiences_complets(PDO $bdd, ?int $id_compte = null): array {
 
-    // --- 1. Requête principale
-    $sql_experiences = "
-        SELECT 
-            e.ID_experience, 
-            e.Nom, 
-            e.Validation, 
-            e.Description, 
-            e.Date_reservation,
-            e.Heure_debut,
-            e.Heure_fin,
-            e.Resultat,
-            e.Statut_experience,
-            e.Date_de_creation,
-            e.Date_de_modification,
-            s.Nom_Salle,
-            p.Nom_projet,
-            p.ID_projet
-        FROM experience e
-        LEFT JOIN projet_experience pe
-            ON pe.ID_experience = e.ID_experience
-        LEFT JOIN projet p
-            ON p.ID_projet = pe.ID_projet
-        LEFT JOIN materiel_experience se
-            ON e.ID_experience = se.ID_experience
-        LEFT JOIN salle_materiel s
-            ON se.ID_materiel = s.ID_materiel
-        INNER JOIN experience_experimentateur ee
-            ON e.ID_experience = ee.ID_experience
-    ";
+// --- 1. Requête principale
+$sql_experiences = "
+    SELECT DISTINCT
+        e.ID_experience, 
+        e.Nom, 
+        e.Validation, 
+        e.Description, 
+        e.Date_reservation,
+        e.Heure_debut,
+        e.Heure_fin,
+        e.Resultat,
+        e.Statut_experience,
+        e.Date_de_creation,
+        e.Date_de_modification,
 
-    if ($id_compte !== null) {
-        $sql_experiences .= " WHERE ee.ID_compte = :id_compte";
-        $stmt = $bdd->prepare($sql_experiences);
-        $stmt->execute(['id_compte' => $id_compte]);
-    } else {
-        $stmt = $bdd->prepare($sql_experiences);
-        $stmt->execute();
-    }
+        GROUP_CONCAT(DISTINCT s.Nom_Salle SEPARATOR ', ') AS Nom_Salle,
+        GROUP_CONCAT(DISTINCT p.Nom_projet SEPARATOR ', ') AS Nom_projet,
+        GROUP_CONCAT(DISTINCT p.ID_projet SEPARATOR ',') AS ID_projet
 
-    $experiences = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    FROM experience e
+    LEFT JOIN projet_experience pe
+        ON pe.ID_experience = e.ID_experience
+    LEFT JOIN projet p
+        ON p.ID_projet = pe.ID_projet
+    LEFT JOIN materiel_experience se
+        ON e.ID_experience = se.ID_experience
+    LEFT JOIN salle_materiel s
+        ON se.ID_materiel = s.ID_materiel
+    LEFT JOIN experience_experimentateur ee
+        ON e.ID_experience = ee.ID_experience
+";
 
-    if (empty($experiences)) {
-        return [];
-    }
+// Si un ID compte est fourni -> on veut les expériences où l'utilisateur
+// est expérimentateur OU liées à un projet dont il est gestionnaire/collaborateur
+if ($id_compte !== null) {
+    $sql_experiences .= " WHERE (ee.ID_compte = :id_compte
+        OR EXISTS (
+            SELECT 1 FROM projet_experience pe2
+            JOIN projet_collaborateur_gestionnaire pcg ON pcg.ID_projet = pe2.ID_projet
+            WHERE pe2.ID_experience = e.ID_experience AND pcg.ID_compte = :id_compte
+        )
+    )";
+}
+
+// IMPORTANT : Groupement pour supprimer les doublons
+$sql_experiences .= " GROUP BY e.ID_experience";
+
+$stmt = $bdd->prepare($sql_experiences);
+
+if ($id_compte !== null) {
+    $stmt->execute(['id_compte' => $id_compte]);
+} else {
+    $stmt->execute();
+}
+
+$experiences = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+if (empty($experiences)) {
+    return [];
+}
 
     // --- 2. Récupérer tous les IDs d'expérience
     $ids_exp = array_column($experiences, 'ID_experience');
@@ -645,10 +669,8 @@ function get_mes_experiences_complets(PDO $bdd, ?int $id_compte = null): array {
     // --- 5. Ajouter les expérimentateurs et progression
     foreach ($experiences as &$exp) {
         $exp['Experimentateurs'] = $experimentateurs[$exp['ID_experience']] ?? [];
-        
-
+    }
     return $experiences;
-}
 }
 
 
@@ -728,10 +750,11 @@ function create_page(array $items, int $items_par_page = 6): int {
 
 // =======================  affichage des expériences sur plusieurs pages =======================
 function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1, int $items_par_page = 6): void {
+    // utiliser la connexion globale à la BDD si disponible
+    global $bdd;
     // On récupère l'indice de la première expérience qui sera affichée
     $debut = ($page_actuelle - 1) * $items_par_page;
     $experiences_page = array_slice($experiences, $debut, $items_par_page);
-    $bdd = connectBDD();
     
     ?>
     <div class="liste">
@@ -786,30 +809,27 @@ function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1
     <?php
 }
 
-function afficher_pagination(int $page_actuelle, int $total_pages, string $type = 'a_venir'): void {
+function afficher_pagination(int $page_actuelle, int $total_pages): void {
     if ($total_pages <= 1) return;
     
     // Préserver l'autre paramètre de page dans l'URL
-    # Debug :  Ces 2 lignes changeront probablement car ne fonctionnent pas avec la page admin
-    $autre_type = ($type === 'a_venir') ? 'terminees' : 'a_venir';
-    $autre_page = isset($_GET["page_$autre_type"]) ? (int)$_GET["page_$autre_type"] : 1;
     
     ?>
     <div class="pagination">
         <?php if ($page_actuelle > 1): ?>
-            <a href="?page_<?= $type ?>=<?= $page_actuelle - 1 ?>&page_<?= $autre_type ?>=<?= $autre_page ?>" class="page-btn">« Précédent</a>
+            <a href="?page=<?= $page_actuelle - 1 ?>" class="page-btn">« Précédent</a>
         <?php endif;
         
         for ($i = 1; $i <= $total_pages; $i++):
             if ($i == $page_actuelle): ?>
                 <span class="page-btn active"><?= $i ?></span>
             <?php else: ?>
-                <a href="?page_<?= $type ?>=<?= $i ?>&page_<?= $autre_type ?>=<?= $autre_page ?>" class="page-btn"><?= $i ?></a>
+                <a href="?page=<?= $i ?>" class="page-btn"><?= $i ?></a>
             <?php endif; 
         endfor;
         
         if ($page_actuelle < $total_pages): ?>
-            <a href="?page_<?= $type ?>=<?= $page_actuelle + 1 ?>&page_<?= $autre_type ?>=<?= $autre_page ?>" class="page-btn">Suivant »</a>
+            <a href="?page=<?= $page_actuelle + 1 ?>" class="page-btn">Suivant »</a>
         <?php endif; ?>
     </div>
     <?php
@@ -1027,8 +1047,6 @@ function accepter_utilisateur($bdd, $id_user) {
 
 
 // =======================  Fonction de tri des projets et/ou expériences =======================
-
-
 function filtrer_trier_pro_exp(PDO $bdd, 
     int $id_compte,
     array $types = ['projet','experience'], // types à inclure
@@ -1336,6 +1354,84 @@ function afficher_barre_progression(int $finies, int $total): string {
     return $html;
 }
 
+/**
+ * Modifie le statut d'une expérience.
+ *
+ * @param PDO $bdd Connexion à la base de données
+ * @param int $id ID de l'expérience
+ * @param int $value Nouveau statut (0 = pas commencée, 1 = en cours, 2 = terminée)
+ * @return void
+ */
+function modifie_value_exp(PDO $bdd, int $id, int $value): void {
+    $sql_maj_bdd = "
+        UPDATE experience
+        SET Statut_experience = :Statut_experience
+        WHERE ID_experience = :id
+    ";
+
+    $stmt = $bdd->prepare($sql_maj_bdd);
+    $stmt->execute([
+        ':Statut_experience' => $value,
+        ':id' => $id
+    ]);
+}
+
+/**
+ * Met à jour automatiquement le statut des expériences en fonction de la date/heure actuelle.
+ * 
+ * Statuts :
+ * - 0 : Expérience pas encore commencée (avant Heure_debut)
+ * - 1 : Expérience en cours (entre Heure_debut et Heure_fin)
+ * - 2 : Expérience terminée (après Heure_fin)
+ *
+ * @param PDO $bdd Connexion à la base de données
+ * @return void
+ */
+function maj_bdd_experience(PDO $bdd): void {
+    $now = new DateTime();
+    $now_datetime = new DateTime($now->format('Y-m-d H:i'));
+
+    // Sélection de toutes les expériences (sauf celles déjà terminées si vous voulez optimiser)
+    $sql = "
+        SELECT 
+            ID_experience, 
+            Date_reservation, 
+            Heure_debut,
+            Heure_fin, 
+            Statut_experience
+        FROM experience
+        WHERE Statut_experience IN (0, 1)
+    ";
+    $stmt = $bdd->prepare($sql);
+    $stmt->execute();
+    $experiences = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($experiences as $exp) {
+        // Création des DateTime pour le début et la fin de l'expérience
+        $exp_datetime_debut = new DateTime($exp['Date_reservation'] . ' ' . $exp['Heure_debut']);
+        $exp_datetime_fin = new DateTime($exp['Date_reservation'] . ' ' . $exp['Heure_fin']);
+
+        $nouveau_statut = null;
+
+        // Déterminer le nouveau statut
+        if ($now_datetime < $exp_datetime_debut) {
+            // L'expérience n'a pas encore commencé
+            $nouveau_statut = 0;
+        } elseif ($now_datetime >= $exp_datetime_debut && $now_datetime <= $exp_datetime_fin) {
+            // L'expérience est en cours
+            $nouveau_statut = 1;
+        } elseif ($now_datetime > $exp_datetime_fin) {
+            // L'expérience est terminée
+            $nouveau_statut = 2;
+        }
+
+        // Mettre à jour uniquement si le statut a changé
+        if ($nouveau_statut !== null && (int)$exp['Statut_experience'] !== $nouveau_statut) {
+            modifie_value_exp($bdd, $exp['ID_experience'], $nouveau_statut);
+        }
+    }
+}
+
 // =======================  Fonction d'affichage des projets =======================
 
 function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle = 1, int $items_par_page = 6): void {
@@ -1373,81 +1469,6 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
         <?php endif; ?>
     </div>
     <?php
-}
-
-/**
- 
-*Modifie le statut d'une expérience.*
-*@param PDO $bdd Connexion à la base de données
-*@param int $id ID de l'expérience
-*@param int $value Nouveau statut (0 = pas commencée, 1 = en cours, 2 = terminée)
-*@return void*/
-function modifie_value_exp(PDO $bdd, int $id, int $value): void {
-    $sql_maj_bdd = "
-        UPDATE experience
-        SET Statut_experience = :Statut_experience
-        WHERE ID_experience = :id
-    ";
-
-    $stmt = $bdd->prepare($sql_maj_bdd);
-    $stmt->execute([
-        ':Statut_experience' => $value,
-        ':id' => $id
-    ]);
-}
-/**
- 
-*Met à jour automatiquement le statut des expériences en fonction de la date/heure actuelle.
-*Statuts :
-*0 : Expérience pas encore commencée (avant Heure_debut)
-*1 : Expérience en cours (entre Heure_debut et Heure_fin)
-*2 : Expérience terminée (après Heure_fin)
-*
-*@param PDO $bdd Connexion à la base de données
-*@return void*/
-function maj_bdd_experience(PDO $bdd): void {
-    $now = new DateTime();
-    $now_datetime = new DateTime($now->format('Y-m-d H:i'));
-
-    // Sélection de toutes les expériences (sauf celles déjà terminées si vous voulez optimiser)
-    $sql = "
-        SELECT 
-            ID_experience, 
-            Date_reservation, 
-            Heure_debut,
-            Heure_fin, 
-            Statut_experience
-        FROM experience
-        WHERE Statut_experience IN (0, 1)
-    ";
-$stmt = $bdd->prepare($sql);
-    $stmt->execute();
-    $experiences = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    foreach ($experiences as $exp) {
-        // Création des DateTime pour le début et la fin de l'expérience
-        $exp_datetime_debut = new DateTime($exp['Date_reservation'] . ' ' . $exp['Heure_debut']);
-        $exp_datetime_fin = new DateTime($exp['Date_reservation'] . ' ' . $exp['Heure_fin']);
-
-        $nouveau_statut = null;
-
-        // Déterminer le nouveau statut
-        if ($now_datetime < $exp_datetime_debut) {
-            // L'expérience n'a pas encore commencé
-            $nouveau_statut = 0;
-        } elseif ($now_datetime >= $exp_datetime_debut && $now_datetime <= $exp_datetime_fin) {
-            // L'expérience est en cours
-            $nouveau_statut = 1;
-        } elseif ($now_datetime > $exp_datetime_fin) {
-            // L'expérience est terminée
-            $nouveau_statut = 2;
-        }
-
-        // Mettre à jour uniquement si le statut a changé
-        if ($nouveau_statut !== null && (int)$exp['Statut_experience'] !== $nouveau_statut) {
-            modifie_value_exp($bdd, $exp['ID_experience'], $nouveau_statut);
-        }
-    }
 }
 
 ?>

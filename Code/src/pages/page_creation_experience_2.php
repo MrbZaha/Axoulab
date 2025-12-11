@@ -2,7 +2,6 @@
 require_once __DIR__ . '/../back_php/fonctions_site_web.php';
 require_once __DIR__ . '/../back_php/fonction_page/fonction_page_creation_experience_2.php';
 
-
 $message = "";
 $nom_experience = "";
 $description = "";
@@ -11,26 +10,36 @@ $materiels_selectionnes = [];
 $id_projet = null;
 $creneau_selectionne = null;
 
+// Récupération de l'ID du projet depuis POST OU GET
+if (isset($_POST['id_projet']) && !empty($_POST['id_projet'])) {
+    $id_projet = intval($_POST['id_projet']);
+} elseif (isset($_GET['id_projet']) && !empty($_GET['id_projet'])) {
+    $id_projet = intval($_GET['id_projet']);
+}
+
 // Récupération des données de la page 1
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['id_projet']) && !empty($_POST['id_projet'])) {
-        $id_projet = intval($_POST['id_projet']);
-    }
-    
+    // Si on vient de la page 1 ou qu'on envoie de nouvelles données
     if (isset($_POST['nom_experience'])) {
         $nom_experience = $_POST['nom_experience'];
+        $_SESSION['creation_experience']['nom_experience'] = $nom_experience;
     }
     
     if (isset($_POST['description'])) {
         $description = $_POST['description'];
+        $_SESSION['creation_experience']['description'] = $description;
     }
     
     if (isset($_POST['experimentateurs_ids'])) {
         $experimentateurs_ids = array_filter(array_map('intval', explode(',', $_POST['experimentateurs_ids'])));
+        $_SESSION['creation_experience']['experimentateurs_ids'] = $experimentateurs_ids;
     }
     
     if (isset($_POST['materiels_selectionnes'])) {
         $materiels_selectionnes = array_filter(array_map('intval', explode(',', $_POST['materiels_selectionnes'])));
+        $_SESSION['creation_experience']['materiels_selectionnes'] = $materiels_selectionnes;
+    } elseif (isset($_SESSION['creation_experience']['materiels_selectionnes'])) {
+        $materiels_selectionnes = $_SESSION['creation_experience']['materiels_selectionnes'];
     }
     
     if (isset($_POST['date_reservation']) && isset($_POST['heure_debut']) && isset($_POST['heure_fin'])) {
@@ -39,6 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'heure_debut' => $_POST['heure_debut'],
             'heure_fin' => $_POST['heure_fin']
         ];
+        $_SESSION['creation_experience']['creneau_selectionne'] = $creneau_selectionne;
+    } elseif (isset($_SESSION['creation_experience']['creneau_selectionne'])) {
+        $creneau_selectionne = $_SESSION['creation_experience']['creneau_selectionne'];
     }
     
     // Gérer les actions d'ajout/retrait de matériel et sélection créneau
@@ -51,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $id_materiel = recuperer_id_materiel_par_nom($bdd, $nom_materiel, $nom_salle);
                     if ($id_materiel && !in_array($id_materiel, $materiels_selectionnes)) {
                         $materiels_selectionnes[] = $id_materiel;
+                        $_SESSION['creation_experience']['materiels_selectionnes'] = $materiels_selectionnes;
                     }
                 }
                 break;
@@ -60,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $id_a_retirer = intval($_POST['id_retirer']);
                     $materiels_selectionnes = array_diff($materiels_selectionnes, [$id_a_retirer]);
                     $materiels_selectionnes = array_values($materiels_selectionnes);
+                    $_SESSION['creation_experience']['materiels_selectionnes'] = $materiels_selectionnes;
                 }
                 break;
                 
@@ -72,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'heure_debut' => sprintf('%02d:00', $heure),
                         'heure_fin' => sprintf('%02d:00', $heure + 1)
                     ];
+                    $_SESSION['creation_experience']['creneau_selectionne'] = $creneau_selectionne;
                 }
                 break;
         }
@@ -115,8 +130,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message .= "</div>";
             } else {
                 try {
+                    $date_creation = (new DateTime())->format('Y-m-d');
+                    
                     // Créer l'expérience
-                    $id_experience = creer_experience($bdd, $nom_experience, $description, $date_reservation,$date_creation, $heure_debut, $heure_fin, $nom_salle);
+                    $id_experience = creer_experience($bdd, $validation, $nom_experience, $description, $date_reservation, $date_creation, $heure_debut, $heure_fin, $nom_salle);
 
                     if ($id_experience) {
                         // Associer au projet
@@ -153,6 +170,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             envoyerNotification($bdd, 1, $_SESSION['ID_compte'], $donnees, $destinataires);
                         }
 
+                        // Nettoyer la session
+                        unset($_SESSION['creation_experience']);
+
                         // Redirection
                         header("Location: page_experience.php?id_projet=" . $id_projet . "&id_experience=" . $id_experience);
                         exit();
@@ -166,14 +186,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
+} else {
+    // Si on arrive via GET (navigation), récupérer depuis la session
+    if (isset($_SESSION['creation_experience'])) {
+        $nom_experience = $_SESSION['creation_experience']['nom_experience'] ?? '';
+        $description = $_SESSION['creation_experience']['description'] ?? '';
+        $experimentateurs_ids = $_SESSION['creation_experience']['experimentateurs_ids'] ?? [];
+        $materiels_selectionnes = $_SESSION['creation_experience']['materiels_selectionnes'] ?? [];
+        $creneau_selectionne = $_SESSION['creation_experience']['creneau_selectionne'] ?? null;
+    }
 }
 
 // Vérifier si on a un ID_projet valide
 if (!$id_projet || $id_projet <= 0) {
     $message = "<p style='color:red;'>Erreur : Aucun projet sélectionné. Veuillez retourner à l'étape 1.</p>";
 }
-
-$date_creation = (new DateTime())->format('Y-m-d'); // '2025-12-10'
 
 // ======================= PLANNING =======================
 $salles = recup_salles($bdd);
@@ -237,19 +264,21 @@ $heures = range(8, 19);
         </div>
 
         <!-- Sélection de salle -->
-        <form method="get" action="" class="form-row">
-            <label for="nom_salle" style="font-weight:700;margin-right:6px">Choisir une salle :</label>
-            <select name="nom_salle" id="nom_salle" onchange="this.form.submit()" style="padding:8px 10px;border-radius:6px;border:1px solid #d0d0d0;">
-                <?php foreach ($salles as $s): ?>
-                    <option value="<?= htmlspecialchars($s['Nom_salle']) ?>" <?= ($s['Nom_salle'] === $nom_salle_selectionnee) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($s['Nom_salle']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <?php if (isset($_GET['date_ref'])): ?>
-                <input type="hidden" name="date_ref" value="<?= htmlspecialchars($_GET['date_ref']) ?>">
-            <?php endif; ?>
-        </form>
+        <!-- Sélection de salle -->
+<form method="get" action="" class="form-row">
+    <input type="hidden" name="id_projet" value="<?= $id_projet ?>">
+    <label for="nom_salle" style="font-weight:700;margin-right:6px">Choisir une salle :</label>
+    <select name="nom_salle" id="nom_salle" onchange="this.form.submit()" style="padding:8px 10px;border-radius:6px;border:1px solid #d0d0d0;">
+        <?php foreach ($salles as $s): ?>
+            <option value="<?= htmlspecialchars($s['Nom_salle']) ?>" <?= ($s['Nom_salle'] === $nom_salle_selectionnee) ? 'selected' : '' ?>>
+                <?= htmlspecialchars($s['Nom_salle']) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+    <?php if (isset($_GET['date_ref'])): ?>
+        <input type="hidden" name="date_ref" value="<?= htmlspecialchars($_GET['date_ref']) ?>">
+    <?php endif; ?>
+</form>
 
         <?php if ($nom_salle_selectionnee !== ''): ?>
             <h2>Salle : <?= htmlspecialchars($nom_salle_selectionnee) ?></h2>
@@ -262,26 +291,26 @@ $heures = range(8, 19);
         </div>
     </div>
             <div class="navigation-semaine">
-                <a href="?nom_salle=<?= urlencode($nom_salle_selectionnee) ?>&date_ref=<?= htmlspecialchars($semaine_precedente) ?>" class="btn-nav">
-                    ← Semaine précédente
-                </a>
-                
-                <span class="semaine-info">
-                    Semaine du <?= htmlspecialchars($dates_semaine[0]['date_formatee']) ?> au <?= htmlspecialchars($dates_semaine[6]['date_formatee']) ?>
-                </span>
-                
-                <a href="?nom_salle=<?= urlencode($nom_salle_selectionnee) ?>&date_ref=<?= htmlspecialchars($semaine_suivante) ?>" class="btn-nav">
-                    Semaine suivante →
-                </a>
-            </div>
+    <a href="?id_projet=<?= $id_projet ?>&nom_salle=<?= urlencode($nom_salle_selectionnee) ?>&date_ref=<?= htmlspecialchars($semaine_precedente) ?>" class="btn-nav">
+        ← Semaine précédente
+    </a>
+    
+    <span class="semaine-info">
+        Semaine du <?= htmlspecialchars($dates_semaine[0]['date_formatee']) ?> au <?= htmlspecialchars($dates_semaine[6]['date_formatee']) ?>
+    </span>
+    
+    <a href="?id_projet=<?= $id_projet ?>&nom_salle=<?= urlencode($nom_salle_selectionnee) ?>&date_ref=<?= htmlspecialchars($semaine_suivante) ?>" class="btn-nav">
+        Semaine suivante →
+    </a>
+</div>
 
-            <?php if ($date_ref !== date('Y-m-d')): ?>
-                <div style="text-align:center;margin:10px 0;">
-                    <a href="?nom_salle=<?= urlencode($nom_salle_selectionnee) ?>" class="btn-nav" style="display:inline-block;">
-                        Revenir à la semaine actuelle
-                    </a>
-                </div>
-            <?php endif; ?>
+<?php if ($date_ref !== date('Y-m-d')): ?>
+    <div style="text-align:center;margin:10px 0;">
+        <a href="?id_projet=<?= $id_projet ?>&nom_salle=<?= urlencode($nom_salle_selectionnee) ?>" class="btn-nav" style="display:inline-block;">
+            Revenir à la semaine actuelle
+        </a>
+    </div>
+<?php endif; ?>
 
             <p style="text-align:center;color:#666;margin:15px 0;">
                 Cliquez sur un créneau disponible pour le sélectionner
@@ -326,12 +355,12 @@ $planning = organiser_reservations_par_creneau($reservations, $dates_semaine, $h
                                 // N'afficher le bloc que s'il s'agit de la première heure de la réservation
                                 if ($heure_debut_res === $heure):
                                     $cls = 'couleur-' . (($i % 4) + 1);
-                        ?>
+                                    ?>
                                     <div class="reservation-continue <?= $cls ?>" 
                                          style="height: calc(<?= $duree ?> * 100%); position: absolute; top: 0; left: 0; right: 0; z-index: <?= 2 + $i ?>; border-radius: 4px; padding: 8px; cursor: pointer; transition: transform 0.2s;">
                                         <div class="reservation-content" style="font-size: 0.85em;">
-                                            <div class="experimentateur" style="font-weight: 700; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                <?= htmlspecialchars($res['experimentateurs'] ?: 'Non assigné') ?>
+                                                <div class="experimentateur" style="font-weight: 700; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                <?= htmlspecialchars($res['experimentateurs_ids'] ?? ($res['experimentateurs'] ?? 'Non assigné')) ?>
                                             </div>
                                             <div class="projet" style="font-size: 0.9em; opacity: 0.9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                                 <?= htmlspecialchars($res['Nom_projet'] ?: 'Sans projet') ?>
@@ -351,7 +380,7 @@ $planning = organiser_reservations_par_creneau($reservations, $dates_semaine, $h
                                                 </div>
                                                 <div class="overlay-row" style="margin-bottom: 8px; line-height: 1.4;">
                                                     <strong style="color: #000; display: inline-block; min-width: 130px;">Expérimentateur(s) :</strong> 
-                                                    <?= htmlspecialchars($res['experimentateurs'] ?: 'Non assigné') ?>
+                                                    <?= htmlspecialchars($res['experimentateurs_ids'] ?? ($res['experimentateurs'] ?? 'Non assigné')) ?>
                                                 </div>
                                                 <div class="overlay-row" style="margin-bottom: 8px; line-height: 1.4;">
                                                     <strong style="color: #000; display: inline-block; min-width: 130px;">Horaire :</strong> 

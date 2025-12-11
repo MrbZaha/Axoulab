@@ -19,6 +19,18 @@ else {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// On récupère la liste des utilisateurs
+$utilisateurs = array_values(get_utilisateurs($bdd));
+
+// On set la page que l'on observe
+$items_par_page = 20;
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$total_pages = create_page($utilisateurs, $items_par_page);
+
+// Vérification que la page demandée existe
+if ($page > $total_pages) $page = $total_pages;
+
+///////////////////////////////////////////////////////////////////////////////
 // Dans le cas où l'on cherche à supprimer un utilisateur
 // Si une action GET est reçue
 if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
@@ -170,7 +182,11 @@ function afficher_utilisateurs_pagines($utilisateurs, $page_actuelle, $items_par
                 </td>
                 <!-- On affiche le statut de l'utilisateur -->
                 <td>
-                    <input type="hidden" name="etat_<?= $id ?>" value="<?= get_etat($etat) ?>">
+                    <select name="etat_<?= $id ?>">
+                        <option value="1" <?= $etat == 1 ? "selected" : "" ?>>Étudiant</option>
+                        <option value="2" <?= $etat == 2 ? "selected" : "" ?>>Chercheur</option>
+                        <option value="3" <?= $etat == 3 ? "selected" : "" ?>>Administrateur</option>
+                    </select>
                 </td>
                 <!-- Affichage du bouton de validation si nécessaire -->
                 <td>
@@ -189,7 +205,7 @@ function afficher_utilisateurs_pagines($utilisateurs, $page_actuelle, $items_par
                     <input type="hidden" name="id" value="<?= $id ?>">
                     <button class="btn btnBlanc" type="submit">Modifier</button>
                 </td>
-
+                <!-- Affichage du bouton pour supprimer un compte -->
                 <td>
                     <?php if ($_SESSION['ID_compte'] != $id): ?>
                         <a class="btn btnRouge"
@@ -211,17 +227,6 @@ function afficher_utilisateurs_pagines($utilisateurs, $page_actuelle, $items_par
     <?php
 }
 
-// On récupère la liste des utilisateurs
-$utilisateurs = array_values(get_utilisateurs($bdd));
-
-// On set la page que l'on observe
-$items_par_page = 20;
-$page = isset($_GET['pages']) ? max(1, (int)$_GET['pages']) : 1;
-$total_pages = create_page($utilisateurs, $items_par_page);
-
-// Vérification que la page demandée existe
-if ($page > $total_pages) $page = $total_pages;
-
 
 ?>
 
@@ -232,7 +237,7 @@ if ($page > $total_pages) $page = $total_pages;
         <link rel="stylesheet" href="../css/page_mes_experiences.css"> <!-- Utilisé pour l'affichage des utilisateurs -->
         <link rel="stylesheet" href="../css/page_admin_utilisateurs.css"> <!-- Utilisé pour l'affichage des exp-->
 
-        <!-- <link rel="stylesheet" href="../css/admin.css"> -->
+        <link rel="stylesheet" href="../css/admin.css">
         <link rel="stylesheet" href="../css/Bandeau_haut.css">
         <link rel="stylesheet" href="../css/Bandeau_bas.css">
         <link rel="stylesheet" href="../css/boutons.css">

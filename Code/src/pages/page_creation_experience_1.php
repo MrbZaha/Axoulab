@@ -1,10 +1,15 @@
 <?php
+session_start();
 require_once __DIR__ . '/../back_php/fonctions_site_web.php';
 require_once __DIR__ . '/../back_php/fonction_page/fonction_page_creation_experience_1.php';
+
+$bdd = connectBDD();
+verification_connexion($bdd);
 
 $message = "";
 $experimentateurs_selectionnes = [];
 $id_projet = null;
+$id_compte = $_SESSION['ID_compte'];
 
 // Récupérer l'ID du projet
 if (isset($_POST['id_projet'])) {
@@ -56,6 +61,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($erreurs)) {
             $message = "<p style='color:red;'>" . implode("<br>", $erreurs) . "</p>";
         } else {
+            // Stocker en session
+            $_SESSION['creation_experience'] = [
+                'nom_experience' => $nom_experience,
+                'description' => $description,
+                'experimentateurs_ids' => $experimentateurs_selectionnes
+            ];
+            
             // Redirection vers page 2 avec les données en POST
             echo '<form id="form-redirect" method="post" action="page_creation_experience_2.php">';
             echo '<input type="hidden" name="id_projet" value="' . $id_projet . '">';
@@ -69,18 +81,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Récupérer les personnes disponibles
+// S'assurer que le créateur est toujours dans la sélection pour qu'il n'apparaisse
+$creator_id = $_SESSION['ID_compte'] ?? null;
+if ($creator_id && !in_array($creator_id, $experimentateurs_selectionnes)) {
+    $experimentateurs_selectionnes[] = $creator_id;
+}
+
+// Récupérer les personnes disponibles (exclut les IDs déjà sélectionnés)
 $experimentateurs_disponibles = get_personnes_disponibles($bdd, $experimentateurs_selectionnes);
 
-// Récupérer les infos des personnes déjà sélectionnées
-$experimentateurs_info = [];
-if (!empty($experimentateurs_selectionnes)) {
+// s'assurer que le créateur ($id_compte) est dans la sélection
+$creator_id = $_SESSION['ID_compte'] ?? null;
+if ($creator_id && !in_array($creator_id, $experimentateurs_selectionnes)) {
+    $experimentateurs_selectionnes[] = $creator_id;
+    // recharger les infos pour inclure le créateur
     $placeholders = implode(',', array_fill(0, count($experimentateurs_selectionnes), '?'));
     $stmt = $bdd->prepare("SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE ID_compte IN ($placeholders)");
     $stmt->execute($experimentateurs_selectionnes);
     $experimentateurs_info = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
-
 
 ?>
 <!DOCTYPE html>
