@@ -38,6 +38,9 @@ $page_title = $experience ? htmlspecialchars($experience['Nom']) : "Expérience"
     
 <?php if (!$erreur): ?>
     <div class="actions-experience">
+        <form action="page_modification\resultats.php?id_experience=<?= $id_experience ?>" method="post">
+            <input type="submit" value="Modifier l'experience" />
+        </form>
         <form action="page_modification_experience.php?id_experience=<?= $id_experience ?>" method="post">
             <input type="submit" value="Modifier l'experience" />
         </form>
