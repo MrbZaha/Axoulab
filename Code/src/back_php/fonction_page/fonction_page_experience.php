@@ -252,7 +252,20 @@ function afficher_experience(array $experience, array $experimentateurs, array $
             
             <div class="project-container">
                 <div class="project-main">
-                    
+                    <?php
+                    global $bdd;
+                    $canModify = false;
+                    if (isset($_SESSION['ID_compte']) && isset($experience['ID_experience'])) {
+                        $canModify = verifier_acces_experience($bdd, $_SESSION['ID_compte'], $experience['ID_experience']) === 'modification';
+                    }
+                    ?>
+                    <?php if ($canModify): ?>
+                        <div class="actions-experience">
+                            <form action="page_modification_experience.php?id_experience=<?= $experience['ID_experience'] ?>" method="post">
+                                <input type="submit" value="Modifier l'expérience" />
+                            </form>
+                        </div>
+                    <?php endif; ?>
                     <!-- Description -->
                     <div class="project-description">
                         <h3>Description</h3>
@@ -300,7 +313,7 @@ function afficher_experience(array $experience, array $experimentateurs, array $
                         <?php endif; ?>
                     </div>
                 </div>
-                
+
                 <!-- Matériel utilisé -->
                 <?php if (!empty($materiels)): ?>
                     <div class="section-projets" style="margin-top: 30px;">
