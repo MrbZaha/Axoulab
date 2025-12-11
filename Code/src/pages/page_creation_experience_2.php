@@ -115,8 +115,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message .= "</div>";
             } else {
                 try {
+                   
+                    
+                    // Déterminer le statut de validation selon le rôle de l'utilisateur
+                    $stmtRole = $bdd->prepare("SELECT Statut FROM projet_collaborateur_gestionnaire WHERE ID_projet = ? AND ID_compte = ?");
+                    $stmtRole->execute([$id_projet, $_SESSION['ID_compte']]);
+                    $roleCreateur = $stmtRole->fetchColumn();
+
+                    // Si gestionnaire → validation automatique = 1, sinon 0
+                    $validation = ($roleCreateur === 'gestionnaire') ? 1 : 0;
                     // Créer l'expérience
-                    $id_experience = creer_experience($bdd, $nom_experience, $description, $date_reservation,$date_creation, $heure_debut, $heure_fin, $nom_salle);
+                    $id_experience = creer_experience($bdd, $nom_experience, $description, $date_reservation, $heure_debut, $heure_fin, $nom_salle, $validation);
 
                     if ($id_experience) {
                         // Associer au projet
@@ -133,6 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
 
                         // ======================= Notifications =======================
+                        if ($validation == 0) {
                         // Récupérer les gestionnaires du projet
                         $stmt_gest = $bdd->prepare("
                             SELECT ID_compte FROM projet_collaborateur_gestionnaire 
@@ -140,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ");
                         $stmt_gest->execute([$id_projet]);
                         $gestionnaires = $stmt_gest->fetchAll(PDO::FETCH_COLUMN);
-
+                        
                         // Retirer le créateur si présent
                         $destinataires = array_values(array_diff($gestionnaires, [$_SESSION['ID_compte']]));
 
@@ -151,6 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 'Nom_experience' => $nom_experience
                             ];
                             envoyerNotification($bdd, 1, $_SESSION['ID_compte'], $donnees, $destinataires);
+                        }
                         }
 
                         // Redirection
