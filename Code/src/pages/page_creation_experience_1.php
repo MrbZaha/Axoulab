@@ -42,6 +42,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
         }
     }
+        // Charger les infos de TOUS les expérimentateurs sélectionnés
+    if (!empty($experimentateurs_selectionnes)) {
+        $placeholders = implode(',', array_fill(0, count($experimentateurs_selectionnes), '?'));
+        $stmt = $bdd->prepare("
+            SELECT ID_compte, Nom, Prenom, Etat
+            FROM compte
+            WHERE ID_compte IN ($placeholders)
+            ORDER BY Nom, Prenom
+        ");
+        $stmt->execute($experimentateurs_selectionnes);
+        $experimentateurs_info = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $experimentateurs_info = [];
+    }
+
 
     // Validation et passage à la page 2
     if (isset($_POST["continuer_reservation"])) {
