@@ -81,7 +81,7 @@ function recuperer_id_materiel_par_nom(PDO $bdd, string $nom_materiel, string $n
  *               - 'materiels_utilises' (string) : Liste des matériels utilisés (concaténés)
  *               - 'experimentateurs' (string) : Liste des expérimentateurs impliqués (concaténés)
  */
-function recuperer_reservations_semaine(PDO $bdd, string $nom_salle,date $date_debut,date $date_fin) {
+function recuperer_reservations_semaine(PDO $bdd, string $nom_salle,string $date_debut,string $date_fin) {
     $sql = "
         SELECT 
             e.ID_experience,
@@ -297,13 +297,13 @@ function est_debut_reservation($reservations, $heure) {
  *
  * @return int|false ID de l'expérience créée ou false en cas d'échec
  */
-function creer_experience($bdd, $nom_experience, $description, $date_reservation, $heure_debut, $heure_fin, $nom_salle) {
+function creer_experience($bdd, $validation, $nom_experience, $description, $date_reservation, $date_creation, $heure_debut, $heure_fin, $nom_salle) {
     $sql = $bdd->prepare("
-        INSERT INTO experience (Nom, Description, Date_reservation, Heure_debut, Heure_fin, Statut_experience, Validation)
-        VALUES (?, ?, ?, ?, ?, 'En attente', 0)
+        INSERT INTO experience (Nom, Description, Date_reservation, Date_de_creation, Heure_debut, Heure_fin, Statut_experience, Validation)
+        VALUES (?, ?, ?,?, ?, ?, 'En attente', 0)
     ");
 
-    if ($sql->execute([$nom_experience, $description, $date_reservation, $heure_debut, $heure_fin])) {
+    if ($sql->execute([$nom_experience, $description, $date_reservation,$date_creation, $heure_debut, $heure_fin])) {
         return $bdd->lastInsertId();
     }
     return false;

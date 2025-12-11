@@ -118,6 +118,8 @@ function get_info_experience(PDO $bdd, int $id_experience): ?array {
             e.Heure_fin,
             e.Validation,
             e.Resultat,
+            e.Date_de_creation,
+            e.Date_de_modification,
             e.Statut_experience,
             p.ID_projet,
             p.Nom_projet
@@ -287,7 +289,8 @@ function afficher_experience(array $experience, array $experimentateurs, array $
                     <div class="project-info">
                         <h3>Informations</h3>
                         
-                        <p><strong>Date :</strong> <?= date('d/m/Y', strtotime($experience['Date_reservation'])) ?></p>
+                        <p><strong>Date de création:</strong> <?= date('d/m/Y', strtotime($experience['Date_de_creation'])) ?></p>
+                        <p><strong>Date de l'expérience:</strong> <?= date('d/m/Y', strtotime($experience['Date_reservation'])) ?></p>
                         <p><strong>Horaires :</strong> <?= substr($experience['Heure_debut'], 0, 5) ?> - <?= substr($experience['Heure_fin'], 0, 5) ?></p>
                         
                         <p><strong>Statut :</strong> 
