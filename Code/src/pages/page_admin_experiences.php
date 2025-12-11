@@ -5,6 +5,8 @@ session_start();
 
 $bdd = connectBDD();
 
+$page_admin = true;  // On déclare qu'on est sur une page admin pour les fonctions qui le nécessite
+
 ///////////////////////////////////////////////////////////////////////////////
 #On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
 verification_connexion($bdd);
@@ -81,7 +83,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
     <!-- Affichage des expériences une à une-->
         <section class="section-experiences">
             <h2>Expériences (<?= count($experiences) ?>)</h2>  <!--Titre affichant le nombre d'expérience-->
-            <?php afficher_experiences_pagines($experiences, $page, $items_par_page); ?>
+            <?php afficher_experiences_pagines($bdd, $experiences, $page, $items_par_page, $page_admin); ?>
             <?php afficher_pagination($page, $total_pages); ?>
         </section>
         <!-- À l'intérieur, avec aspect spécifique et boutons -->

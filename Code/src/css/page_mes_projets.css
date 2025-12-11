@@ -11,6 +11,7 @@
     margin-bottom: 50px;
 }
 
+/* Titre de projets */
 .section-projets h2 {
     color: #2b5f7e;
     font-size: 1.2rem;
@@ -30,7 +31,8 @@
 /* Carte de projet - style vertical */
 .projet-card {
     display: block;
-    width: 100%;
+    margin: 10px 0px 10px;
+
     padding: 20px 25px;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
@@ -69,6 +71,16 @@
 .projet-card p strong {
     color: #2b5f7e;
     font-weight: 600;
+}
+
+/* Détails de l'expérience */
+.projet-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
 }
 
 /* Message si aucun projet */

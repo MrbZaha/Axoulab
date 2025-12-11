@@ -5,6 +5,8 @@ session_start();
 
 $bdd = connectBDD();
 
+$ajouter = true;            // Définition d'un variable permettant de dire si on cherche à ajouter un élément ou non
+
 ////////////////////////////////////////////////////////////////////////////////
 #On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
 verification_connexion($bdd);
@@ -58,6 +60,22 @@ if (isset($_POST['action']) && $_POST['action'] === 'modifier') {
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Dans le cas où l'on cherche à ajouter un outil
+// Si une action GET est reçue
+if (isset($_POST['action']) && $_POST['action'] === 'ajouter') {
+    $ajouter = true;   // On définit la variable qui permettra de déclencher, ou non, une fonction
+}
+else {
+    $ajouter = false;
+}
+
+// =======================  INSÉRER DU NOUVEAU MATÉRIEL =======================
+/* Insère du nouveau matériel dans la base de donnée */
+function ajouter_materiel($bdd, $Nom_Salle, $Materiel) {
+    $sql = $bdd->prepare("INSERT INTO salle_materiel (Nom_Salle, Materiel) VALUES (?, ?)");
+    return $sql->execute([$Nom_Salle, $Materiel]);
+}
 
 // =======================  Traitement des informations modifiées  =======================
 function modifier_materiel($bdd, $id){
@@ -92,8 +110,7 @@ function modifier_materiel($bdd, $id){
     }
 }
 
-
-// =======================  Fonction pour récupérer l'ensemble des utilisateurs =======================
+// =======================  Fonction pour récupérer l'ensemble du matériel =======================
 function get_materiel($bdd) {
     $sql_materiel = "
         SELECT ID_materiel,
@@ -108,7 +125,7 @@ function get_materiel($bdd) {
     return $materiel;   
 }
 
-// =======================  Fonction pour afficher l'ensemble des utilisateurs =======================
+// =======================  Fonction pour afficher l'ensemble du matériel =======================
 function afficher_materiel_pagines($materiel, $page_actuelle, $items_par_page, $bdd) {
     // On récupère l'indice de la première expérience qui sera affichée
     $debut = ($page_actuelle - 1) * $items_par_page;
@@ -122,8 +139,8 @@ function afficher_materiel_pagines($materiel, $page_actuelle, $items_par_page, $
     <table class="whole_table">
         <thead class="tablehead">
             <tr>
-                <th>Matériel</th>
                 <th>Salle</th>
+                <th>Matériel</th>
                 <th>Modifier</th>
                 <th>Supprimer</th>
             </tr>
@@ -176,7 +193,7 @@ function afficher_materiel_pagines($materiel, $page_actuelle, $items_par_page, $
     <head>
         <meta charset= "utf-8"/>
         <link rel="stylesheet" href="../css/page_mes_experiences.css"> <!-- Utilisé pour l'affichage des titres -->
-        <link rel="stylesheet" href="../css/page_admin_utilisateurs.css"> <!-- Utilisé pour l'affichage du matérie-->
+        <link rel="stylesheet" href="../css/page_admin_utilisateurs_materiel.css"> <!-- Utilisé pour l'affichage du matériel-->
 
         <link rel="stylesheet" href="../css/admin.css">
         <link rel="stylesheet" href="../css/Bandeau_haut.css">
@@ -208,12 +225,22 @@ function afficher_materiel_pagines($materiel, $page_actuelle, $items_par_page, $
     <div class="back_square">
     <!-- Affichage des expériences une à une-->
         <section class="section-experiences">
-            <h2>Utilisateurs (<?= count($materiel) ?>)</h2>  <!--Titre affichant le nombre de matériel disponible-->
+            <h2>Matériel (<?= count($materiel) ?>)</h2>  <!--Titre affichant le nombre de matériel disponible-->
             <?php afficher_materiel_pagines($materiel, $page, $items_par_page, $bdd); ?>
             <?php afficher_pagination($page, $total_pages); ?>
         </section>
-    </div>
 
+        <?php if ($ajouter) {
+            
+        }
+        else{ ?>
+            <div class=creer_materiel>
+            <a href="page_admin_materiel_salle.php?action=ajouter"
+                class="btn btnBlanc">
+                Ajouter du matériel</a>
+            </div>
+        <?php } ?>
+    </div>
 
     <!-- Permet d'afficher le footer de la page -->
     <?php afficher_Bandeau_Bas(); ?>
