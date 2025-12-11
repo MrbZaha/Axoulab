@@ -580,37 +580,6 @@ function afficher_Bandeau_Bas() {
 // =======================  Récupération de l'ensemble des expériences =======================
 function get_mes_experiences_complets(PDO $bdd, ?int $id_compte = null): array {
 
-<<<<<<< HEAD
-    // --- 1. Requête principale
-    $sql_experiences = "
-        SELECT DISTINCT
-            e.ID_experience, 
-            e.Nom, 
-            e.Validation, 
-            e.Description, 
-            e.Date_reservation,
-            e.Heure_debut,
-            e.Heure_fin,
-            e.Resultat,
-            e.Statut_experience,
-            e.Date_de_creation,
-            e.Date_de_modification,
-            s.Nom_Salle,
-            p.Nom_projet,
-            p.ID_projet
-        FROM experience e
-        LEFT JOIN projet_experience pe
-            ON pe.ID_experience = e.ID_experience
-        LEFT JOIN projet p
-            ON p.ID_projet = pe.ID_projet
-        LEFT JOIN materiel_experience se
-            ON e.ID_experience = se.ID_experience
-        LEFT JOIN salle_materiel s
-            ON se.ID_materiel = s.ID_materiel
-        INNER JOIN experience_experimentateur ee
-            ON e.ID_experience = ee.ID_experience
-    ";
-=======
 // --- 1. Requête principale
 $sql_experiences = "
     SELECT 
@@ -625,7 +594,6 @@ $sql_experiences = "
         e.Statut_experience,
         e.Date_de_creation,
         e.Date_de_modification,
->>>>>>> 78e136c168eb86f04661a08a1935c013dfb46a90
 
         GROUP_CONCAT(DISTINCT s.Nom_Salle SEPARATOR ', ') AS Nom_Salle,
         GROUP_CONCAT(DISTINCT p.Nom_projet SEPARATOR ', ') AS Nom_projet,
