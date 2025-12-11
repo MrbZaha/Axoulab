@@ -582,7 +582,7 @@ function get_mes_experiences_complets(PDO $bdd, ?int $id_compte = null): array {
 
 // --- 1. Requête principale
 $sql_experiences = "
-    SELECT 
+    SELECT DISTINCT
         e.ID_experience, 
         e.Nom, 
         e.Validation, 
