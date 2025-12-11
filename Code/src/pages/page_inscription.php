@@ -119,10 +119,6 @@ if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["
                        value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" /> <br/>
             </div>
             <div class="colonne2">
-                Numéro de téléphone (facultatif) 
-                <input type="text" name="telephone"
-                       value="<?= htmlspecialchars($_POST['telephone'] ?? '') ?>" /> <br/>
-
                 <div class="user-type">
                     Je suis un(e) : <br/>
                     <input type="radio" name="utilisateur" value="chercheur" id="chercheur" required

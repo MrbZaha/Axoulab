@@ -54,4 +54,27 @@ function mot_de_passe_identique($mdp1, $mdp2) {
     // ============================================================================
     return $mdp1 === $mdp2;
 }
+
+function verifier_email_axoulab($email) {
+    // Nettoyer l'email (en minuscules)
+    $email = strtolower(trim($email));
+
+    // Vérifie que l'email se termine par @axoulab.fr
+    if (!str_ends_with($email, '@axoulab.fr')) {
+        return false;
+    }
+
+    // Vérifie le format prenom.nom@axoulab.fr
+    $pattern = '/^[a-z]+(\.[a-z]+)?@axoulab\.fr$/'; 
+    // ^[a-z]+       -> au moins une lettre pour le prénom
+    // (\.[a-z]+)?   -> un point suivi d'au moins une lettre pour le nom
+    // @axoulab\.fr$ -> domaine exact
+
+    if (preg_match($pattern, $email)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 ?>
