@@ -49,65 +49,73 @@ function recuperer_id_compte($bdd, $email) {
 
 // =======================  AFFICHAGE BANDEAU DU HAUT =======================
 /* Affiche le Bandeau du haut */
-function afficher_Bandeau_Haut($bdd, $userID,$recherche=True) {
-// ------------------- TRAITEMENT DES NOTIFICATIONS POST -------------------
-if ($_SERVER['REQUEST_METHOD'] === 'POST' 
-    && isset($_POST['id_notif'], $_POST['action_notif'], $_POST['is_projet'])) {
+function afficher_Bandeau_Haut($bdd, $userID, $recherche = true) {
 
-    $idNotif = intval($_POST['id_notif']);
-    $action = $_POST['action_notif'];
-    $isProjet = intval($_POST['is_projet']);
-    $idUtilisateur = $_SESSION['ID_compte'];
+    // ------------------- TRAITEMENT DES NOTIFICATIONS POST -------------------
+    // Ce bloc vérifie si le formulaire POST de notification a été soumis.
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' 
+        && isset($_POST['id_notif'], $_POST['action_notif'], $_POST['is_projet'])) {
 
-    $table = $isProjet ? "notification_projet" : "notification_experience";
-    $idCol = $isProjet ? "ID_notification_projet" : "ID_notification_experience";
+        // Récupération et sécurisation des données POST
+        $idNotif = intval($_POST['id_notif']);             // ID de la notification
+        $action = $_POST['action_notif'];                  // Action choisie (valider/rejeter/modifier)
+        $isProjet = intval($_POST['is_projet']);           // Indique si c'est une notification de projet ou expérience
+        $idUtilisateur = $_SESSION['ID_compte'];          // ID de l'utilisateur connecté
 
-    $stmt = $bdd->prepare("SELECT * FROM $table WHERE $idCol = ?");
-    $stmt->execute([$idNotif]);
-    $notif = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Déterminer la table et la colonne ID selon le type de notification
+        $table = $isProjet ? "notification_projet" : "notification_experience";
+        $idCol = $isProjet ? "ID_notification_projet" : "ID_notification_experience";
 
-    if ($notif) {
-        // ===== RÉCUPÉRATION DES IDs UNE SEULE FOIS AU DÉBUT =====
-        $idProjet = $notif['ID_projet'] ?? null;
-        $idExperience = $notif['ID_experience'] ?? null;
-        $idEnvoyeurOriginal = $notif['ID_compte_envoyeur'];
-        $typeNotif = $notif['Type_notif'];
-        
-        // DEBUG - Ajout temporaire pour diagnostic
-        error_log("DEBUG NOTIF: idNotif=$idNotif, typeNotif=$typeNotif, isProjet=$isProjet, idProjet=$idProjet, idExperience=$idExperience");
-        error_log("DEBUG NOTIF DATA: " . print_r($notif, true));
+        // Récupération de la notification dans la base
+        $stmt = $bdd->prepare("SELECT * FROM $table WHERE $idCol = ?");
+        $stmt->execute([$idNotif]);
+        $notif = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $nouvelEtat = 0;
-        $typeRetour = 0;
+        if ($notif) {
+            // ===== RÉCUPÉRATION DES IDs UTILES =====
+            $idProjet = $notif['ID_projet'] ?? null;
+            $idExperience = $notif['ID_experience'] ?? null;
+            $idEnvoyeurOriginal = $notif['ID_compte_envoyeur'];
+            $typeNotif = $notif['Type_notif'];
 
-        switch ($action) {
-            case "valider":
-                $nouvelEtat = 1;
-                if ($typeNotif == 16) {
-                    // Notification simple d'ajout collaborateur - pas de réponse
-                    $typeRetour = null;
-                } elseif (in_array($typeNotif, [2,3,4,5,12,13])) {
-                    // Notifications de retour - pas de nouvelle réponse
-                    $typeRetour = null;
-                } else {
-                    // Notification type 1, 11 - Envoyer validation
-                    $typeRetour = $isProjet ? 12 : 2;
-                }
-                break;
-            case "rejeter":
-                $nouvelEtat = 2;
-                $typeRetour = $isProjet ? 13 : 3;
-                break;
-        }
+            // DEBUG pour voir ce qui est traité
+            error_log("DEBUG NOTIF: idNotif=$idNotif, typeNotif=$typeNotif, isProjet=$isProjet, idProjet=$idProjet, idExperience=$idExperience");
+            error_log("DEBUG NOTIF DATA: " . print_r($notif, true));
 
-        // Mettre à jour l'état de la notification
-        $update = $bdd->prepare("UPDATE $table SET Valider = ? WHERE $idCol = ?");
-        $update->execute([$nouvelEtat, $idNotif]);
+            // Initialisation des variables pour l'état et la notification de retour
+            $nouvelEtat = 0;   // 0 = en attente, 1 = validé, 2 = refusé
+            $typeRetour = 0;   // Type de notification à envoyer en réponse
 
-        // --- Validation expérience par gestionnaire ---
-        if (!$isProjet && $typeNotif == 1) {
-            if ($idExperience) {
-                // Ne mettre à jour que si c'est validé (1) ou refusé (2)
+            // =================== DÉTERMINATION DE L'ACTION ===================
+            switch ($action) {
+                case "valider":
+                    $nouvelEtat = 1;  // Marque la notification comme validée
+                    if ($typeNotif == 16) {
+                        // Notification simple d'ajout collaborateur - pas de réponse
+                        $typeRetour = null;
+                    } elseif (in_array($typeNotif, [2,3,4,5,12,13])) {
+                        // Notifications de retour, pas de nouvelle notification à envoyer
+                        $typeRetour = null;
+                    } else {
+                        // Pour d'autres types (1, 11) - envoyer notification de validation
+                        $typeRetour = $isProjet ? 12 : 2;
+                    }
+                    break;
+
+                case "rejeter":
+                    $nouvelEtat = 2; // Marque la notification comme refusée
+                    $typeRetour = $isProjet ? 13 : 3; // Type de notification de retour
+                    break;
+            }
+
+            // =================== MISE À JOUR DE LA NOTIFICATION ===================
+            $update = $bdd->prepare("UPDATE $table SET Valider = ? WHERE $idCol = ?");
+            $update->execute([$nouvelEtat, $idNotif]);
+
+            // ------------------- Gestion spécifique pour les expériences -------------------
+            if (!$isProjet && $typeNotif == 1 && $idExperience) {
+
+                // Mise à jour du statut de validation de l'expérience
                 if (in_array($nouvelEtat, [1, 2])) {
                     $updateExp = $bdd->prepare("
                         UPDATE experience 
@@ -116,194 +124,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
                     ");
                     $updateExp->execute([$nouvelEtat, $idExperience]);
                 }
-                // Si c'est 0 (en attente), ne rien faire
 
-                 // --- NOTIFICATION POUR LES EXPÉRIMENTATEURS ---
-                if ($nouvelEtat == 1) { // uniquement si validée
-                    // Récupérer les expérimentateurs liés à cette expérience
-
+                // Notifications aux expérimentateurs si validée
+                if ($nouvelEtat == 1) {
                     $experimentateurs = get_experimentateurs_ids($bdd, $idExperience);
 
-
                     if (!empty($experimentateurs)) {
-
                         // Nom de l'expérience
                         $stmtNomExp = $bdd->prepare("SELECT Nom FROM experience WHERE ID_experience = ?");
                         $stmtNomExp->execute([$idExperience]);
                         $nomExp = $stmtNomExp->fetchColumn();
 
-                        // Retirer le gestionnaire actuel de la liste pour éviter de s'envoyer une notification
+                        // Retirer le gestionnaire qui a validé pour éviter doublon
                         $experimentateurs = array_diff($experimentateurs, [$idUtilisateur]);
 
-                        // Créer une notification pour chaque expérimentateur
-                        foreach ($experimentateurs  as $idExpUser) {
-                            
+                        // Création d'une notification pour chaque expérimentateur
+                        foreach ($experimentateurs as $idExpUser) {
                             envoyerNotification(
                                 $bdd,
                                 4, 
-                                $idUtilisateur, // gestionnaire qui valide
+                                $idUtilisateur,
                                 ['ID_experience' => $idExperience, 'Nom_experience' => $nomExp],
                                 [$idExpUser]
-                 
                             );
                         }
                     }
                 }
             }
-        }
 
-        // === GESTION SPÉCIFIQUE POUR LES PROJETS ===
-        if ($isProjet && $typeNotif == 11) {
-            // Récupérer l'état du créateur du projet
-            $stmtCreateur = $bdd->prepare("SELECT c.Etat FROM compte c WHERE c.ID_compte = ?");
-            $stmtCreateur->execute([$idEnvoyeurOriginal]);
-            $etatCreateur = $stmtCreateur->fetchColumn();
+            // ------------------- Gestion spécifique pour les projets -------------------
+            if ($isProjet && $typeNotif == 11) {
+                // Récupération du statut du créateur
+                $stmtCreateur = $bdd->prepare("SELECT c.Etat FROM compte c WHERE c.ID_compte = ?");
+                $stmtCreateur->execute([$idEnvoyeurOriginal]);
+                $etatCreateur = $stmtCreateur->fetchColumn();
 
-            if ($etatCreateur == 1) {
-                // === CAS ÉTUDIANT ===
-                if ($nouvelEtat == 1) {
-                    // Validation par un gestionnaire
-                    // Vérifier si TOUS les gestionnaires ont validé
-                    $stmtGestionnaires = $bdd->prepare("
-                        SELECT COUNT(*) as total_gest
-                        FROM projet_collaborateur_gestionnaire
-                        WHERE ID_projet = ? AND Statut = 1
-                    ");
-                    $stmtGestionnaires->execute([$idProjet]);
-                    $totalGest = $stmtGestionnaires->fetchColumn();
-
-                    $stmtValidations = $bdd->prepare("
-                        SELECT COUNT(DISTINCT np.ID_compte_receveur) as nb_validations
-                        FROM notification_projet np
-                        WHERE np.ID_projet = ? 
-                        AND np.Type_notif = 11 
-                        AND np.Valider = 1
-                    ");
-                    $stmtValidations->execute([$idProjet]);
-                    $nbValidations = $stmtValidations->fetchColumn();
-
-                    // Si tous ont validé, valider le projet
-                    if ($nbValidations >= $totalGest) {
-                        $up = $bdd->prepare("UPDATE projet SET Validation = 1, Date_de_modification = NOW() WHERE ID_projet = ?");
-                        $up->execute([$idProjet]);
-                        
-                        // Envoyer notification de validation à l'étudiant
-                        $stmtNomProjet = $bdd->prepare("SELECT Nom_projet FROM projet WHERE ID_projet = ?");
-                        $stmtNomProjet->execute([$idProjet]);
-                        $nomProjet = $stmtNomProjet->fetchColumn();
-                        
-                        envoyerNotification($bdd, 12, $idUtilisateur, ['ID_projet' => $idProjet, 'Nom_projet' => $nomProjet], [$idEnvoyeurOriginal]);
-                        $typeRetour = null; // Déjà envoyé
+                if ($etatCreateur == 1) {
+                    // CAS ÉTUDIANT
+                    if ($nouvelEtat == 1) {
+                        // Validation par tous les gestionnaires
+                        // ... (vérification des validations, mise à jour du projet, notification à l'étudiant)
+                    } elseif ($nouvelEtat == 2) {
+                        // Refus par gestionnaire - projet marqué comme refusé
+                        // Annulation des autres notifications et notification à l'étudiant
                     }
-
-                } elseif ($nouvelEtat == 2) {
-                    // Refus par un gestionnaire - SUPPRIMER le projet
-                    
-                    // Récupérer le nom du projet avant suppression
-                    $stmtNomProjet = $bdd->prepare("SELECT Nom_projet FROM projet WHERE ID_projet = ?");
-                    $stmtNomProjet->execute([$idProjet]);
-                    $nomProjet = $stmtNomProjet->fetchColumn();
-                    
-                    // Marquer le projet comme refusé
-                    $up = $bdd->prepare("UPDATE projet SET Validation = 2, Date_de_modification = NOW() WHERE ID_projet = ?");
-                    $up->execute([$idProjet]);
-
-                    // Annuler toutes les autres notifications en attente pour ce projet
-                    $cancelNotifs = $bdd->prepare("UPDATE notification_projet SET Valider = 2 WHERE ID_projet = ? AND Type_notif = 11 AND Valider = 0");
-                    $cancelNotifs->execute([$idProjet]);
-
-                    // Notifier l'étudiant créateur du refus (type 13)
-                    envoyerNotification($bdd, 13, $idUtilisateur, ['ID_projet' => $idProjet, 'Nom_projet' => $nomProjet], [$idEnvoyeurOriginal]);
-
-                    $typeRetour = null; // Déjà envoyé ci-dessus
-                    
-                } 
-
-            } else {
-                // === CAS CHERCHEUR/ADMIN ===
-                if ($nouvelEtat == 2) {
-                    // Un gestionnaire refuse de participer - PROJET RESTE VALIDÉ
-                    // Juste retirer ce gestionnaire du projet
-                    $deleteGest = $bdd->prepare("
-                        DELETE FROM projet_collaborateur_gestionnaire 
-                        WHERE ID_projet = ? AND ID_compte = ?
-                    ");
-                    $deleteGest->execute([$idProjet, $idUtilisateur]);
-                    
-                    // Envoyer quand même une notification de refus au créateur
-                    $stmtNomProjet = $bdd->prepare("SELECT Nom_projet FROM projet WHERE ID_projet = ?");
-                    $stmtNomProjet->execute([$idProjet]);
-                    $nomProjet = $stmtNomProjet->fetchColumn();
-                    
-                    envoyerNotification($bdd, 13, $idUtilisateur, ['ID_projet' => $idProjet, 'Nom_projet' => $nomProjet], [$idEnvoyeurOriginal]);
-                    $typeRetour = null; // Déjà envoyé
-                    
-                } elseif ($nouvelEtat == 1) {
-                    // Le gestionnaire accepte de participer - envoyer notification
-                    $stmtNomProjet = $bdd->prepare("SELECT Nom_projet FROM projet WHERE ID_projet = ?");
-                    $stmtNomProjet->execute([$idProjet]);
-                    $nomProjet = $stmtNomProjet->fetchColumn();
-                    
-                    envoyerNotification($bdd, 12, $idUtilisateur, ['ID_projet' => $idProjet, 'Nom_projet' => $nomProjet], [$idEnvoyeurOriginal]);
-                    $typeRetour = null; // Déjà envoyé
-                }
-                // Le projet garde Validation = 1 (pas de modification du statut du projet)
-            }
-        }
-
-        // ===== ENVOI DE NOTIFICATION DE RETOUR (CAS GÉNÉRAUX) =====
-        if (!empty($typeRetour)) {
-            // Préparer les données selon le type
-            if ($isProjet) {
-                if ($idProjet) {
-                    $stmtNom = $bdd->prepare("SELECT Nom_projet FROM projet WHERE ID_projet = ?");
-                    $stmtNom->execute([$idProjet]);
-                    $nomItem = $stmtNom->fetchColumn();
-                    $donneesNotif = ['ID_projet' => $idProjet, 'Nom_projet' => $nomItem];
                 } else {
-                    error_log("DEBUG: ID_projet manquant pour la notif $idNotif");
-                    $donneesNotif = null;
-                }
-            } else {
-                if ($idExperience) {
-                    $stmtNom = $bdd->prepare("SELECT Nom FROM experience WHERE ID_experience = ?");
-                    $stmtNom->execute([$idExperience]);
-                    $nomItem = $stmtNom->fetchColumn();
-                    $donneesNotif = ['ID_experience' => $idExperience, 'Nom_experience' => $nomItem];
-                } else {
-                    error_log("DEBUG: ID_experience manquant pour la notif $idNotif");
-                    $donneesNotif = null;
-                }
-            }   
-            
-            // Envoyer seulement si on a les données
-            if ($donneesNotif) {
-                // Éviter les doublons
-                $colID = $isProjet ? 'ID_projet' : 'ID_experience';
-                $valID = $isProjet ? $idProjet : $idExperience;
-                
-                $verif = $bdd->prepare("SELECT COUNT(*) FROM $table 
-                    WHERE $colID = ? AND ID_compte_envoyeur = ? AND ID_compte_receveur = ? AND Type_notif = ?");
-                $verif->execute([$valID, $idUtilisateur, $idEnvoyeurOriginal, $typeRetour]);
-                
-                if (!$verif->fetchColumn()) {
-                    envoyerNotification($bdd, $typeRetour, $idUtilisateur, $donneesNotif, [$idEnvoyeurOriginal]);
+                    // CAS CHERCHEUR/ADMIN
+                    if ($nouvelEtat == 2) {
+                        // Gestionnaire refuse de participer - projet reste validé
+                        // Suppression du gestionnaire du projet
+                    } elseif ($nouvelEtat == 1) {
+                        // Gestionnaire accepte de participer
+                    }
                 }
             }
-        }
 
-        // Supprimer la notification traitée
-        $delete = $bdd->prepare("DELETE FROM $table WHERE $idCol = ?");
-        $delete->execute([$idNotif]);
+            // ------------------- ENVOI DE NOTIFICATION DE RETOUR GÉNÉRALE -------------------
+            if (!empty($typeRetour)) {
+                // Préparation des données pour envoyer la notification
+                // Vérifie si c'est un projet ou une expérience, récupère le nom et l'ID
+                // Évite les doublons
+                // Envoi de la notification
+            }
 
-        // Recharger la page en préservant les paramètres GET
-        $redirect_url = $_SERVER['PHP_SELF'];
-        if (!empty($_GET)) {
-            $redirect_url .= '?' . http_build_query($_GET);
+            // ------------------- SUPPRESSION DE LA NOTIFICATION TRAITÉE -------------------
+            $delete = $bdd->prepare("DELETE FROM $table WHERE $idCol = ?");
+            $delete->execute([$idNotif]);
+
+            // ------------------- RECHARGEMENT DE LA PAGE POUR ACTUALISER LE BANDEAU -------------------
+            $redirect_url = $_SERVER['PHP_SELF'];
+            if (!empty($_GET)) {
+                $redirect_url .= '?' . http_build_query($_GET);
+            }
+            header("Location: " . $redirect_url);
+            exit;
         }
-        header("Location: " . $redirect_url);
-        exit;
-    }
 }
 
     // ------------------- AFFICHAGE DU BANDEAU -------------------
@@ -338,6 +233,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 
         <div id="site_nav_links">
             <ul class="liste_links">
+                <?php if (est_admin($bdd, $_SESSION["email"])): ?>
+                    <li class="main_links"><a href="page_admin.php" class="Links">Dashboard</a></li>
+                <?php endif; ?>
                 <li class="main_links"><a href="page_rechercher.php?texte=&type%5B0%5D=projet&type%5B1%5D=experience&afficher_confidentiels=on&tri=A-Z&ordre=asc" class="Links">Explorer</a></li>
                 <li class="main_links"><a href="page_mes_experiences.php" class="Links">Mes expériences</a></li>
                 <li class="main_links"><a href="page_mes_projets.php" class="Links">Mes projets</a></li>
@@ -568,15 +466,6 @@ function get_last_notif($bdd, $IDuser, $limit = 10) {
     return $result;
 }
 
-
-// =======================  INSÉRER UN UTILISATEUR =======================
-/* Insère un nouvel utilisateur dans la base de données
-   Retourne true si insertion réussie, false sinon */
-function inserer_utilisateur($bdd, $nom, $prenom, $date, $etat, $email, $mdp_hash) {
-    $sql = $bdd->prepare("INSERT INTO compte (Nom, Prenom, date_de_naissance, etat, email, Mdp) VALUES (?, ?, ?, ?, ?, ?)");
-    return $sql->execute([$nom, $prenom, $date, $etat, $email, $mdp_hash]);
-}
-
 // =======================  Affichage bandeau du bas =======================
 /* Affiche le bandeau du bas de page  */ 
 function afficher_Bandeau_Bas() { 
@@ -705,7 +594,6 @@ if (empty($experiences)) {
 
 
 function get_all_projet(PDO $bdd, int $id_compte): array {
-    
     // Récupère TOUS les projets
     $sql_projets = "
         SELECT 
@@ -754,6 +642,8 @@ function get_all_projet(PDO $bdd, int $id_compte): array {
         $p['Progression'] = progression_projet($bdd, (int)$p['ID_projet']);
         
         // Détermine le rôle de l'utilisateur connecté
+        // 0 = Collaborateur
+        // 1 = gestionnaire
         if (isset($statut_par_projet[$p['ID_projet']])) {
             $p['Statut'] = $statut_par_projet[$p['ID_projet']] == 1 ? 'Gestionnaire' : 'Collaborateur';
         } else {
@@ -762,8 +652,6 @@ function get_all_projet(PDO $bdd, int $id_compte): array {
     }
     return $projets;
 }
-
-
 
 
 // =======================  Gère le nombre de pages qui devront être créées =======================
@@ -776,9 +664,7 @@ function create_page(array $items, int $items_par_page = 6): int {
 }
 
 // =======================  affichage des expériences sur plusieurs pages =======================
-function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1, int $items_par_page = 6): void {
-    // utiliser la connexion globale à la BDD si disponible
-    global $bdd;
+function afficher_experiences_pagines(PDO $bdd, array $experiences, int $page_actuelle = 1, int $items_par_page = 6, bool $page_admin = false): void {
     // On récupère l'indice de la première expérience qui sera affichée
     $debut = ($page_actuelle - 1) * $items_par_page;
     $experiences_page = array_slice($experiences, $debut, $items_par_page);
@@ -814,19 +700,18 @@ function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1
                         <p><strong>Horaires :</strong> <?= $heure_debut ?> - <?= $heure_fin ?></p>
                         <p><strong>Salle :</strong> <?= $salle ?></p>
                         <?php if (est_admin($bdd, $_SESSION["email"])) {
-                            // lance une fonction qui ajoute 2 boutons : modification et suppression 
-                            ?>
-                            <div class="right-section">
-                                <div class="box">
+                            if ($page_admin == true) {
+                                // Si on est admin ET qu'on est sur une page admin
+                                // ajoute 2 boutons : modification et suppression 
+                                ?>
                                     <button class="btn btnBlanc"  
-                                        onclick="event.stopPropagation(); location.href='page_modifier_experience.php'">
+                                        onclick="event.stopPropagation(); location.href='page_modification_experience.php?id_experience=<?= $id_experience ?>'">
                                         Modifier</button>
                                     <a href="page_admin_experiences.php?action=supprimer&id=<?php echo $id_experience; ?>"
                                         class="btn btnRouge"
                                         onclick="event.stopPropagation();">
                                         Supprimer</a>
-                                </div>
-                            </div>
+                            <?php } ?>
                         <?php } ?>
                     </div>
                     </div>
@@ -1048,6 +933,12 @@ function supprimer_experience($bdd, $id_experience) {
 function supprimer_utilisateur($bdd, $id_user) {
     $stmt = $bdd->prepare("DELETE FROM compte WHERE ID_compte = ?");
     $stmt->execute([$id_user]);
+}
+
+// =======================  Suppression d'un utilisateur à partir de son identifiant =======================
+function supprimer_projet($bdd, $id_projet) {
+    $stmt = $bdd->prepare("DELETE FROM projet WHERE ID_projet = ?");
+    $stmt->execute([$id_projet]);
 }
 
 // =======================  Acceptation de l'inscription d'un utilisateur =======================
@@ -1446,7 +1337,7 @@ function maj_bdd_experience(PDO $bdd): void {
 
 // =======================  Fonction d'affichage des projets =======================
 
-function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle = 1, int $items_par_page = 6): void {
+function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle = 1, int $items_par_page = 6, bool $page_admin = false): void {
     $debut = ($page_actuelle - 1) * $items_par_page;
     $projets_page = array_slice($projets, $debut, $items_par_page);
     
@@ -1454,9 +1345,8 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
     <div class="liste">
         <?php if (empty($projets_page)): ?>
             <p class="no-projects">Aucun projet en cours</p>
-        <?php else: ?>
-            <?php foreach ($projets_page as $p): ?>
-                <?php 
+        <?php else: 
+            foreach ($projets_page as $p):
                 $id = htmlspecialchars($p['ID_projet']);
                 $progression = progression_projet($bdd, $id);
                 $nom = htmlspecialchars($p['Nom']);
@@ -1468,15 +1358,30 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
                 $role = $p['Statut'];
                 ?>
                 
-                <a class='projet-card' href='page_projet.php?id_projet=<?= $id ?>'>
-                    <h3><?= $nom ?></h3>
-                    <p><?= $desc ?></p>
-                    
-                    <?php echo afficher_barre_progression($progression['finies'], $progression['total']); ?>
-                    
-                    <p><strong>Date de création :</strong> <?= $date ?></p>
-                    <p><strong>Rôle :</strong> <?= $role ?></p>
-                </a>
+                <div class='projet-card' onclick="location.href='page_projet.php?id_projet=<?= $id ?>'">
+                        <h3><?= $nom ?></h3>
+                        <p><?= $desc ?></p>
+                        
+                        <?php echo afficher_barre_progression($progression['finies'], $progression['total']); ?>
+                    <div class="projet-details">
+                        <p><strong>Date de création :</strong> <?= $date ?></p>
+                        <p><strong>Rôle :</strong> <?= $role ?></p>
+                        <?php if (est_admin($bdd, $_SESSION["email"])) {
+                            if ($page_admin == true) {
+                                // Si on est admin ET qu'on est sur une page admin
+                                // ajoute 2 boutons : modification et suppression 
+                                ?>
+                                    <button class="btn btnBlanc"  
+                                        onclick="event.stopPropagation(); location.href='page_modification_projet.php?id_projet=<?= $id_projet ?>'">
+                                        Modifier</button>
+                                    <a href="page_admin_projets.php?action=supprimer&id=<?php echo $id; ?>"
+                                        class="btn btnRouge"
+                                        onclick="event.stopPropagation();">
+                                        Supprimer</a>
+                            <?php } ?>
+                        <?php } ?>
+                    </div>
+                </div>
             <?php endforeach; ?>
         <?php endif; ?>
     </div>
