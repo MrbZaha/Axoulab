@@ -26,7 +26,7 @@ $materiel = array_values(get_materiel($bdd));
 
 // On set la page que l'on observe
 $items_par_page = 20;
-$page = isset($_GET['pages']) ? max(1, (int)$_GET['page']) : 1;
+$page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $total_pages = create_page($materiel, $items_par_page);
 
 // Vérification que la page demandée existe
@@ -49,7 +49,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
 
 ///////////////////////////////////////////////////////////////////////////////
 // Dans le cas où l'on cherche à modifier les informations d'un outil
-// Si une action GET est reçue
+// Si une action POST est reçue
 if (isset($_POST['action']) && $_POST['action'] === 'modifier') {
     if (isset($_POST['id'])) {
         modifier_materiel($bdd, intval($_POST['id']));
@@ -62,12 +62,24 @@ if (isset($_POST['action']) && $_POST['action'] === 'modifier') {
 
 ///////////////////////////////////////////////////////////////////////////////
 // Dans le cas où l'on cherche à ajouter un outil
-// Si une action GET est reçue
-if (isset($_POST['action']) && $_POST['action'] === 'ajouter') {
+// Si une action POST est reçue
+if (isset($_GET['action']) && $_GET['action'] === 'ajouter') {
     $ajouter = true;   // On définit la variable qui permettra de déclencher, ou non, une fonction
+    echo $ajouter;
 }
 else {
     $ajouter = false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Après confirmation de l'ajout d'un outil
+// Si une action POST est reçue
+if (isset($_POST['action']) && $_POST['action'] === 'valider') {
+    if (!empty($_POST['salle_new']) && !empty($_POST['materiel_new'])) {
+        ajouter_materiel($bdd, $_POST['salle_new'], $_POST['materiel_new']);
+        header("Location: page_admin_materiel_salle.php?ajout=ok");
+        exit;
+    }
 }
 
 // =======================  INSÉRER DU NOUVEAU MATÉRIEL =======================
@@ -231,9 +243,25 @@ function afficher_materiel_pagines($materiel, $page_actuelle, $items_par_page, $
         </section>
 
         <?php if ($ajouter) {
-            
-        }
-        else{ ?>
+            ?>
+
+            <div class="creer_materiel_form">
+                <form action="page_admin_materiel_salle.php" method="POST">
+                    <h3>Ajouter du matériel</h3>
+
+                    <label>Salle :</label>
+                    <input type="text" name="salle_new" required>
+
+                    <label>Matériel :</label>
+                    <input type="text" name="materiel_new" required>
+
+                    <input type="hidden" name="action" value="valider">
+                    <button class="btn btnBlanc" type="submit">Ajouter</button>
+                    <a class="btn btnRouge" href="page_admin_materiel_salle.php">Annuler</a>
+                </form>
+            </div>
+        <?php
+        } else { ?>
             <div class=creer_materiel>
             <a href="page_admin_materiel_salle.php?action=ajouter"
                 class="btn btnBlanc">
