@@ -1,6 +1,6 @@
 <?php
-require_once '/../back_php/fonctions_site_web.php';
-require_once '/../back_php/fonction_page/fonction_page_creation_experience_2.php';
+require_once __DIR__ . '/../back_php/fonctions_site_web.php';
+require_once __DIR__ . '/../back_php/fonction_page/fonction_page_creation_experience_2.php';
 
 
 $message = "";
@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 try {
                     // Créer l'expérience
-                    $id_experience = creer_experience($bdd, $nom_experience, $description, $date_reservation, $heure_debut, $heure_fin, $nom_salle);
+                    $id_experience = creer_experience($bdd, $nom_experience, $description, $date_reservation,$date_creation, $heure_debut, $heure_fin, $nom_salle);
 
                     if ($id_experience) {
                         // Associer au projet
@@ -135,8 +135,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // ======================= Notifications =======================
                         // Récupérer les gestionnaires du projet
                         $stmt_gest = $bdd->prepare("
-                            SELECT ID_compte FROM participants 
-                            WHERE ID_projet = ? AND Role = 'gestionnaire'
+                            SELECT ID_compte FROM projet_collaborateur_gestionnaire 
+                            WHERE ID_projet = ? AND Statut = 1
                         ");
                         $stmt_gest->execute([$id_projet]);
                         $gestionnaires = $stmt_gest->fetchAll(PDO::FETCH_COLUMN);
@@ -172,6 +172,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if (!$id_projet || $id_projet <= 0) {
     $message = "<p style='color:red;'>Erreur : Aucun projet sélectionné. Veuillez retourner à l'étape 1.</p>";
 }
+
+$date_creation = (new DateTime())->format('Y-m-d'); // '2025-12-10'
 
 // ======================= PLANNING =======================
 $salles = recup_salles($bdd);
