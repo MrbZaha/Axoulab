@@ -57,13 +57,22 @@ $nom_salle_selectionnee = '';
 
 if ($id_experience === 0) {
     $erreur = "ID d'expérience manquant.";
-} elseif (!est_gestionnaire($bdd, $id_compte, $id_projet)) {
-    $erreur = "Vous n'avez pas les droits pour modifier cette expérience";
 } else {
+    // Autoriser si gestionnaire du projet OU administrateur global
+    $isGestionnaire = $id_projet ? est_gestionnaire($bdd, $id_compte, $id_projet) : false;
+    $isAdmin = est_admin_par_id($bdd, $id_compte);
+    if (!($isGestionnaire || $isAdmin)) {
+        $erreur = "Vous n'avez pas les droits pour modifier cette expérience";
+    } else {
+        $experimentateurs_selectionnes = get_experimentateurs_ids($bdd, $id_experience);
+        $materiels_selectionnes = get_materiels_experience($bdd, $id_experience);
+        $nom_salle_selectionnee = get_salle_from_experience($bdd, $id_experience);
+    }
+}
     $experimentateurs_selectionnes = get_experimentateurs_ids($bdd, $id_experience);
     $materiels_selectionnes = get_materiels_experience($bdd, $id_experience);
     $nom_salle_selectionnee = get_salle_from_experience($bdd, $id_experience);
-}
+
 
 $experimentateurs_info = [];
 if (!empty($experimentateurs_selectionnes)) {

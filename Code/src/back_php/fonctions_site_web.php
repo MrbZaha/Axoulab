@@ -332,6 +332,17 @@ function est_admin(PDO $bdd, $email) {
     return false;
 }
 
+/**
+ * Vérifie si un compte est administrateur à partir de son ID.
+ * Retourne true si `Etat` == 3, false sinon.
+ */
+function est_admin_par_id(PDO $bdd, int $id_compte): bool {
+    $stmt = $bdd->prepare("SELECT Etat FROM compte WHERE ID_compte = ?");
+    $stmt->execute([$id_compte]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row && isset($row['Etat']) && (int)$row['Etat'] === 3;
+}
+
 
 // =======================  RÉCUPERER LES DERNIERE NOTIFICATIONS =======================
 

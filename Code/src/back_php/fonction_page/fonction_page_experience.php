@@ -89,10 +89,6 @@ function verifier_acces_experience(PDO $bdd, int $id_compte, int $id_experience)
         return 'none'; // Pas de projet lié ou projet inexistant
     }
 
-    // Si personne ADMIN -> droit de modification
-    else if (isset($result['Etat']) && (int)$result['Etat'] === 3) {
-        return 'modification';
-    }
     // Si personne gestionnaire -> droit de modification
     else if (isset($result['Statut']) && (int)$result['Statut'] === 1) {
         return 'modification';
