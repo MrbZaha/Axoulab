@@ -1,28 +1,57 @@
 <?php
-require_once __DIR__ . '/../fonctions_site_web.php';  // Sans "back_php/" !
+// Inclusion des fonctions générales du site.
+require_once __DIR__ . '/../fonctions_site_web.php';
 
-//fonction utilisée dans cette page
-// ======================= VÉRIFICATION FORCE DU MOT DE PASSE =======================
-/* Vérifie que le mot de passe respecte les règles de sécurité :
-   - Au moins 8 caractères
-   - Au moins une majuscule
-   - Au moins une minuscule
-   - Au moins un chiffre
-   - Au moins un caractère spécial
-   Retourne un tableau d'erreurs (vide si mot de passe valide) */
 function verifier_mdp($mdp) {
+
+    // ============================================================================
+    //  FONCTION : verifier_mdp()
+    //  Vérifie que le mot de passe respecte plusieurs critères de sécurité :
+    //      ✔ au moins 8 caractères
+    //      ✔ au moins une MAJUSCULE
+    //      ✔ au moins une minuscule
+    //      ✔ au moins un chiffre
+    //      ✔ au moins un caractère spécial
+    //
+    //  Retourne :
+    //      - un tableau vide si TOUT est correct
+    //      - un tableau contenant les messages d'erreurs sinon
+    // ============================================================================
+    
+    // Tableau où seront ajoutées les erreurs éventuelles
     $erreurs = [];
-    if (strlen($mdp) < 8) $erreurs[] = "au moins 8 caractères";
-    if (!preg_match('/[A-Z]/', $mdp)) $erreurs[] = "au moins une majuscule";
-    if (!preg_match('/[a-z]/', $mdp)) $erreurs[] = "au moins une minuscule";
-    if (!preg_match('/[0-9]/', $mdp)) $erreurs[] = "au moins un chiffre";
-    if (!preg_match('/[\W_]/', $mdp)) $erreurs[] = "au moins un caractère spécial (!@#$%^&*...)";
+
+    // Longueur minimale
+    if (strlen($mdp) < 8) 
+        $erreurs[] = "au moins 8 caractères";
+
+    // Présence d’une lettre majuscule
+    if (!preg_match('/[A-Z]/', $mdp)) 
+        $erreurs[] = "au moins une majuscule";
+
+    // Présence d’une lettre minuscule
+    if (!preg_match('/[a-z]/', $mdp)) 
+        $erreurs[] = "au moins une minuscule";
+
+    // Présence d'un chiffre
+    if (!preg_match('/[0-9]/', $mdp)) 
+        $erreurs[] = "au moins un chiffre";
+
+    // Présence d'un caractère spécial
+    // \W = tout ce qui n’est pas alphanumérique | _ = inclus aussi le souligné
+    if (!preg_match('/[\W_]/', $mdp)) 
+        $erreurs[] = "au moins un caractère spécial (!@#$%^&*...)";
+
+    // Retourne le tableau : vide si OK, rempli si erreurs
     return $erreurs;
 }
 
-// ======================= COMPARAISON DE MOT DE PASSE =======================
-/* Vérifie si deux mots de passe sont identiques (mot de passe et "réécrire mot de passe") */
 function mot_de_passe_identique($mdp1, $mdp2) {
+    // ============================================================================
+    //  FONCTION : mot_de_passe_identique()
+    //  Compare le mot de passe saisi et sa confirmation.
+    //  Retourne true si identiques, false sinon.
+    // ============================================================================
     return $mdp1 === $mdp2;
 }
 

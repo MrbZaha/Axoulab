@@ -10,12 +10,6 @@ require_once __DIR__ . '/../back_php/fonction_page/fonction_page_connexion.php';
 
 $bdd = connectBDD();
 
-
-
-// =======================  VÉRIFIER SI COMPTE EN COURS DE VALIDATION =======================
-/* Vérifie si le compte est en cours de validation
-   Retourne true si validation ,  false sinon */
-
 $erreur = "";
 
 // PARAMÈTRES DE SÉCURITÉ : LIMITE DE TENTATIVES 

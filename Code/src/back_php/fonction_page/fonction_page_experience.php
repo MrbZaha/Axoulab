@@ -286,20 +286,34 @@ function afficher_experience(array $experience, array $experimentateurs, array $
             
             <div class="project-container">
                 <div class="project-main">
-                    <?php
-                    global $bdd;
-                    $canModify = false;
-                    if (isset($_SESSION['ID_compte']) && isset($experience['ID_experience'])) {
-                        $canModify = verifier_acces_experience($bdd, $_SESSION['ID_compte'], $experience['ID_experience']) === 'modification';
-                    }
-                    ?>
-                    <?php if ($canModify): ?>
-                        <div class="actions-experience">
-                            <form action="page_modification_experience.php?id_experience=<?= $experience['ID_experience'] ?>" method="post">
-                                <input type="submit" value="Modifier l'expérience" />
-                            </form>
-                        </div>
-                    <?php endif; ?>
+<?php
+global $bdd;
+$canModifyExperience = false;
+$canModifyResults = false;
+
+if (isset($_SESSION['ID_compte']) && isset($experience['ID_experience'])) {
+    $acces = verifier_acces_experience($bdd, $_SESSION['ID_compte'], $experience['ID_experience']);
+    $canModifyExperience = ($acces === 'modification');
+    $canModifyResults = ($acces === 'modification');
+}
+?>
+
+<?php if ($canModifyExperience || $canModifyResults): ?>
+    <div class="actions-experience">
+        <?php if ($canModifyExperience): ?>
+            <form action="page_modification_experience.php?id_experience=<?= $experience['ID_experience'] ?>" method="post">
+                <input type="submit" value="Modifier l'expérience" />
+            </form>
+        <?php endif; ?>
+
+        <?php if ($canModifyResults): ?>
+            <form action="page_modification_resultats.php?id_experience=<?= $experience['ID_experience'] ?>" method="post">
+                <input type="submit" value="Modifier les résultats" />
+            </form>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
+
                     <!-- Description -->
                     <div class="project-description">
                         <h3>Description</h3>
