@@ -572,50 +572,59 @@ function afficher_Bandeau_Bas() {
 // =======================  Récupération de l'ensemble des expériences =======================
 function get_mes_experiences_complets(PDO $bdd, ?int $id_compte = null): array {
 
-    // --- 1. Requête principale
-    $sql_experiences = "
-        SELECT 
-            e.ID_experience, 
-            e.Nom, 
-            e.Validation, 
-            e.Description, 
-            e.Date_reservation,
-            e.Heure_debut,
-            e.Heure_fin,
-            e.Resultat,
-            e.Statut_experience,
-            e.Date_de_creation,
-            e.Date_de_modification,
-            s.Nom_Salle,
-            p.Nom_projet,
-            p.ID_projet
-        FROM experience e
-        LEFT JOIN projet_experience pe
-            ON pe.ID_experience = e.ID_experience
-        LEFT JOIN projet p
-            ON p.ID_projet = pe.ID_projet
-        LEFT JOIN materiel_experience se
-            ON e.ID_experience = se.ID_experience
-        LEFT JOIN salle_materiel s
-            ON se.ID_materiel = s.ID_materiel
-        INNER JOIN experience_experimentateur ee
-            ON e.ID_experience = ee.ID_experience
-    ";
+// --- 1. Requête principale
+$sql_experiences = "
+    SELECT 
+        e.ID_experience, 
+        e.Nom, 
+        e.Validation, 
+        e.Description, 
+        e.Date_reservation,
+        e.Heure_debut,
+        e.Heure_fin,
+        e.Resultat,
+        e.Statut_experience,
+        e.Date_de_creation,
+        e.Date_de_modification,
 
-    if ($id_compte !== null) {
-        $sql_experiences .= " WHERE ee.ID_compte = :id_compte";
-        $stmt = $bdd->prepare($sql_experiences);
-        $stmt->execute(['id_compte' => $id_compte]);
-    } else {
-        $stmt = $bdd->prepare($sql_experiences);
-        $stmt->execute();
-    }
+        GROUP_CONCAT(DISTINCT s.Nom_Salle SEPARATOR ', ') AS Nom_Salle,
+        GROUP_CONCAT(DISTINCT p.Nom_projet SEPARATOR ', ') AS Nom_projet,
+        GROUP_CONCAT(DISTINCT p.ID_projet SEPARATOR ',') AS ID_projet
 
-    $experiences = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    FROM experience e
+    LEFT JOIN projet_experience pe
+        ON pe.ID_experience = e.ID_experience
+    LEFT JOIN projet p
+        ON p.ID_projet = pe.ID_projet
+    LEFT JOIN materiel_experience se
+        ON e.ID_experience = se.ID_experience
+    LEFT JOIN salle_materiel s
+        ON se.ID_materiel = s.ID_materiel
+    INNER JOIN experience_experimentateur ee
+        ON e.ID_experience = ee.ID_experience
+";
 
-    if (empty($experiences)) {
-        return [];
-    }
+// Si un ID compte est fourni
+if ($id_compte !== null) {
+    $sql_experiences .= " WHERE ee.ID_compte = :id_compte";
+}
+
+// IMPORTANT : Groupement pour supprimer les doublons
+$sql_experiences .= " GROUP BY e.ID_experience";
+
+$stmt = $bdd->prepare($sql_experiences);
+
+if ($id_compte !== null) {
+    $stmt->execute(['id_compte' => $id_compte]);
+} else {
+    $stmt->execute();
+}
+
+$experiences = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+if (empty($experiences)) {
+    return [];
+}
 
     // --- 2. Récupérer tous les IDs d'expérience
     $ids_exp = array_column($experiences, 'ID_experience');
@@ -645,10 +654,8 @@ function get_mes_experiences_complets(PDO $bdd, ?int $id_compte = null): array {
     // --- 5. Ajouter les expérimentateurs et progression
     foreach ($experiences as &$exp) {
         $exp['Experimentateurs'] = $experimentateurs[$exp['ID_experience']] ?? [];
-        
-
+    }
     return $experiences;
-}
 }
 
 
@@ -731,7 +738,6 @@ function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1
     // On récupère l'indice de la première expérience qui sera affichée
     $debut = ($page_actuelle - 1) * $items_par_page;
     $experiences_page = array_slice($experiences, $debut, $items_par_page);
-    $bdd = connectBDD();
     
     ?>
     <div class="liste">
@@ -1027,8 +1033,6 @@ function accepter_utilisateur($bdd, $id_user) {
 
 
 // =======================  Fonction de tri des projets et/ou expériences =======================
-
-
 function filtrer_trier_pro_exp(PDO $bdd, 
     int $id_compte,
     array $types = ['projet','experience'], // types à inclure

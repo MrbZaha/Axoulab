@@ -1,6 +1,10 @@
 <?php
+session_start();
 require_once __DIR__ . '/../back_php/fonctions_site_web.php';
 require_once __DIR__ . '/../back_php/fonction_page/fonction_page_creation_experience_1.php';
+
+$bdd = connectBDD();
+verification_connexion($bdd);
 
 $message = "";
 $experimentateurs_selectionnes = [];
@@ -56,6 +60,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($erreurs)) {
             $message = "<p style='color:red;'>" . implode("<br>", $erreurs) . "</p>";
         } else {
+            // Stocker en session
+            $_SESSION['creation_experience'] = [
+                'nom_experience' => $nom_experience,
+                'description' => $description,
+                'experimentateurs_ids' => $experimentateurs_selectionnes
+            ];
+            
             // Redirection vers page 2 avec les données en POST
             echo '<form id="form-redirect" method="post" action="page_creation_experience_2.php">';
             echo '<input type="hidden" name="id_projet" value="' . $id_projet . '">';

@@ -8,7 +8,7 @@ verification_connexion($bdd);
 
 // Récupération et filtrage des expériences
 $id_compte = $_SESSION['ID_compte'];
-$experiences = get_mes_experiences_complets($bdd, $id_compte, 1);
+$experiences = get_mes_experiences_complets($bdd, $id_compte);
 
 // Séparation en deux listes
 $experiences_a_venir = array_filter($experiences, fn($e) => $e['Statut_experience'] == 0);
