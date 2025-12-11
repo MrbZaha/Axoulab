@@ -18,17 +18,18 @@ if (est_admin($bdd, $_SESSION["email"])){
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+# Debug
 //On récupère l'ensemble des expériences
-$experiences = get_mes_experiences_complets($bdd); 
+$projets = get_mes_experiences_complets($bdd); 
 
 // Réindexation des tableaux
-$experiences = array_values($experiences);
+$projets = array_values($projets);
 
 // Configuration pagination
 $items_par_page = 6;
 $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 
-$total_pages = create_page($experiences, $items_par_page);
+$total_pages = create_page($projets, $items_par_page);
 
 // Vérification que les pages demandées existent
 if ($page > $total_pages) $page = $total_pages;
@@ -38,10 +39,10 @@ if ($page > $total_pages) $page = $total_pages;
 // Si une action GET est reçue
 if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
     if (isset($_GET['id'])) {
-        $id_experience = intval($_GET['id']);
-        supprimer_experience($bdd, $id_experience);
+        $id_projet = intval($_GET['id']);
+        supprimer_projet($bdd, $id_projet);
 
-        // On recharge la page proprement (cela empêche de supprimer deux fois)
+        // On recharge la page proprement (pour empêcher de supprimer deux fois)
         header("Location: page_admin_experiences.php?suppression=ok");
         exit;
     }
@@ -54,7 +55,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
 <html lang="en">
     <head>
         <meta charset= "utf-8"/>
-        <link rel="stylesheet" href="../css/page_mes_experiences.css"> <!-- Utilisé pour l'affichage des exp-->
+        <link rel="stylesheet" href="../css/page_mes_experiences.css"> <!-- Utilisé pour l'affichage des projets-->
         <link rel="stylesheet" href="../css/admin.css">
         <link rel="stylesheet" href="../css/Bandeau_haut.css">
         <link rel="stylesheet" href="../css/Bandeau_bas.css">
@@ -73,19 +74,22 @@ if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
     ?>
     <!-- Afficher le titre de la page en bandeau-->
     <div class=bandeau>
-        <p> <?php echo "Expériences"; ?></p>
+        <p> <?php echo "Projets"; ?></p>
     </div> 
+
 
     <!-- Crée un grand div qui aura des bords arrondis et sera un peu gris-->
     <div class="back_square">
     <!-- Affichage des expériences une à une-->
         <section class="section-experiences">
-            <h2>Expériences (<?= count($experiences) ?>)</h2>  <!--Titre affichant le nombre d'expérience-->
-            <?php afficher_experiences_pagines($experiences, $page, $items_par_page); ?>
+            <!-- Debug -->
+            <h2>Projet(s) (<?= count($projets) ?>)</h2>  <!--Titre affichant le nombre d'expérience-->
+            <?php afficher_projets_pagines($projets, $page, $items_par_page); ?>
             <?php afficher_pagination($page, $total_pages); ?>
         </section>
         <!-- À l'intérieur, avec aspect spécifique et boutons -->
     </div>
+
 
     <!-- Permet d'afficher le footer de la page -->
     <?php afficher_Bandeau_Bas(); ?>

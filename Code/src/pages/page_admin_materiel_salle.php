@@ -19,9 +19,21 @@ else {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// On récupère la liste du matériel
+$materiel = array_values(get_materiel($bdd));
+
+// On set la page que l'on observe
+$items_par_page = 20;
+$page = isset($_GET['pages']) ? max(1, (int)$_GET['page']) : 1;
+$total_pages = create_page($materiel, $items_par_page);
+
+// Vérification que la page demandée existe
+if ($page > $total_pages) $page = $total_pages;
+
+
+///////////////////////////////////////////////////////////////////////////////
 // Dans le cas où l'on cherche à supprimer un outil
 // Si une action GET est reçue
-# Debug
 if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
     if (isset($_GET['id'])) {
         $id_materiel = intval($_GET['id']);
@@ -36,17 +48,20 @@ if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
 ///////////////////////////////////////////////////////////////////////////////
 // Dans le cas où l'on cherche à modifier les informations d'un outil
 // Si une action GET est reçue
-# Debug
 if (isset($_POST['action']) && $_POST['action'] === 'modifier') {
-    modifier_materiel($bdd, intval($_POST['id']));
+    if (isset($_POST['id'])) {
+        modifier_materiel($bdd, intval($_POST['id']));
+
+        // On recharge la page proprement (cela empêche de supprimer deux fois)
+        header("Location: page_admin_materiel_salle.php?modification=ok");
+        exit;
+    }
 }
 
 
 // =======================  Traitement des informations modifiées  =======================
-# Debug 
 function modifier_materiel($bdd, $id){
     if (isset($_POST["salle"], $_POST["materiel"])) {
-        echo "llll";
         // Récupération des données et nettoyage
         $salle = trim($_POST["salle"]);
         $mat = trim($_POST["materiel"]);
@@ -56,8 +71,8 @@ function modifier_materiel($bdd, $id){
             $stmt = $bdd->prepare("
                 UPDATE salle_materiel
                 SET Nom_Salle = ?,
-                    Materiel = ?,
-                WHERE ID_compte = ?
+                    Materiel = ?
+                WHERE ID_materiel = ?
             ");
 
             $stmt->execute([
@@ -69,6 +84,8 @@ function modifier_materiel($bdd, $id){
         }
         catch (Exception $e) {
             $message = "<p style='color:red;'>Une erreur est survenue : " . $e->getMessage() . "</p>";
+            echo $message;
+
         }
     } else {
     $message = "<p style='color:red;'>Une erreur est survenue. Veuillez réessayer ultérieurement</p>";
@@ -92,7 +109,6 @@ function get_materiel($bdd) {
 }
 
 // =======================  Fonction pour afficher l'ensemble des utilisateurs =======================
-# Debug
 function afficher_materiel_pagines($materiel, $page_actuelle, $items_par_page, $bdd) {
     // On récupère l'indice de la première expérience qui sera affichée
     $debut = ($page_actuelle - 1) * $items_par_page;
@@ -140,8 +156,7 @@ function afficher_materiel_pagines($materiel, $page_actuelle, $items_par_page, $
                 <td>
                     <a class="btn btnRouge"
                         href="page_admin_materiel_salle.php?action=supprimer&id=<?= $id ?>">
-                        Supprimer
-                    </a>
+                        Supprimer</a>
                 </td>
             </form>
         </tr>
@@ -154,20 +169,6 @@ function afficher_materiel_pagines($materiel, $page_actuelle, $items_par_page, $
     <?php
 }
 
-
-# Debug
-// On récupère la liste du matériel
-$materiel = array_values(get_materiel($bdd));
-
-// On set la page que l'on observe
-$items_par_page = 20;
-$page = isset($_GET['pages']) ? max(1, (int)$_GET['pages']) : 1;
-$total_pages = create_page($materiel, $items_par_page);
-
-// Vérification que la page demandée existe
-if ($page > $total_pages) $page = $total_pages;
-
-
 ?>
 
 <!DOCTYPE html>
@@ -177,7 +178,7 @@ if ($page > $total_pages) $page = $total_pages;
         <link rel="stylesheet" href="../css/page_mes_experiences.css"> <!-- Utilisé pour l'affichage des titres -->
         <link rel="stylesheet" href="../css/page_admin_utilisateurs.css"> <!-- Utilisé pour l'affichage du matérie-->
 
-        <!-- <link rel="stylesheet" href="../css/admin.css"> -->
+        <link rel="stylesheet" href="../css/admin.css">
         <link rel="stylesheet" href="../css/Bandeau_haut.css">
         <link rel="stylesheet" href="../css/Bandeau_bas.css">
         <link rel="stylesheet" href="../css/boutons.css">
@@ -207,7 +208,6 @@ if ($page > $total_pages) $page = $total_pages;
     <div class="back_square">
     <!-- Affichage des expériences une à une-->
         <section class="section-experiences">
-            <!-- Debug -->
             <h2>Utilisateurs (<?= count($materiel) ?>)</h2>  <!--Titre affichant le nombre de matériel disponible-->
             <?php afficher_materiel_pagines($materiel, $page, $items_par_page, $bdd); ?>
             <?php afficher_pagination($page, $total_pages); ?>

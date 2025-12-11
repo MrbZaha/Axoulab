@@ -359,8 +359,8 @@ $planning = organiser_reservations_par_creneau($reservations, $dates_semaine, $h
                                     <div class="reservation-continue <?= $cls ?>" 
                                          style="height: calc(<?= $duree ?> * 100%); position: absolute; top: 0; left: 0; right: 0; z-index: <?= 2 + $i ?>; border-radius: 4px; padding: 8px; cursor: pointer; transition: transform 0.2s;">
                                         <div class="reservation-content" style="font-size: 0.85em;">
-                                            <div class="experimentateur" style="font-weight: 700; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                <?= htmlspecialchars($res['experimentateurs_selectionnes'] ?: 'Non assigné') ?>
+                                                <div class="experimentateur" style="font-weight: 700; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                <?= htmlspecialchars($res['experimentateurs_ids'] ?? ($res['experimentateurs'] ?? 'Non assigné')) ?>
                                             </div>
                                             <div class="projet" style="font-size: 0.9em; opacity: 0.9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                                 <?= htmlspecialchars($res['Nom_projet'] ?: 'Sans projet') ?>
@@ -380,7 +380,7 @@ $planning = organiser_reservations_par_creneau($reservations, $dates_semaine, $h
                                                 </div>
                                                 <div class="overlay-row" style="margin-bottom: 8px; line-height: 1.4;">
                                                     <strong style="color: #000; display: inline-block; min-width: 130px;">Expérimentateur(s) :</strong> 
-                                                    <?= htmlspecialchars($res['experimentateurs_selectionnes'] ?: 'Non assigné') ?>
+                                                    <?= htmlspecialchars($res['experimentateurs_ids'] ?? ($res['experimentateurs'] ?? 'Non assigné')) ?>
                                                 </div>
                                                 <div class="overlay-row" style="margin-bottom: 8px; line-height: 1.4;">
                                                     <strong style="color: #000; display: inline-block; min-width: 130px;">Horaire :</strong> 
