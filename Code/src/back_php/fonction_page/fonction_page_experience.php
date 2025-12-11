@@ -10,6 +10,7 @@ $id_experience = isset($_GET['id_experience']) ? (int)$_GET['id_experience'] : 0
 // Variable pour stocker les erreurs
 $erreur = null;
 
+
 /**
  * Vérifie si l'utilisateur a le droit d'accéder à une expérience donnée.
  *
@@ -25,12 +26,11 @@ $erreur = null;
  * @param int $id_compte ID du compte utilisateur dont on vérifie les droits
  * @param int $id_experience ID de l'expérience à laquelle on souhaite accéder
  *
- * @return bool true si l'accès est autorisé, false dans les cas suivants :
- *              - L'utilisateur n'est ni expérimentateur ni gestionnaire du projet parent
- *              - L'expérience n'est liée à aucun projet
- *              - Le projet parent est confidentiel et l'utilisateur n'est pas gestionnaire
+ * @return str 'modification' si la personne est experimentateur de l'experience ou gestionnaire du projet lié
+ *             'acces' si elle est collaborateur du projet ou que le projet n'est pas confidentiel
+ *             'none' dans les cas restants
  */
-function verifier_acces_experience(PDO $bdd, int $id_compte, int $id_experience): bool {
+function verifier_acces_experience(PDO $bdd, int $id_compte, int $id_experience): string {
     // Vérifier si l'utilisateur est expérimentateur
     $sql_experimentateur = "
         SELECT 1 
@@ -45,7 +45,7 @@ function verifier_acces_experience(PDO $bdd, int $id_compte, int $id_experience)
     ]);
     
     if ($stmt->fetch()) {
-        return true; // L'utilisateur est expérimentateur
+        return 'modification'; // L'utilisateur est expérimentateur
     }
     
     // Sinon, vérifier via le projet lié
@@ -70,17 +70,29 @@ function verifier_acces_experience(PDO $bdd, int $id_compte, int $id_experience)
     $result = $stmt2->fetch(PDO::FETCH_ASSOC);
     
     if (!$result) {
-        return false; // Pas de projet lié ou projet inexistant
+        return 'none'; // Pas de projet lié ou projet inexistant
+    }
+
+    // Si personne gestionnaire -> droit de modification
+    else if (isset($result['Statut']) && (int)$result['Statut'] === 1) {
+        return 'modification';
+    }
+
+    // Si personne collaborateur -> droit d'accès
+    else if (isset($result['Statut']) && (int)$result['Statut'] === 0) {
+        return 'acces';
     }
     
     // Si projet non confidentiel → accessible
-    if ((int)$result['Confidentiel'] === 0) {
-        return true;
+    else if ((int)$result['Confidentiel'] === 0) {
+        return 'acces';
     }
     
-    // Si projet confidentiel → accessible uniquement aux gestionnaires
-    return isset($result['Statut']) && (int)$result['Statut'] === 1;
-}
+    else {
+        return 'none';
+    }
+}   
+
 
 /**
  * Récupère toutes les informations détaillées d'une expérience.
@@ -382,7 +394,7 @@ function charger_donnees_experience(PDO $bdd, int $id_compte, int $id_experience
     }
     
     // Vérifier l'accès
-    if (!verifier_acces_experience($bdd, $id_compte, $id_experience)) {
+    if (!(verifier_acces_experience($bdd, $id_compte, $id_experience) == 'acces' || verifier_acces_experience($bdd, $id_compte, $id_experience) == 'modification')) {
         return [
             'erreur' => "Vous n'avez pas accès à cette expérience.",
             'experience' => null,

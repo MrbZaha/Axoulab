@@ -310,7 +310,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 
         <div id="site_nav_links">
             <ul class="liste_links">
-                <li class="main_links"><a href="page_rechercher.php?texte=&type%5B0%5D=projet&type%5B1%5D=experience&tri=A-Z&ordre=asc" class="Links">Explorer</a></li>
+                <li class="main_links"><a href="page_rechercher.php?texte=&type%5B0%5D=projet&type%5B1%5D=experience&afficher_confidentiels=on&tri=A-Z&ordre=asc" class="Links">Explorer</a></li>
                 <li class="main_links"><a href="page_mes_experiences.php" class="Links">Mes expériences</a></li>
                 <li class="main_links"><a href="page_mes_projets.php" class="Links">Mes projets</a></li>
 
