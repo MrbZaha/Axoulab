@@ -111,7 +111,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (!empty($destinataires_gestionnaires)) {
                         envoyerNotification($bdd, 11, $_SESSION["ID_compte"], $donnees, $destinataires_gestionnaires);
                     }  
-                
+                    
+                       // Notification aux collaborateurs ajoutés (type 16)
+                    $dest_collab = array_values(array_diff($tous_collaborateurs, [$_SESSION["ID_compte"]]));
+                    if (!empty($dest_collab)) {
+                        envoyerNotification($bdd, 16, $_SESSION["ID_compte"], $donnees, $dest_collab);
+                    }
+                    
                     $message = "<p style='color:green;'>Le projet a été créé et proposé aux gestionnaires pour validation.</p>";
                 
                     header("Location: page_projet.php?id_projet=" . $id_projet);
