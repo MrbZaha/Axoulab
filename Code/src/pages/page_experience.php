@@ -37,7 +37,14 @@ $page_title = $experience ? htmlspecialchars($experience['Nom']) : "Expérience"
     <h1>Experience</h1>
     
 <?php if (!$erreur): ?>
-    <!-- actions moved inside the main content to align with the info card -->
+    <div class="actions-experience">
+        <form action="page_modification\page_modification_resultats.php?id_experience=<?= $id_experience ?>" method="post">
+            <input type="submit" value="Modifier résultats" />
+        </form>
+        <form action="page_modification_experience.php?id_experience=<?= $id_experience ?>" method="post">
+            <input type="submit" value="Modifier l'experience" />
+        </form>
+    </div>
 <?php endif; ?>
 
 <?php if ($erreur): ?>
