@@ -148,39 +148,6 @@ function get_info_experience(PDO $bdd, int $id_experience): ?array {
     return $experience ?: null;
 }
 
-/**
- * Récupère la liste des expérimentateurs assignés à une expérience.
- *
- * Cette fonction recherche tous les comptes liés à l'expérience via la table
- * de liaison experience_experimentateur, puis formate les résultats sous forme
- * de chaînes "Prénom Nom". La liste est triée alphabétiquement par nom puis prénom.
- *
- * @param PDO $bdd Connexion PDO à la base de données
- * @param int $id_experience ID de l'expérience dont on souhaite les expérimentateurs
- *
- * @return array Tableau de chaînes de caractères au format "Prénom Nom".
- *               Exemple : ["Jean Dupont", "Marie Martin"]
- *               Retourne un tableau vide si aucun expérimentateur n'est assigné
- */
-function get_experimentateurs(PDO $bdd, int $id_experience): array {
-    $sql = "
-        SELECT c.Prenom, c.Nom
-        FROM experience_experimentateur ee
-        JOIN compte c ON ee.ID_compte = c.ID_compte
-        WHERE ee.ID_experience = :id_experience
-        ORDER BY c.Nom, c.Prenom
-    ";
-    
-    $stmt = $bdd->prepare($sql);
-    $stmt->execute(['id_experience' => $id_experience]);
-    
-    $experimentateurs = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $experimentateurs[] = $row['Prenom'] . ' ' . $row['Nom'];
-    }
-    
-    return $experimentateurs;
-}
 
 /**
  * Récupère les salles et le matériel utilisés pour une expérience.

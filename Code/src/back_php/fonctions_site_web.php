@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         $update->execute([$nouvelEtat, $idNotif]);
 
         // --- Validation expérience par gestionnaire ---
-        if (!$isProjet && $typeNotif == 1) {
+        if (!$isProjet && $typeNotif == 2) {
             if ($idExperience) {
                 // Ne mettre à jour que si c'est validé (1) ou refusé (2)
                 if (in_array($nouvelEtat, [1, 2])) {
@@ -117,6 +117,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
                     $updateExp->execute([$nouvelEtat, $idExperience]);
                 }
                 // Si c'est 0 (en attente), ne rien faire
+
+                 // --- NOTIFICATION POUR LES EXPÉRIMENTATEURS ---
+                if ($nouvelEtat == 1) { // uniquement si validée
+                    // Récupérer les expérimentateurs liés à cette expérience
+
+                    $experimentateurs = get_experimentateurs($bdd, $idExperience);
+
+
+                    if (!empty($experimentateurs)) {
+
+                        // Nom de l'expérience
+                        $stmtNomExp = $bdd->prepare("SELECT Nom FROM experience WHERE ID_experience = ?");
+                        $stmtNomExp->execute([$idExperience]);
+                        $nomExp = $stmtNomExp->fetchColumn();
+
+                        // Créer une notification pour chaque expérimentateur
+                        foreach ($experimentateurs  as $idExpUser) {
+                            
+                            envoyerNotification(
+                                $bdd,
+                                4, 
+                                $idUtilisateur, // gestionnaire qui valide
+                                ['ID_experience' => $idExperience, 'Nom_experience' => $nomExp],
+                                [$idExpUser]
+                 
+                            );
+                        }
+                    }
+                }
             }
         }
 
@@ -469,13 +498,10 @@ function get_last_notif($bdd, $IDuser, $limit = 10) {
         1  => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer l\'expérience {Nom_experience}',
         2  => '{Nom_envoyeur} {Prenom_envoyeur} a validé l\'expérience {Nom_experience}',
         3  => '{Nom_envoyeur} {Prenom_envoyeur} a refusé l\'expérience {Nom_experience}',
-        4  => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier l\'expérience {Nom_experience}',
-        5  => '{Nom_experience} a été modifiée par {Nom_envoyeur} {Prenom_envoyeur}',
+        4  => '{Nom_envoyeur} {Prenom_envoyeur} vous a mis en experimentateur surl\'expérience {Nom_experience}',
         11 => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer le projet {Nom_projet}',
         12 => '{Nom_envoyeur} {Prenom_envoyeur} a validé le projet {Nom_projet}',
         13 => '{Nom_envoyeur} {Prenom_envoyeur} a refusé le projet {Nom_projet}',
-        14 => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier le projet {Nom_projet}',
-        15 => '{Nom_projet} a été modifié par {Nom_envoyeur} {Prenom_envoyeur}',
         16 => '{Nom_envoyeur} {Prenom_envoyeur} vous a ajouté comme collaborateur sur le projet {Nom_projet}',
     ];
 
@@ -1441,6 +1467,40 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
         <?php endif; ?>
     </div>
     <?php
+}
+
+/**
+ * Récupère la liste des expérimentateurs assignés à une expérience.
+ *
+ * Cette fonction recherche tous les comptes liés à l'expérience via la table
+ * de liaison experience_experimentateur, puis formate les résultats sous forme
+ * de chaînes "Prénom Nom". La liste est triée alphabétiquement par nom puis prénom.
+ *
+ * @param PDO $bdd Connexion PDO à la base de données
+ * @param int $id_experience ID de l'expérience dont on souhaite les expérimentateurs
+ *
+ * @return array Tableau de chaînes de caractères au format "Prénom Nom".
+ *               Exemple : ["Jean Dupont", "Marie Martin"]
+ *               Retourne un tableau vide si aucun expérimentateur n'est assigné
+ */
+function get_experimentateurs(PDO $bdd, int $id_experience): array {
+    $sql = "
+        SELECT c.Prenom, c.Nom
+        FROM experience_experimentateur ee
+        JOIN compte c ON ee.ID_compte = c.ID_compte
+        WHERE ee.ID_experience = :id_experience
+        ORDER BY c.Nom, c.Prenom
+    ";
+    
+    $stmt = $bdd->prepare($sql);
+    $stmt->execute(['id_experience' => $id_experience]);
+    
+    $experimentateurs = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $experimentateurs[] = $row['Prenom'] . ' ' . $row['Nom'];
+    }
+    
+    return $experimentateurs;
 }
 
 ?>
