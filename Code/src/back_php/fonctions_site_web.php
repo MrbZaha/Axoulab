@@ -404,7 +404,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 // =======================  VÉRIFIER SI ADMIN =======================
 /* Vérifie si un compte est administrateur
    Retourne true si l'utilisateur est admin, false sinon */
-function est_admin($bdd, $email) {
+function est_admin(PDO $bdd, $email) {
     $stmt = $bdd->prepare("SELECT etat FROM compte WHERE email = ?");
     $stmt->execute([$email]);
     if ($stmt->rowCount() > 0) {
@@ -608,13 +608,20 @@ $sql_experiences = "
         ON e.ID_experience = se.ID_experience
     LEFT JOIN salle_materiel s
         ON se.ID_materiel = s.ID_materiel
-    INNER JOIN experience_experimentateur ee
+    LEFT JOIN experience_experimentateur ee
         ON e.ID_experience = ee.ID_experience
 ";
 
-// Si un ID compte est fourni
+// Si un ID compte est fourni -> on veut les expériences où l'utilisateur
+// est expérimentateur OU liées à un projet dont il est gestionnaire/collaborateur
 if ($id_compte !== null) {
-    $sql_experiences .= " WHERE ee.ID_compte = :id_compte";
+    $sql_experiences .= " WHERE (ee.ID_compte = :id_compte
+        OR EXISTS (
+            SELECT 1 FROM projet_experience pe2
+            JOIN projet_collaborateur_gestionnaire pcg ON pcg.ID_projet = pe2.ID_projet
+            WHERE pe2.ID_experience = e.ID_experience AND pcg.ID_compte = :id_compte
+        )
+    )";
 }
 
 // IMPORTANT : Groupement pour supprimer les doublons
@@ -743,6 +750,8 @@ function create_page(array $items, int $items_par_page = 6): int {
 
 // =======================  affichage des expériences sur plusieurs pages =======================
 function afficher_experiences_pagines(array $experiences, int $page_actuelle = 1, int $items_par_page = 6): void {
+    // utiliser la connexion globale à la BDD si disponible
+    global $bdd;
     // On récupère l'indice de la première expérience qui sera affichée
     $debut = ($page_actuelle - 1) * $items_par_page;
     $experiences_page = array_slice($experiences, $debut, $items_par_page);
