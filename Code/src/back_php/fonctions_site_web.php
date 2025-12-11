@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
                 if ($typeNotif == 16) {
                     // Notification simple d'ajout collaborateur - pas de réponse
                     $typeRetour = null;
-                } elseif (in_array($typeNotif, [2,3,4,5,12,13,14,15])) {
+                } elseif (in_array($typeNotif, [2,3,4,5,12,13])) {
                     // Notifications de retour - pas de nouvelle réponse
                     $typeRetour = null;
                 } else {
@@ -97,10 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
             case "rejeter":
                 $nouvelEtat = 2;
                 $typeRetour = $isProjet ? 13 : 3;
-                break;
-            case "modifier":
-                $nouvelEtat = 3;
-                $typeRetour = $isProjet ? 14 : 4;
                 break;
         }
 
@@ -189,15 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 
                     $typeRetour = null; // Déjà envoyé ci-dessus
                     
-                } elseif ($nouvelEtat == 3) {
-                    // Demande de modification
-                    $stmtNomProjet = $bdd->prepare("SELECT Nom_projet FROM projet WHERE ID_projet = ?");
-                    $stmtNomProjet->execute([$idProjet]);
-                    $nomProjet = $stmtNomProjet->fetchColumn();
-                    
-                    envoyerNotification($bdd, 14, $idUtilisateur, ['ID_projet' => $idProjet, 'Nom_projet' => $nomProjet], [$idEnvoyeurOriginal]);
-                    $typeRetour = null; // Déjà envoyé
-                }
+                } 
 
             } else {
                 // === CAS CHERCHEUR/ADMIN ===
@@ -500,16 +488,16 @@ function get_last_notif($bdd, $IDuser, $limit = 10) {
             $texte_notifications[$type] ?? 'Notification inconnue'
         );
 
-        $link = ($type >= 1 && $type <= 5)
+        $link = ($type >= 1 && $type <= 4)
             ? "page_experience.php?id_projet=".$notif['ID_projet']."&id_experience=".$notif['ID_experience']
-            : ($type >= 11 && $type <= 15 ? "page_projet.php?id_projet=".$notif['ID_projet'] : "#");
+            : ($type >= 11 && $type <= 13 ? "page_projet.php?id_projet=".$notif['ID_projet'] : "#");
 
         $actions = [];
 
         if ($notif['Valider'] == 0) {
             if (in_array($type, [1, 11, 16])) {
              // notifications de création de projet/expérience ou ajout collaborateur
-            $actions = ['valider', 'rejeter', 'modifier'];
+            $actions = ['valider', 'rejeter'];
                     if ($type == 16) $actions = ['valider']; // le collaborateur peut juste valider
             } elseif (in_array($type, [2,3,4,5,12,13,14,15])) {
             // notifications de retour au créateur ou info
@@ -522,7 +510,6 @@ function get_last_notif($bdd, $IDuser, $limit = 10) {
             case 0: $statut_texte = 'Non traitée'; break;
             case 1: $statut_texte = 'Validée'; break;
             case 2: $statut_texte = 'Refusée'; break;
-            case 3: $statut_texte = 'Modification demandée'; break;
         }
 
         $result[] = [
@@ -842,7 +829,7 @@ $TYPES_NOTIFICATIONS = [
     1 => [
         'texte' => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer l\'expérience {Nom_experience}',
         'destinataire' => 'gestionnaire',
-        'actions' => ['valider', 'rejeter', 'modifier']
+        'actions' => ['valider', 'rejeter']
     ],
     2 => [
         'texte' => '{Nom_envoyeur} {Prenom_envoyeur} a validé l\'expérience {Nom_experience}',
@@ -855,11 +842,6 @@ $TYPES_NOTIFICATIONS = [
         'actions' => ['valider']
     ],
     4 => [
-        'texte' => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier l\'expérience {Nom_experience}',
-        'destinataire' => 'utilisateur_connecte',
-        'actions' => ['valider']
-    ],
-    5 => [
         'texte' => '{Nom_experience} a été modifiée par {Nom_envoyeur} {Prenom_envoyeur}',
         'destinataire' => 'experimentateur',
         'actions' => ['valider']
@@ -867,7 +849,7 @@ $TYPES_NOTIFICATIONS = [
     11 => [
         'texte' => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer le projet {Nom_projet}',
         'destinataire' => 'chercheur',
-        'actions' => ['valider', 'rejeter', 'modifier']
+        'actions' => ['valider', 'rejeter']
     ],
     12 => [
         'texte' => '{Nom_envoyeur} {Prenom_envoyeur} a validé le projet {Nom_projet}',
@@ -876,16 +858,6 @@ $TYPES_NOTIFICATIONS = [
     ],
     13 => [
         'texte' => '{Nom_envoyeur} {Prenom_envoyeur} a refusé le projet {Nom_projet}',
-        'destinataire' => 'etudiant',
-        'actions' => ['valider']
-    ],
-    14 => [
-        'texte' => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier le projet {Nom_projet}',
-        'destinataire' => 'etudiant',
-        'actions' => ['valider']
-    ],
-    15 => [
-        'texte' => '{Nom_projet} a été modifiée par {Nom_envoyeur} {Prenom_envoyeur}',
         'destinataire' => 'etudiant',
         'actions' => ['valider']
     ]
