@@ -10,6 +10,7 @@ $id_experience = isset($_GET['id_experience']) ? (int)$_GET['id_experience'] : 0
 // Variable pour stocker les erreurs
 $erreur = null;
 
+
 /**
  * Vérifie si l'utilisateur a le droit d'accéder à une expérience donnée.
  *
@@ -25,12 +26,11 @@ $erreur = null;
  * @param int $id_compte ID du compte utilisateur dont on vérifie les droits
  * @param int $id_experience ID de l'expérience à laquelle on souhaite accéder
  *
- * @return bool true si l'accès est autorisé, false dans les cas suivants :
- *              - L'utilisateur n'est ni expérimentateur ni gestionnaire du projet parent
- *              - L'expérience n'est liée à aucun projet
- *              - Le projet parent est confidentiel et l'utilisateur n'est pas gestionnaire
+ * @return str 'modification' si la personne est experimentateur de l'experience ou gestionnaire du projet lié
+ *             'acces' si elle est collaborateur du projet ou que le projet n'est pas confidentiel
+ *             'none' dans les cas restants
  */
-function verifier_acces_experience(PDO $bdd, int $id_compte, int $id_experience): bool {
+function verifier_acces_experience(PDO $bdd, int $id_compte, int $id_experience): string {
     // Vérifier si l'utilisateur est expérimentateur
     $sql_experimentateur = "
         SELECT 1 
@@ -45,7 +45,7 @@ function verifier_acces_experience(PDO $bdd, int $id_compte, int $id_experience)
     ]);
     
     if ($stmt->fetch()) {
-        return true; // L'utilisateur est expérimentateur
+        return 'modification'; // L'utilisateur est expérimentateur
     }
     
     // Sinon, vérifier via le projet lié
@@ -70,17 +70,29 @@ function verifier_acces_experience(PDO $bdd, int $id_compte, int $id_experience)
     $result = $stmt2->fetch(PDO::FETCH_ASSOC);
     
     if (!$result) {
-        return false; // Pas de projet lié ou projet inexistant
+        return 'none'; // Pas de projet lié ou projet inexistant
+    }
+
+    // Si personne gestionnaire -> droit de modification
+    else if (isset($result['Statut']) && (int)$result['Statut'] === 1) {
+        return 'modification';
+    }
+
+    // Si personne collaborateur -> droit d'accès
+    else if (isset($result['Statut']) && (int)$result['Statut'] === 0) {
+        return 'acces';
     }
     
     // Si projet non confidentiel → accessible
-    if ((int)$result['Confidentiel'] === 0) {
-        return true;
+    else if ((int)$result['Confidentiel'] === 0) {
+        return 'acces';
     }
     
-    // Si projet confidentiel → accessible uniquement aux gestionnaires
-    return isset($result['Statut']) && (int)$result['Statut'] === 1;
-}
+    else {
+        return 'none';
+    }
+}   
+
 
 /**
  * Récupère toutes les informations détaillées d'une expérience.
@@ -136,39 +148,6 @@ function get_info_experience(PDO $bdd, int $id_experience): ?array {
     return $experience ?: null;
 }
 
-/**
- * Récupère la liste des expérimentateurs assignés à une expérience.
- *
- * Cette fonction recherche tous les comptes liés à l'expérience via la table
- * de liaison experience_experimentateur, puis formate les résultats sous forme
- * de chaînes "Prénom Nom". La liste est triée alphabétiquement par nom puis prénom.
- *
- * @param PDO $bdd Connexion PDO à la base de données
- * @param int $id_experience ID de l'expérience dont on souhaite les expérimentateurs
- *
- * @return array Tableau de chaînes de caractères au format "Prénom Nom".
- *               Exemple : ["Jean Dupont", "Marie Martin"]
- *               Retourne un tableau vide si aucun expérimentateur n'est assigné
- */
-function get_experimentateurs(PDO $bdd, int $id_experience): array {
-    $sql = "
-        SELECT c.Prenom, c.Nom
-        FROM experience_experimentateur ee
-        JOIN compte c ON ee.ID_compte = c.ID_compte
-        WHERE ee.ID_experience = :id_experience
-        ORDER BY c.Nom, c.Prenom
-    ";
-    
-    $stmt = $bdd->prepare($sql);
-    $stmt->execute(['id_experience' => $id_experience]);
-    
-    $experimentateurs = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $experimentateurs[] = $row['Prenom'] . ' ' . $row['Nom'];
-    }
-    
-    return $experimentateurs;
-}
 
 /**
  * Récupère les salles et le matériel utilisés pour une expérience.
@@ -204,6 +183,40 @@ function get_salles_et_materiel(PDO $bdd, int $id_experience): array {
     $stmt->execute(['id_experience' => $id_experience]);
     
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Récupère la liste des expérimentateurs assignés à une expérience.
+ *
+ * Cette fonction recherche tous les comptes liés à l'expérience via la table
+ * de liaison experience_experimentateur, puis formate les résultats sous forme
+ * de chaînes "Prénom Nom". La liste est triée alphabétiquement par nom puis prénom.
+ *
+ * @param PDO $bdd Connexion PDO à la base de données
+ * @param int $id_experience ID de l'expérience dont on souhaite les expérimentateurs
+ *
+ * @return array Tableau de chaînes de caractères au format "Prénom Nom".
+ *               Exemple : ["Jean Dupont", "Marie Martin"]
+ *               Retourne un tableau vide si aucun expérimentateur n'est assigné
+ */
+function get_experimentateurs(PDO $bdd, int $id_experience): array {
+    $sql = "
+        SELECT c.Prenom, c.Nom
+        FROM experience_experimentateur ee
+        JOIN compte c ON ee.ID_compte = c.ID_compte
+        WHERE ee.ID_experience = :id_experience
+        ORDER BY c.Nom, c.Prenom
+    ";
+    
+    $stmt = $bdd->prepare($sql);
+    $stmt->execute(['id_experience' => $id_experience]);
+    
+    $experimentateurs = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $experimentateurs[] = $row['Prenom'] . ' ' . $row['Nom'];
+    }
+    
+    return $experimentateurs;
 }
 
 /**
@@ -273,7 +286,20 @@ function afficher_experience(array $experience, array $experimentateurs, array $
             
             <div class="project-container">
                 <div class="project-main">
-                    
+                    <?php
+                    global $bdd;
+                    $canModify = false;
+                    if (isset($_SESSION['ID_compte']) && isset($experience['ID_experience'])) {
+                        $canModify = verifier_acces_experience($bdd, $_SESSION['ID_compte'], $experience['ID_experience']) === 'modification';
+                    }
+                    ?>
+                    <?php if ($canModify): ?>
+                        <div class="actions-experience">
+                            <form action="page_modification_experience.php?id_experience=<?= $experience['ID_experience'] ?>" method="post">
+                                <input type="submit" value="Modifier l'expérience" />
+                            </form>
+                        </div>
+                    <?php endif; ?>
                     <!-- Description -->
                     <div class="project-description">
                         <h3>Description</h3>
@@ -321,7 +347,7 @@ function afficher_experience(array $experience, array $experimentateurs, array $
                         <?php endif; ?>
                     </div>
                 </div>
-                
+
                 <!-- Matériel utilisé -->
                 <?php if (!empty($materiels)): ?>
                     <div class="section-projets" style="margin-top: 30px;">
@@ -382,7 +408,7 @@ function charger_donnees_experience(PDO $bdd, int $id_compte, int $id_experience
     }
     
     // Vérifier l'accès
-    if (!verifier_acces_experience($bdd, $id_compte, $id_experience)) {
+    if (!(verifier_acces_experience($bdd, $id_compte, $id_experience) == 'acces' || verifier_acces_experience($bdd, $id_compte, $id_experience) == 'modification')) {
         return [
             'erreur' => "Vous n'avez pas accès à cette expérience.",
             'experience' => null,

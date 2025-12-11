@@ -21,7 +21,7 @@ if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["
     $nom = trim($_POST["Nom"]);
     $prenom = trim($_POST["Prenom"]);
     $datedenaissance = trim($_POST["date_de_naissance"]);
-    $utilisateur = $_POST["utilisateur"]; # utilisateur permet de savoir si c'est un étudiant, prof ou admin
+    $utilisateur = $_POST["utilisateur"]; # utilisateur permet de savoir si c'est un étudiant ou professeur
     $email = trim($_POST["email"]);
     $telephone = isset($_POST['telephone']) ? trim($_POST['telephone']) : '';
     $mdp1 = $_POST["mdp1"];
@@ -32,8 +32,6 @@ if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["
         $etat = 1;   // etudiant
     } elseif ($utilisateur === "chercheur") {
         $etat = 2;   // chercheur
-    } else {
-        $etat = 0;   // Debug, cette option n'est plus censée exister compte pas validé
     }
 
     // ======================= VALIDATION EMAIL =======================

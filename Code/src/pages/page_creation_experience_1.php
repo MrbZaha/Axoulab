@@ -9,6 +9,7 @@ verification_connexion($bdd);
 $message = "";
 $experimentateurs_selectionnes = [];
 $id_projet = null;
+$id_compte = $_SESSION['ID_compte'];
 
 // Récupérer l'ID du projet
 if (isset($_POST['id_projet'])) {
@@ -41,6 +42,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
         }
     }
+        // Charger les infos de TOUS les expérimentateurs sélectionnés
+    if (!empty($experimentateurs_selectionnes)) {
+        $placeholders = implode(',', array_fill(0, count($experimentateurs_selectionnes), '?'));
+        $stmt = $bdd->prepare("
+            SELECT ID_compte, Nom, Prenom, Etat
+            FROM compte
+            WHERE ID_compte IN ($placeholders)
+            ORDER BY Nom, Prenom
+        ");
+        $stmt->execute($experimentateurs_selectionnes);
+        $experimentateurs_info = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $experimentateurs_info = [];
+    }
+
 
     // Validation et passage à la page 2
     if (isset($_POST["continuer_reservation"])) {
@@ -80,18 +96,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Récupérer les personnes disponibles
+// S'assurer que le créateur est toujours dans la sélection pour qu'il n'apparaisse
+$creator_id = $_SESSION['ID_compte'] ?? null;
+if ($creator_id && !in_array($creator_id, $experimentateurs_selectionnes)) {
+    $experimentateurs_selectionnes[] = $creator_id;
+}
+
+// Récupérer les personnes disponibles (exclut les IDs déjà sélectionnés)
 $experimentateurs_disponibles = get_personnes_disponibles($bdd, $experimentateurs_selectionnes);
 
-// Récupérer les infos des personnes déjà sélectionnées
-$experimentateurs_info = [];
-if (!empty($experimentateurs_selectionnes)) {
+// s'assurer que le créateur ($id_compte) est dans la sélection
+$creator_id = $_SESSION['ID_compte'] ?? null;
+if ($creator_id && !in_array($creator_id, $experimentateurs_selectionnes)) {
+    $experimentateurs_selectionnes[] = $creator_id;
+    // recharger les infos pour inclure le créateur
     $placeholders = implode(',', array_fill(0, count($experimentateurs_selectionnes), '?'));
     $stmt = $bdd->prepare("SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE ID_compte IN ($placeholders)");
     $stmt->execute($experimentateurs_selectionnes);
     $experimentateurs_info = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
-
 
 ?>
 <!DOCTYPE html>

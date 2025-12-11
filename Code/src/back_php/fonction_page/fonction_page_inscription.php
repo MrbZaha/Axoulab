@@ -25,4 +25,12 @@ function verifier_mdp($mdp) {
 function mot_de_passe_identique($mdp1, $mdp2) {
     return $mdp1 === $mdp2;
 }
+
+// =======================  INSÉRER UN UTILISATEUR =======================
+/* Insère un nouvel utilisateur dans la base de données
+   Retourne true si insertion réussie, false sinon */
+function inserer_utilisateur($bdd, $nom, $prenom, $date, $etat, $email, $mdp_hash) {
+    $sql = $bdd->prepare("INSERT INTO compte (Nom, Prenom, date_de_naissance, etat, email, Mdp) VALUES (?, ?, ?, ?, ?, ?)");
+    return $sql->execute([$nom, $prenom, $date, $etat, $email, $mdp_hash]);
+}
 ?>

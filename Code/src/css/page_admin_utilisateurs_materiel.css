@@ -24,3 +24,8 @@ margin: auto;
 .tablehead{
     background-color : #2d9bce;
 }
+
+.creer_materiel {
+    display: flex;
+    justify-content: flex-end;
+}

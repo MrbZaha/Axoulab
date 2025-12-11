@@ -86,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
                 if ($typeNotif == 16) {
                     // Notification simple d'ajout collaborateur - pas de réponse
                     $typeRetour = null;
-                } elseif (in_array($typeNotif, [2,3,4,5,12,13,14,15])) {
+                } elseif (in_array($typeNotif, [2,3,4,5,12,13])) {
                     // Notifications de retour - pas de nouvelle réponse
                     $typeRetour = null;
                 } else {
@@ -97,10 +97,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
             case "rejeter":
                 $nouvelEtat = 2;
                 $typeRetour = $isProjet ? 13 : 3;
-                break;
-            case "modifier":
-                $nouvelEtat = 3;
-                $typeRetour = $isProjet ? 14 : 4;
                 break;
         }
 
@@ -121,6 +117,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
                     $updateExp->execute([$nouvelEtat, $idExperience]);
                 }
                 // Si c'est 0 (en attente), ne rien faire
+
+                 // --- NOTIFICATION POUR LES EXPÉRIMENTATEURS ---
+                if ($nouvelEtat == 1) { // uniquement si validée
+                    // Récupérer les expérimentateurs liés à cette expérience
+
+                    $experimentateurs = get_experimentateurs_ids($bdd, $idExperience);
+
+
+                    if (!empty($experimentateurs)) {
+
+                        // Nom de l'expérience
+                        $stmtNomExp = $bdd->prepare("SELECT Nom FROM experience WHERE ID_experience = ?");
+                        $stmtNomExp->execute([$idExperience]);
+                        $nomExp = $stmtNomExp->fetchColumn();
+
+                        // Retirer le gestionnaire actuel de la liste pour éviter de s'envoyer une notification
+                        $experimentateurs = array_diff($experimentateurs, [$idUtilisateur]);
+
+                        // Créer une notification pour chaque expérimentateur
+                        foreach ($experimentateurs  as $idExpUser) {
+                            
+                            envoyerNotification(
+                                $bdd,
+                                4, 
+                                $idUtilisateur, // gestionnaire qui valide
+                                ['ID_experience' => $idExperience, 'Nom_experience' => $nomExp],
+                                [$idExpUser]
+                 
+                            );
+                        }
+                    }
+                }
             }
         }
 
@@ -189,15 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 
                     $typeRetour = null; // Déjà envoyé ci-dessus
                     
-                } elseif ($nouvelEtat == 3) {
-                    // Demande de modification
-                    $stmtNomProjet = $bdd->prepare("SELECT Nom_projet FROM projet WHERE ID_projet = ?");
-                    $stmtNomProjet->execute([$idProjet]);
-                    $nomProjet = $stmtNomProjet->fetchColumn();
-                    
-                    envoyerNotification($bdd, 14, $idUtilisateur, ['ID_projet' => $idProjet, 'Nom_projet' => $nomProjet], [$idEnvoyeurOriginal]);
-                    $typeRetour = null; // Déjà envoyé
-                }
+                } 
 
             } else {
                 // === CAS CHERCHEUR/ADMIN ===
@@ -318,7 +338,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 
         <div id="site_nav_links">
             <ul class="liste_links">
-                <li class="main_links"><a href="page_rechercher.php?texte=&type%5B0%5D=projet&type%5B1%5D=experience&tri=A-Z&ordre=asc" class="Links">Explorer</a></li>
+                <?php if (est_admin($bdd, $_SESSION["email"])): ?>
+                    <li class="main_links"><a href="page_admin.php" class="Links">Dashboard</a></li>
+                <?php endif; ?>
+                <li class="main_links"><a href="page_rechercher.php?texte=&type%5B0%5D=projet&type%5B1%5D=experience&afficher_confidentiels=on&tri=A-Z&ordre=asc" class="Links">Explorer</a></li>
                 <li class="main_links"><a href="page_mes_experiences.php" class="Links">Mes expériences</a></li>
                 <li class="main_links"><a href="page_mes_projets.php" class="Links">Mes projets</a></li>
 
@@ -404,7 +427,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 // =======================  VÉRIFIER SI ADMIN =======================
 /* Vérifie si un compte est administrateur
    Retourne true si l'utilisateur est admin, false sinon */
-function est_admin($bdd, $email) {
+function est_admin(PDO $bdd, $email) {
     $stmt = $bdd->prepare("SELECT etat FROM compte WHERE email = ?");
     $stmt->execute([$email]);
     if ($stmt->rowCount() > 0) {
@@ -481,13 +504,10 @@ function get_last_notif($bdd, $IDuser, $limit = 10) {
         1  => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer l\'expérience {Nom_experience}',
         2  => '{Nom_envoyeur} {Prenom_envoyeur} a validé l\'expérience {Nom_experience}',
         3  => '{Nom_envoyeur} {Prenom_envoyeur} a refusé l\'expérience {Nom_experience}',
-        4  => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier l\'expérience {Nom_experience}',
-        5  => '{Nom_experience} a été modifiée par {Nom_envoyeur} {Prenom_envoyeur}',
+        4  => '{Nom_envoyeur} {Prenom_envoyeur} vous a ajouté comme experimentateur surl\'expérience {Nom_experience}',
         11 => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer le projet {Nom_projet}',
         12 => '{Nom_envoyeur} {Prenom_envoyeur} a validé le projet {Nom_projet}',
         13 => '{Nom_envoyeur} {Prenom_envoyeur} a refusé le projet {Nom_projet}',
-        14 => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier le projet {Nom_projet}',
-        15 => '{Nom_projet} a été modifié par {Nom_envoyeur} {Prenom_envoyeur}',
         16 => '{Nom_envoyeur} {Prenom_envoyeur} vous a ajouté comme collaborateur sur le projet {Nom_projet}',
     ];
 
@@ -500,16 +520,16 @@ function get_last_notif($bdd, $IDuser, $limit = 10) {
             $texte_notifications[$type] ?? 'Notification inconnue'
         );
 
-        $link = ($type >= 1 && $type <= 5)
+        $link = ($type >= 1 && $type <= 4)
             ? "page_experience.php?id_projet=".$notif['ID_projet']."&id_experience=".$notif['ID_experience']
-            : ($type >= 11 && $type <= 15 ? "page_projet.php?id_projet=".$notif['ID_projet'] : "#");
+            : ($type >= 11 && $type <= 13 ? "page_projet.php?id_projet=".$notif['ID_projet'] : "#");
 
         $actions = [];
 
         if ($notif['Valider'] == 0) {
             if (in_array($type, [1, 11, 16])) {
              // notifications de création de projet/expérience ou ajout collaborateur
-            $actions = ['valider', 'rejeter', 'modifier'];
+            $actions = ['valider', 'rejeter'];
                     if ($type == 16) $actions = ['valider']; // le collaborateur peut juste valider
             } elseif (in_array($type, [2,3,4,5,12,13,14,15])) {
             // notifications de retour au créateur ou info
@@ -522,7 +542,6 @@ function get_last_notif($bdd, $IDuser, $limit = 10) {
             case 0: $statut_texte = 'Non traitée'; break;
             case 1: $statut_texte = 'Validée'; break;
             case 2: $statut_texte = 'Refusée'; break;
-            case 3: $statut_texte = 'Modification demandée'; break;
         }
 
         $result[] = [
@@ -539,15 +558,6 @@ function get_last_notif($bdd, $IDuser, $limit = 10) {
     }
 
     return $result;
-}
-
-
-// =======================  INSÉRER UN UTILISATEUR =======================
-/* Insère un nouvel utilisateur dans la base de données
-   Retourne true si insertion réussie, false sinon */
-function inserer_utilisateur($bdd, $nom, $prenom, $date, $etat, $email, $mdp_hash) {
-    $sql = $bdd->prepare("INSERT INTO compte (Nom, Prenom, date_de_naissance, etat, email, Mdp) VALUES (?, ?, ?, ?, ?, ?)");
-    return $sql->execute([$nom, $prenom, $date, $etat, $email, $mdp_hash]);
 }
 
 // =======================  Affichage bandeau du bas =======================
@@ -608,13 +618,20 @@ $sql_experiences = "
         ON e.ID_experience = se.ID_experience
     LEFT JOIN salle_materiel s
         ON se.ID_materiel = s.ID_materiel
-    INNER JOIN experience_experimentateur ee
+    LEFT JOIN experience_experimentateur ee
         ON e.ID_experience = ee.ID_experience
 ";
 
-// Si un ID compte est fourni
+// Si un ID compte est fourni -> on veut les expériences où l'utilisateur
+// est expérimentateur OU liées à un projet dont il est gestionnaire/collaborateur
 if ($id_compte !== null) {
-    $sql_experiences .= " WHERE ee.ID_compte = :id_compte";
+    $sql_experiences .= " WHERE (ee.ID_compte = :id_compte
+        OR EXISTS (
+            SELECT 1 FROM projet_experience pe2
+            JOIN projet_collaborateur_gestionnaire pcg ON pcg.ID_projet = pe2.ID_projet
+            WHERE pe2.ID_experience = e.ID_experience AND pcg.ID_compte = :id_compte
+        )
+    )";
 }
 
 // IMPORTANT : Groupement pour supprimer les doublons
@@ -782,7 +799,7 @@ function afficher_experiences_pagines(PDO $bdd, array $experiences, int $page_ac
                                 // ajoute 2 boutons : modification et suppression 
                                 ?>
                                     <button class="btn btnBlanc"  
-                                        onclick="event.stopPropagation(); location.href='page_modification_experience.php'">
+                                        onclick="event.stopPropagation(); location.href='page_modification_experience.php?id_experience=<?= $id_experience ?>'">
                                         Modifier</button>
                                     <a href="page_admin_experiences.php?action=supprimer&id=<?php echo $id_experience; ?>"
                                         class="btn btnRouge"
@@ -831,7 +848,7 @@ $TYPES_NOTIFICATIONS = [
     1 => [
         'texte' => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer l\'expérience {Nom_experience}',
         'destinataire' => 'gestionnaire',
-        'actions' => ['valider', 'rejeter', 'modifier']
+        'actions' => ['valider', 'rejeter']
     ],
     2 => [
         'texte' => '{Nom_envoyeur} {Prenom_envoyeur} a validé l\'expérience {Nom_experience}',
@@ -844,11 +861,6 @@ $TYPES_NOTIFICATIONS = [
         'actions' => ['valider']
     ],
     4 => [
-        'texte' => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier l\'expérience {Nom_experience}',
-        'destinataire' => 'utilisateur_connecte',
-        'actions' => ['valider']
-    ],
-    5 => [
         'texte' => '{Nom_experience} a été modifiée par {Nom_envoyeur} {Prenom_envoyeur}',
         'destinataire' => 'experimentateur',
         'actions' => ['valider']
@@ -856,7 +868,7 @@ $TYPES_NOTIFICATIONS = [
     11 => [
         'texte' => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer le projet {Nom_projet}',
         'destinataire' => 'chercheur',
-        'actions' => ['valider', 'rejeter', 'modifier']
+        'actions' => ['valider', 'rejeter']
     ],
     12 => [
         'texte' => '{Nom_envoyeur} {Prenom_envoyeur} a validé le projet {Nom_projet}',
@@ -865,16 +877,6 @@ $TYPES_NOTIFICATIONS = [
     ],
     13 => [
         'texte' => '{Nom_envoyeur} {Prenom_envoyeur} a refusé le projet {Nom_projet}',
-        'destinataire' => 'etudiant',
-        'actions' => ['valider']
-    ],
-    14 => [
-        'texte' => '{Nom_envoyeur} {Prenom_envoyeur} vous a invité à modifier le projet {Nom_projet}',
-        'destinataire' => 'etudiant',
-        'actions' => ['valider']
-    ],
-    15 => [
-        'texte' => '{Nom_projet} a été modifiée par {Nom_envoyeur} {Prenom_envoyeur}',
         'destinataire' => 'etudiant',
         'actions' => ['valider']
     ]
@@ -1464,7 +1466,7 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
                                 // ajoute 2 boutons : modification et suppression 
                                 ?>
                                     <button class="btn btnBlanc"  
-                                        onclick="event.stopPropagation(); location.href='page_modification_projet.php'">
+                                        onclick="event.stopPropagation(); location.href='page_modification_projet.php?id_projet=<?= $id_projet ?>'">
                                         Modifier</button>
                                     <a href="page_admin_projets.php?action=supprimer&id=<?php echo $id; ?>"
                                         class="btn btnRouge"
@@ -1478,6 +1480,21 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
         <?php endif; ?>
     </div>
     <?php
+}
+
+
+
+function get_experimentateurs_ids(PDO $bdd, int $id_experience): array {
+    $sql = "
+        SELECT ee.ID_compte
+        FROM experience_experimentateur ee
+        WHERE ee.ID_experience = :id_experience
+    ";
+    
+    $stmt = $bdd->prepare($sql);
+    $stmt->execute(['id_experience' => $id_experience]);
+    
+    return $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
 ?>
