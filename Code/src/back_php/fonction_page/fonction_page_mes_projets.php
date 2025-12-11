@@ -9,7 +9,7 @@ $id_compte = $_SESSION['ID_compte'];
 $id_projet = isset($_GET['id_projet']) ? (int)$_GET['id_projet'] : 0;
 
 /**
- * Récupère tout les projets d'un utilisateur(l'utilisateur en l'occurence)
+ * Récupère tout les projets d'un utilisateur ou l'ensemble des fonctions
  *
  * @param PDO $bdd Connexion PDO à la base de données
  * @param int $id_compte ID du compte utilisateur
@@ -56,7 +56,7 @@ function get_mes_projets_complets(PDO $bdd, int $id_compte): array {
             $projet['Statut'] = 'Gestionnaire';
         }
     }
-    unset($projet); // Bonne pratique : détruire la référence après la boucle
+    unset($projet); // Détruire la référence après la boucle
     return $projets;
 }
 
