@@ -1,31 +1,170 @@
+/* ======================= TABLEAU UTILISATEURS ======================= */
 .whole_table {
-    border-collapse: collapse;
     width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* En-tête du tableau */
+.tablehead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.tablehead th {
+    padding: 16px 12px;
+    color: white;
+    font-weight: 600;
+    text-align: left;
+    font-size: 14px;
+    font-family: 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Corps du tableau */
+.whole_table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s ease;
+}
+
+.whole_table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.whole_table tbody tr:last-child {
+    border-bottom: none;
 }
 
 .whole_table td {
-    border: 2px solid black;
-    padding: 10px 15px;
+    padding: 14px 12px;
+    font-family: 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    color: #333;
+    vertical-align: middle;
 }
 
-.whole_table input {
-    width: 80%;
+/* Inputs dans le tableau */
+.input-user {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    transition: all 0.3s ease;
+    background: white;
 }
 
-.whole_table button {
-display: block;
-margin: auto;
-}
-.whole_table a {
-display: block;
-margin: auto;
+.input-user:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.tablehead{
-    background-color : #2d9bce;
+/* Select dans le tableau */
+.select-user {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.creer_materiel {
+.select-user:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Badge validé */
+.badge-valide {
+    display: inline-block;
+    padding: 6px 14px;
+    background: #11998e;
+    color: white;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+/* Cellule actions */
+.actions-cell {
     display: flex;
-    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Section titre */
+.section-experiences h2 {
+    font-size: 26px;
+    color: #333;
+    margin-bottom: 20px;
+    font-family: 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-weight: 600;
+}
+
+/* Message quand il n'y aucun utilisateur */
+.no-experiences {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+    font-size: 16px;
+    font-style: italic;
+    font-family: 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .whole_table {
+        font-size: 13px;
+    }
+    
+    .tablehead th,
+    .whole_table td {
+        padding: 10px 8px;
+    }
+    
+    .input-user,
+    .select-user {
+        font-size: 13px;
+        padding: 6px 10px;
+    }
+    
+    .actions-cell {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .whole_table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .tablehead th {
+        font-size: 12px;
+        padding: 8px 6px;
+    }
+    
+    .whole_table td {
+        font-size: 12px;
+        padding: 8px 6px;
+    }
 }

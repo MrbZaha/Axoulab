@@ -1,40 +1,73 @@
-/* Boutons */
-.btn {
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    padding: 12px 30px;
-    margin: 0px 15px 0px 15px;
+/* Bouton Vert pour validation */
+.btn.btnVert {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+    padding: 8px 16px;
     border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+    transition: all 0.3s ease;
+    border: none;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    width: 150px;
-    font-family:'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    font-family: 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
-.btnBlanc {
-    background: #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.btnDore {
-    background: #ffb300;
-    color: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.btnGris {
-    background: #b4b4b4;
-    color: rgb(112, 112, 112);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.btnRouge {
-    background: #f76f3d;
-    color: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.btn:hover {
+.btn.btnVert:hover {
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
+}
+
+/* Amélioration boutons existants */
+.btn.btnViolet {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-family: 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.btn.btnViolet:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn.btnRouge {
+    background: linear-gradient(135deg, #f33228 0%, #fa95a2 100%);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-family: 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.btn.btnRouge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+}
+
+.btn.btnGris {
+    background: #e0e0e0;
+    color: #999;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+    cursor: not-allowed;
+    font-family: 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
