@@ -1,49 +1,16 @@
-/* ======================= STRUCTURE DE LA PAGE ======================= */
-
-/* Le body doit prendre toute la hauteur et être en flexbox vertical */
-html {
-    height: 100%;
-}
-
-body {
-    min-height: 100%;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Le contenu principal prend tout l'espace disponible */
-.main-content {
-    flex: 1 0 auto; /* Grandit pour remplir l'espace, ne rétrécit pas */
-}
-
-/* Pour les pages admin avec back_square */
-.back_square {
-    flex: 1 0 auto;
-}
-
-/* Le header ne doit pas grandir */
-.site_nav {
-    flex-shrink: 0;
-}
-
-/* ======================= FOOTER ======================= */
-
 .site_footer {
+    /* background-color: #ffffff;  */
     background-image: linear-gradient(to bottom, black, #00356B);
+
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 30px 0px;
+    padding: 0px 0px;
     border-radius: 0px; 
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    margin: 0;
+    margin : 0px 0px 0px 0px;                    /* On met de l'espace entre le bandeau et le dessous du bandeau */
     border-top: 3px solid rgb(244, 224, 127);
-    flex-shrink: 0; /* Le footer garde sa taille */
-    margin-top: auto; /* Pousse le footer vers le bas */
 }
-
-/* ======================= CONTENU DU FOOTER ======================= */
 
 .titre {
     font-size: larger;
@@ -67,26 +34,7 @@ body {
     color: aliceblue;
 }
 
+
 p {
     font-family:'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-}
-
-/* ======================= RESPONSIVE ======================= */
-
-@media (max-width: 768px) {
-    .site_footer {
-        flex-direction: column;
-        padding: 20px;
-        text-align: center;
-    }
-    
-    #Contact,
-    #Concepteurs {
-        padding: 15px 20px;
-    }
-    
-    #Powered {
-        font-size: large;
-        padding: 15px 0;
-    }
 }
