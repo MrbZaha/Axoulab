@@ -214,3 +214,49 @@ input[type="file"] { display:block; margin-top:8px; }
     text-align: center;     /* centre le bouton horizontalement */
     margin-top: 20px;       /* espace au-dessus pour le descendre un peu */
 }
+
+/* Section fichiers supplémentaires */
+.files-section {
+    width: 100%;
+}
+
+.other-files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.other-file-item {
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.other-file-item:hover {
+    background: #f9f9f9;
+    border-color: #ccc;
+}
+
+.file-download-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: #f0f7ff;
+    border: 1px solid #cfe0ff;
+    border-radius: 6px;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.file-download-link:hover {
+    background: var(--accent);
+    color: #fff;
+}
