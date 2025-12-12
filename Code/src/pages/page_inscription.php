@@ -35,7 +35,7 @@ if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["
     }
 
     // ======================= VALIDATION EMAIL =======================
-    if (!verifier_email_axoulab($email)) {
+    if (!verifier_email_axoulab($email,$prenom,$nom)) {
         $message = "<p style='color:red;'>L'adresse email doit être au format prenom.nom@axoulab.fr.</p>";
     } else {
 

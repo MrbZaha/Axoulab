@@ -133,8 +133,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
                         $stmtNomExp->execute([$idExperience]);
                         $nomExp = $stmtNomExp->fetchColumn();
 
+                        // Récupérer l'ID du créateur de l'expérience
+                        $stmtCreateurExp = $bdd->prepare("SELECT ID_compte FROM experience_experimentateur WHERE ID_experience = ?");
+                        $stmtCreateurExp->execute([$idExperience]);
+                        $idCreateurExp = $stmtCreateurExp->fetchColumn();
+
                         // Retirer le gestionnaire actuel de la liste pour éviter de s'envoyer une notification
-                        $experimentateurs = array_diff($experimentateurs, [$idUtilisateur]);
+                        $experimentateurs = array_diff($experimentateurs, [$idCreateurExp]);
 
                         // Créer une notification pour chaque expérimentateur
                         foreach ($experimentateurs  as $idExpUser) {
