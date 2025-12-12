@@ -38,10 +38,14 @@ body{
     position: absolute;
     right: 18px;
     font-size: 18px;
-    color: #969696;
+    color: #848484;
     cursor: pointer;
     top: 50%;
     transform: translateY(-50%);
+    border: none;
+    background: none;
+    outline: none;
+    padding: 0;
 }
 
 /* ======================= NAVIGATION ======================= */

@@ -51,6 +51,10 @@ function recuperer_id_compte($bdd, $email) {
 /* Affiche le Bandeau du haut */
 function afficher_Bandeau_Haut($bdd, $userID, $recherche = true) {
 
+// ------------------- TRAITEMENT DES NOTIFICATIONS POST -------------------
+if ($_SERVER['REQUEST_METHOD'] === 'POST' 
+    && isset($_POST['id_notif'], $_POST['action_notif'], $_POST['is_projet'])) {
+
     // ------------------- TRAITEMENT DES NOTIFICATIONS POST -------------------
     // Ce bloc vérifie si le formulaire POST de notification a été soumis.
     if ($_SERVER['REQUEST_METHOD'] === 'POST' 
@@ -199,6 +203,7 @@ function afficher_Bandeau_Haut($bdd, $userID, $recherche = true) {
             header("Location: " . $redirect_url);
             exit;
         }
+    }
 }
 
     // ------------------- AFFICHAGE DU BANDEAU -------------------
@@ -330,6 +335,17 @@ function est_admin(PDO $bdd, $email) {
         return $user["etat"] == 3;
     }
     return false;
+}
+
+/**
+ * Vérifie si un compte est administrateur à partir de son ID.
+ * Retourne true si `Etat` == 3, false sinon.
+ */
+function est_admin_par_id(PDO $bdd, int $id_compte): bool {
+    $stmt = $bdd->prepare("SELECT Etat FROM compte WHERE ID_compte = ?");
+    $stmt->execute([$id_compte]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row && isset($row['Etat']) && (int)$row['Etat'] === 3;
 }
 
 
@@ -693,7 +709,7 @@ function afficher_experiences_pagines(PDO $bdd, array $experiences, int $page_ac
                                 // Si on est admin ET qu'on est sur une page admin
                                 // ajoute 2 boutons : modification et suppression 
                                 ?>
-                                    <button class="btn btnBlanc"  
+                                    <button class="btn btnViolet"  
                                         onclick="event.stopPropagation(); location.href='page_modification_experience.php?id_experience=<?= $id_experience ?>'">
                                         Modifier</button>
                                     <a href="page_admin_experiences.php?action=supprimer&id=<?php echo $id_experience; ?>"
@@ -858,7 +874,7 @@ function layout_erreur() {
 
     <body>        
         <div class="small_dog">
-            <img alt='Sleeping dog' class='dog2' src='../assets/dog-sleep.gif'>
+            <img alt='Sleeping dog' class='dog' src='../assets/dog-sleep.gif'>
         </div>
 
         <p id="text_error">Il y a eu une erreur. Veuillez retourner à la page précédente.</p>
@@ -898,8 +914,29 @@ function supprimer_utilisateur($bdd, $id_user) {
 
 // =======================  Suppression d'un utilisateur à partir de son identifiant =======================
 function supprimer_projet($bdd, $id_projet) {
-    $stmt = $bdd->prepare("DELETE FROM projet WHERE ID_projet = ?");
-    $stmt->execute([$id_projet]);
+    try {
+        $bdd->beginTransaction();
+
+        // Supprimer les expériences liées
+        $stmt = $bdd->prepare("
+            DELETE FROM experience
+            WHERE ID_experience IN (
+                SELECT ID_experience
+                FROM projet_experience
+                WHERE ID_projet = ?
+            )
+        ");
+        $stmt->execute([$id_projet]);
+
+        // Supprimer le projet
+        $stmt = $bdd->prepare("DELETE FROM projet WHERE ID_projet = ?");
+        $stmt->execute([$id_projet]);
+
+        $bdd->commit();
+    } catch (Exception $e) {
+        $bdd->rollBack();
+        throw $e;
+    }
 }
 
 // =======================  Acceptation de l'inscription d'un utilisateur =======================
@@ -1332,7 +1369,7 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
                                 // Si on est admin ET qu'on est sur une page admin
                                 // ajoute 2 boutons : modification et suppression 
                                 ?>
-                                    <button class="btn btnBlanc"  
+                                    <button class="btn btnViolet"  
                                         onclick="event.stopPropagation(); location.href='page_modification_projet.php?id_projet=<?= $id_projet ?>'">
                                         Modifier</button>
                                     <a href="page_admin_projets.php?action=supprimer&id=<?php echo $id; ?>"
