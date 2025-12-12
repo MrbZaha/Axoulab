@@ -1,6 +1,7 @@
 <?php
+
 require_once __DIR__ . '/../back_php/fonctions_site_web.php';
-// require_once __DIR__ . '/../back_php/fonctions_page_modification_resultats.php';
+require_once __DIR__ . '/../back_php/fonction_page/fonction_page_modification_resultats.php';
 
 $bdd = connectBDD();
 verification_connexion($bdd);

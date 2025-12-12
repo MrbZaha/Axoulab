@@ -1,6 +1,7 @@
 <?php
 // Inclure le fichier de fonctions
-include_once '../back_php/fonctions_site_web.php';
+require_once __DIR__ . '/../back_php/fonctions_site_web.php';
+require_once __DIR__ . '/../back_php/fonction_page/fonction_page_admin_materiel_salle.php';
 session_start();
 
 $bdd = connectBDD();
@@ -93,123 +94,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'valider') {
     }
 }
 
-// =======================  Suppression d'un utilisateur à partir de son identifiant =======================
-function supprimer_materiel($bdd, $id_materiel) {
-    $stmt = $bdd->prepare("DELETE FROM salle_materiel WHERE ID_materiel = ?");
-    $stmt->execute([$id_materiel]);
-}
-
-// =======================  FONCTION POPUP =======================
-function afficher_popup($titre, $texte, $type = "success") {
-    $classe = ($type === "error") ? "popup-error" : "popup-success";
-    return '
-    <div class="popup-overlay" id="popup">
-        <div class="popup-box ' . $classe . '">
-            <h3>' . htmlspecialchars($titre) . '</h3>
-            <p>' . htmlspecialchars($texte) . '</p>
-            <a href="page_admin_materiel_salle.php" class="popup-close">Fermer</a>
-        </div>
-    </div>';
-}
-
-// =======================  INSÉRER DU NOUVEAU MATÉRIEL =======================
-function ajouter_materiel($bdd, $Nom_Salle, $Materiel) {
-    try {
-        $sql = $bdd->prepare("INSERT INTO salle_materiel (Nom_Salle, Materiel) VALUES (?, ?)");
-        $sql->execute([$Nom_Salle, $Materiel]);
-        return true;
-    } catch (Exception $e) {
-        return $e->getMessage();
-    }
-}
-
-// =======================  Traitement des informations modifiées  =======================
-function modifier_materiel($bdd, $id){
-    if (isset($_POST["salle"], $_POST["materiel"])) {
-        $salle = trim($_POST["salle"]);
-        $mat = trim($_POST["materiel"]);
-
-        try {
-            $stmt = $bdd->prepare("
-                UPDATE salle_materiel
-                SET Nom_Salle = ?,
-                    Materiel = ?
-                WHERE ID_materiel = ?
-            ");
-            $stmt->execute([$salle, $mat, $id]);
-            return true;
-        }
-        catch (Exception $e) {
-            return $e->getMessage();
-        }
-    }
-    return "Données manquantes";
-}
-
-// =======================  Fonction pour récupérer l'ensemble du matériel =======================
-function get_materiel($bdd) {
-    $sql_materiel = "
-        SELECT ID_materiel,
-        Nom_salle,
-        Materiel
-        FROM salle_materiel
-    ";  
-    $stmt = $bdd->prepare($sql_materiel);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-// =======================  Fonction pour afficher l'ensemble du matériel =======================
-function afficher_materiel_pagines($materiel, $page_actuelle, $items_par_page, $bdd) {
-    $debut = ($page_actuelle - 1) * $items_par_page;
-    $materiel_page = array_slice($materiel, $debut, $items_par_page);
-    ?>
-        <?php if (empty($materiel_page)): ?>
-            <p class="no-experiences">Il n'y a pas de matériel</p>
-        <?php else: ?>
-
-    <table class="whole_table">
-        <thead class="tablehead">
-            <tr>
-                <th>Salle</th>
-                <th>Matériel</th>
-                <th>Modifier</th>
-                <th>Supprimer</th>
-            </tr>
-        </thead>
-        <tbody>
-    <?php
-        foreach ($materiel_page as $user):
-            $id  = htmlspecialchars($user['ID_materiel']);
-            $salle = htmlspecialchars($user['Nom_salle']);
-            $mat = htmlspecialchars($user['Materiel']);
-    ?>
-        <tr>
-            <form action="page_admin_materiel_salle.php" method="POST">
-                <td>
-                    <input type="text" name="salle" value="<?=$salle?>">
-                </td>
-                <td>
-                    <input type="text" name="materiel" value="<?=$mat?>">
-                </td>
-                <td>
-                    <input type="hidden" name="action" value="modifier">
-                    <input type="hidden" name="id" value="<?=$id?>">
-                    <button class="btn btnViolet" type="submit">Modifier</button>
-                </td>
-                <td>
-                    <a class="btn btnRouge"
-                        href="page_admin_materiel_salle.php?action=supprimer&id=<?= $id ?>">
-                        Supprimer</a>
-                </td>
-            </form>
-        </tr>
-    <?php endforeach; ?>
-        </tbody>
-    </table>
-        <?php endif; ?>
-    <?php
-}
 ?>
 
 <!DOCTYPE html>
