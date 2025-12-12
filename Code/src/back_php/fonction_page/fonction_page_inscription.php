@@ -7,11 +7,11 @@ function verifier_mdp($mdp) {
     // ============================================================================
     //  FONCTION : verifier_mdp()
     //  Vérifie que le mot de passe respecte plusieurs critères de sécurité :
-    //      ✔ au moins 8 caractères
-    //      ✔ au moins une MAJUSCULE
-    //      ✔ au moins une minuscule
-    //      ✔ au moins un chiffre
-    //      ✔ au moins un caractère spécial
+    //      - au moins 8 caractères
+    //      - au moins une MAJUSCULE
+    //      - au moins une minuscule
+    //      - au moins un chiffre
+    //      - au moins un caractère spécial
     //
     //  Retourne :
     //      - un tableau vide si TOUT est correct

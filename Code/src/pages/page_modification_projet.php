@@ -1,10 +1,12 @@
 <?php
 require_once __DIR__ . '/../back_php/fonctions_site_web.php';
-require_once __DIR__ . '/../back_php/fonction_page/fonction_page_modification_projet.php'; //Changer avec modification_experience
+require_once __DIR__ . '/../back_php/fonction_page/fonction_page_modification_projet.php';
 
 // Variables pour les sélections
 $gestionnaires_selectionnes = [];
 $collaborateurs_selectionnes = [];
+$erreur = null;
+$success = null;
 
 // Vérifications initiales
 if ($id_projet === 0) {
@@ -12,31 +14,13 @@ if ($id_projet === 0) {
 } elseif (!est_gestionnaire($bdd, $id_compte, $id_projet)) {
     $erreur = "Vous n'avez pas les droits pour modifier ce projet.";
 } else {
-    // Charger les participants actuels
+    // Charger les participants actuels (TOUJOURS, même en POST initial)
     $gestionnaires_selectionnes = get_gestionnaires_ids($bdd, $id_projet);
     $collaborateurs_selectionnes = get_collaborateurs_ids($bdd, $id_projet);
 }
 
-// Récupérer les infos complètes des personnes sélectionnées
-$gestionnaires_info = [];
-$collaborateurs_info = [];
-
-if (!empty($gestionnaires_selectionnes)) {
-    $placeholders = implode(',', array_fill(0, count($gestionnaires_selectionnes), '?'));
-    $stmt = $bdd->prepare("SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE ID_compte IN ($placeholders)");
-    $stmt->execute($gestionnaires_selectionnes);
-    $gestionnaires_info = $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-if (!empty($collaborateurs_selectionnes)) {
-    $placeholders = implode(',', array_fill(0, count($collaborateurs_selectionnes), '?'));
-    $stmt = $bdd->prepare("SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE ID_compte IN ($placeholders)");
-    $stmt->execute($collaborateurs_selectionnes);
-    $collaborateurs_info = $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-// Traitement du formulaire
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$erreur) {
+// Traitement du formulaire — n'exécuter que pour les POST provenant du formulaire interne
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$erreur && (isset($_POST['modifier_projet']) || isset($_POST['action']) || isset($_POST['gestionnaires_ids']) || isset($_POST['collaborateurs_ids']))) {
     
     // Récupérer les listes depuis les champs cachés
     $gestionnaires_selectionnes = isset($_POST["gestionnaires_ids"]) && $_POST["gestionnaires_ids"] !== '' 
@@ -90,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$erreur) {
 
     // Traitement de la modification du projet
     if (isset($_POST['modifier_projet'])) {
+        
         $nom_projet = trim($_POST['nom_projet'] ?? '');
         $description = trim($_POST['description'] ?? '');
         $confidentiel = ($_POST['confidentialite'] ?? '') === 'oui' ? 1 : 0;
@@ -140,8 +125,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$erreur) {
                 }
 
                 // Ajouter les nouveaux collaborateurs (sauf ceux déjà gestionnaires)
+                // Utiliser Statut = 0 pour les collaborateurs (cohérent avec la création)
                 $sql = "INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut) 
-                        VALUES (:id_projet, :id_compte, 2)";
+                    VALUES (:id_projet, :id_compte, 0)";
                 $stmt = $bdd->prepare($sql);
                 foreach ($collaborateurs_selectionnes as $id_collaborateur) {
                     if (!in_array($id_collaborateur, $gestionnaires_selectionnes)) {
@@ -166,15 +152,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$erreur) {
     }
 }
 
-// Charger les données
+// Récupérer les infos complètes des personnes sélectionnées
+$gestionnaires_info = [];
+$collaborateurs_info = [];
+
+if (!empty($gestionnaires_selectionnes)) {
+    $placeholders = implode(',', array_fill(0, count($gestionnaires_selectionnes), '?'));
+    $stmt = $bdd->prepare("SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE ID_compte IN ($placeholders)");
+    $stmt->execute($gestionnaires_selectionnes);
+    $gestionnaires_info = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+if (!empty($collaborateurs_selectionnes)) {
+    $placeholders = implode(',', array_fill(0, count($collaborateurs_selectionnes), '?'));
+    $stmt = $bdd->prepare("SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE ID_compte IN ($placeholders)");
+    $stmt->execute($collaborateurs_selectionnes);
+    $collaborateurs_info = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Charger les données du projet
 $projet = $id_projet > 0 && !$erreur ? get_projet_pour_modification($bdd, $id_projet) : null;
 
 // Récupération des listes pour le datalist
 $tous_ids_selectionnes = array_merge($gestionnaires_selectionnes, $collaborateurs_selectionnes);
 $personnes_gestionnaires = get_personnes_disponibles($bdd, $tous_ids_selectionnes, true);
 $personnes_collaborateurs = get_personnes_disponibles($bdd, $tous_ids_selectionnes, false);
-
-// Récupérer les infos complètes des personnes sélectionnées
 
 $page_title = $projet ? "Modifier " . htmlspecialchars($projet['Nom_projet']) : "Modification de projet";
 ?>
@@ -214,6 +216,7 @@ $page_title = $projet ? "Modifier " . htmlspecialchars($projet['Nom_projet']) : 
         </div>
     <?php elseif ($projet && !$success): ?>
         <form action="" method="post" id="form-projet">
+            <input type="hidden" name="id_projet" value="<?= htmlspecialchars($id_projet) ?>">
             <input type="hidden" name="gestionnaires_ids" value="<?= implode(',', $gestionnaires_selectionnes) ?>">
             <input type="hidden" name="collaborateurs_ids" value="<?= implode(',', $collaborateurs_selectionnes) ?>">
 
@@ -248,7 +251,7 @@ $page_title = $projet ? "Modifier " . htmlspecialchars($projet['Nom_projet']) : 
 
             <!-- GESTIONNAIRES -->
             <div class="participants-section">
-                <label>Gestionnaires :</label>
+                <label>Gestionnaires (<?= count($gestionnaires_info) ?>) :</label>
                 <p class="info-text">Seuls les professeurs/chercheurs et administrateurs peuvent être gestionnaires</p>
                 <div class="selection-container">
                     <input type="text" 
@@ -282,7 +285,7 @@ $page_title = $projet ? "Modifier " . htmlspecialchars($projet['Nom_projet']) : 
 
             <!-- COLLABORATEURS -->
             <div class="participants-section">
-                <label>Collaborateurs :</label>
+                <label>Collaborateurs (<?= count($collaborateurs_info) ?>) :</label>
                 <p class="info-text">Tous les utilisateurs validés peuvent être collaborateurs</p>
                 <div class="selection-container">
                     <input type="text" 

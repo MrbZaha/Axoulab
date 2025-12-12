@@ -118,10 +118,11 @@ function get_resultats_experience(PDO $bdd, int $id_experience): ?string {
  * Met à jour le champ Resulat de l'expérience.
  */
 function update_resultats_experience(PDO $bdd, int $id_experience, string $html): bool {
-    $sql = "UPDATE experience SET Resultat = :res WHERE ID_experience = :id_experience";
+    $sql = "UPDATE experience SET Resultat = :res, Date_de_modification = :date_modif WHERE ID_experience = :id_experience";
     $stmt = $bdd->prepare($sql);
     return $stmt->execute([
         'res' => $html,
+        'date_modif' => date('Y-m-d'),
         'id_experience' => $id_experience
     ]);
 }
@@ -309,17 +310,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress'])) {
 
 
 <div class="container">
-    <?php if (!empty($messages)): ?>
-        <div class="notice success">
-            <?php foreach ($messages as $m) echo htmlspecialchars($m) . "<br>"; ?>
-        </div>
-    <?php endif; ?>
-
-    <?php if (!empty($errors)): ?>
-        <div class="notice error">
-            <?php foreach ($errors as $e) echo htmlspecialchars($e) . "<br>"; ?>
-        </div>
-    <?php endif; ?>
+    <!-- Messages utilisateur supprimés (debug banners removed) -->
 
     <div class="content-area">
         <!-- Zone de texte principale -->

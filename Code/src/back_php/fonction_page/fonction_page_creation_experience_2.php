@@ -302,7 +302,7 @@ function creer_experience($bdd, $validation, $nom_experience, $description, $dat
         VALUES (?, ?, ?,?, ?, ?, 'En attente', 0)
     ");
 
-    if ($sql->execute([$nom_experience, $description, $date_reservation,$date_creation, $heure_debut, $heure_fin])) {
+    if ($sql->execute([$nom_experience, $description, $date_reservation, $date_creation, $heure_debut, $heure_fin])) {
         return $bdd->lastInsertId();
     }
     return false;

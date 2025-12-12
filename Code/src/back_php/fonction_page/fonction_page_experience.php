@@ -362,7 +362,7 @@ if (isset($_SESSION['ID_compte']) && isset($experience['ID_experience'])) {
                         <?php if (!empty($experience['Nom_projet'])): ?>
                             <h4>Projet lié</h4>
                             <p>
-                                <a href="projet.php?id_projet=<?= $experience['ID_projet'] ?>" class="link-projet">
+                                <a href="page_projet.php?id_projet=<?= $experience['ID_projet'] ?>" class="link-projet">
                                     <?= htmlspecialchars($experience['Nom_projet']) ?>
                                 </a>
                             </p>

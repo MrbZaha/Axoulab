@@ -139,6 +139,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // Associer au projet
                         associer_experience_projet($bdd, $id_projet, $id_experience);
 
+                        // Mettre à jour la date de dernière modification du projet parent
+                        try {
+                            $stmt_mod = $bdd->prepare("UPDATE projet SET Date_de_modification = :date_modif WHERE ID_projet = :id_projet");
+                            $stmt_mod->execute([
+                                'date_modif' => date('Y-m-d'),
+                                'id_projet' => $id_projet
+                            ]);
+                        } catch (Exception $e) {
+                            error_log('Impossible de mettre à jour la date de modification du projet: ' . $e->getMessage());
+                        }
+
                         // Ajouter les expérimentateurs
                         if (!empty($experimentateurs_ids)) {
                             ajouter_experimentateurs($bdd, $id_experience, $experimentateurs_ids);
