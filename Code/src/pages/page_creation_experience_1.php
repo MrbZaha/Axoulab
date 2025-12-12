@@ -109,7 +109,11 @@ if ($creator_id && !in_array($creator_id, $experimentateurs_selectionnes)) {
 }
 
 // Récupérer les personnes disponibles (exclut les IDs déjà sélectionnés)
-$experimentateurs_disponibles = get_personnes_disponibles($bdd, $experimentateurs_selectionnes);
+// Exclure aussi le créateur des suggestions
+$tous_ids_a_exclure = array_merge($experimentateurs_selectionnes, [$_SESSION['ID_compte']]);
+$experimentateurs_disponibles = get_personnes_disponibles($bdd, $tous_ids_a_exclure);
+
+
 
 // s'assurer que le créateur est dans la sélection (et recharger les infos)
 $creator_id = $_SESSION['ID_compte'] ?? null;

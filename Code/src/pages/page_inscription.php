@@ -2,7 +2,7 @@
 // Démarre la session si besoin
 session_start();
 
-// Inclure le fichier de fonctions
+// Inclure les fichiers de fonctions
 require_once __DIR__ . '/../back_php/fonctions_site_web.php';
 require_once __DIR__ . '/../back_php/fonction_page/fonction_page_inscription.php';
 
