@@ -42,24 +42,36 @@ if (isset($_POST['valider_mdp'])) {
     $confirmer_mdp = $_POST['confirmer_mdp'];
 
     // Vérification de l'ancien mot de passe
-    if (password_verify($ancien_mdp, $user['Mdp'])) {
-        // Vérification que les nouveaux mots de passe sont identiques
-        if (mot_de_passe_identique($nouveau_mdp, $confirmer_mdp)) {
-            if (modifier_mdp($bdd, $nouveau_mdp, $user_ID)) {
-                $message = "Mot de passe changé avec succès !";
-                $messageType = "success";
-                $showForm = false;
-            } else {
-                $message = "Erreur lors du changement de mot de passe.";
-                $messageType = "error";
-            }
-        } else {
-            $message = "Les nouveaux mots de passe ne correspondent pas.";
-            $messageType = "error";
-        }
-    } else {
+    if (!password_verify($ancien_mdp, $user['Mdp'])) {
         $message = "L'ancien mot de passe est incorrect.";
         $messageType = "error";
+        $showForm = true; // Garder le formulaire affiché
+    }
+    // Vérification que les nouveaux mots de passe sont identiques
+    else if (!mot_de_passe_identique($nouveau_mdp, $confirmer_mdp)) {
+        $message = "Les nouveaux mots de passe ne correspondent pas.";
+        $messageType = "error";
+        $showForm = true; // Garder le formulaire affiché
+    }
+    // Si tout est OK jusqu'ici, on tente la modification
+    else {
+        $resultat = modifier_mdp($bdd, $nouveau_mdp, $user_ID);
+        
+        if ($resultat['success']) {
+            $message = "Mot de passe changé avec succès !";
+            $messageType = "success";
+            $showForm = false;
+            
+            // Recharger les infos utilisateur pour mettre à jour $user['Mdp']
+            $requete = $bdd->prepare("SELECT * FROM compte WHERE ID_compte = ?");
+            $requete->execute([$user_ID]);
+            $user = $requete->fetch(PDO::FETCH_ASSOC);
+        } else {
+            // Afficher les erreurs de validation du mot de passe
+            $message = "Le mot de passe doit contenir : " . implode( $resultat['erreurs']);
+            $messageType = "error";
+            $showForm = true; // Garder le formulaire affiché
+        }
     }
 }
 
