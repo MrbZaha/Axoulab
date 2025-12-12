@@ -91,13 +91,14 @@ if (!file_exists($path)) {
 <head>
     <meta charset="UTF-8">
     <title>Profil utilisateur</title>
-    <link rel="stylesheet" href="../css/page_profil_style.css">
+    <link rel="stylesheet" href="../css/page_profil.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <?php afficher_Bandeau_Haut($bdd, $_SESSION["ID_compte"])?>
 <body>
+  
   <div class="profil-box">
     <!-- Section photo de profil -->
     <div class="avatar-section">
@@ -146,7 +147,18 @@ if (!file_exists($path)) {
         modifier_photo_de_profil($user_ID);
     }?>
 
+    
+
   </div>
 <?php afficher_Bandeau_Bas() ?>
+
+<!-- <div id="popup-photo" class="popup-overlay">
+    <div class="popup-box">
+        <h3>❌ Fichier non accepté</h3>
+        <p>Seuls les formats <strong>JPEG</strong> et <strong>PNG</strong> sont autorisés.</p>
+        <a href="#" class="popup-close">Fermer</a>
+    </div>
+</div> -->
+
 </body>
 </html>

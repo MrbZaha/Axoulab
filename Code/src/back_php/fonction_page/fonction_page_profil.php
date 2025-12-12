@@ -41,11 +41,21 @@ function modifier_photo_de_profil($user_ID) {
 
     $tmp = $_FILES['photo']['tmp_name'];
     $type = exif_imagetype($tmp);
-    if (!in_array($type, [IMAGETYPE_JPEG, IMAGETYPE_PNG])) { ?>
-        <div class="error-message"><?= "Type de fichier non supporté. Seuls JPEG et PNG sont autorisés." ?></div>
-        <?php return;
+
+    if (!in_array($type, [IMAGETYPE_JPEG, IMAGETYPE_PNG])) {
+        // Popup d'erreur
+        echo '
+        <div class="popup-overlay">
+            <div class="popup-box">
+                <h3>❌ Fichier non accepté</h3>
+                <p>Seuls les formats <strong>JPEG</strong> et <strong>PNG</strong> sont autorisés.</p>
+                <a href="#" class="popup-close">Fermer</a>
+            </div>
+        </div>';
+        return;
     }
 
+    // Charger l'image
     switch ($type) {
         case IMAGETYPE_JPEG:
             $image = imagecreatefromjpeg($tmp);
@@ -59,6 +69,7 @@ function modifier_photo_de_profil($user_ID) {
 
     if (!$image) return;
 
+    // Destination en PNG
     $destination = "../assets/profile_pictures/" . $user_ID . ".png";
     imagepng($image, $destination);
     imagedestroy($image);
