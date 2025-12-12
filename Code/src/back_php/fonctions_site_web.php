@@ -1452,7 +1452,7 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
                                 // ajoute 2 boutons : modification et suppression 
                                 ?>
                                     <button class="btn btnViolet"  
-                                        onclick="event.stopPropagation(); location.href='page_modification_projet.php?id_projet=<?= $id_projet ?>'">
+                                        onclick="event.stopPropagation(); location.href='page_modification_projet.php?id_projet=<?= $id ?>'">
                                         Modifier</button>
                                     <a href="page_admin_projets.php?action=supprimer&id=<?php echo $id; ?>"
                                         class="btn btnRouge"
