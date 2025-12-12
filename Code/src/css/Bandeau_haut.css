@@ -9,8 +9,18 @@
     border-bottom: 3px solid rgb(244, 224, 127);
 }
 
-body{
-    margin: 0px;
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    min-height: 100vh; /* Hauteur totale de la page */
+}
+
+/* Le contenu principal doit prendre tout l’espace restant */
+main {
+    flex: 1;
 }
 
 /* ======================= SEARCHBAR ======================= */
