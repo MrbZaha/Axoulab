@@ -48,7 +48,6 @@ function recuperer_id_compte($bdd, $email) {
 }
 
 function verifier_mdp($mdp) {
-
     // ============================================================================
     //  FONCTION : verifier_mdp()
     //  Vérifie que le mot de passe respecte plusieurs critères de sécurité :
@@ -182,30 +181,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
                         $stmtNomExp->execute([$idExperience]);
                         $nomExp = $stmtNomExp->fetchColumn();
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-                        // Retirer le gestionnaire qui a validé pour éviter doublon
-                        $experimentateurs = array_diff($experimentateurs, [$idUtilisateur]);
-=======
-=======
->>>>>>> 4ecd4e6635e770382305e91d62792f964508be65
                         // Récupérer l'ID du créateur de l'expérience
                         $stmtCreateurExp = $bdd->prepare("SELECT ID_compte FROM experience_experimentateur WHERE ID_experience = ?");
                         $stmtCreateurExp->execute([$idExperience]);
                         $idCreateurExp = $stmtCreateurExp->fetchColumn();
-<<<<<<< HEAD
-=======
 
                         // Retirer le gestionnaire actuel de la liste pour éviter de s'envoyer une notification
-                        $experimentateurs = array_diff($experimentateurs, [$idCreateurExp]);
->>>>>>> 4ecd4e6635e770382305e91d62792f964508be65
+                        $experimentateurs = array_diff($experimentateurs, [$idUtilisateur]);
 
-                        // Retirer le gestionnaire actuel de la liste pour éviter de s'envoyer une notification
-                        $experimentateurs = array_diff($experimentateurs, [$idCreateurExp]);
->>>>>>> 4ecd4e6635e770382305e91d62792f964508be65
-
-                        // Création d'une notification pour chaque expérimentateur
-                        foreach ($experimentateurs as $idExpUser) {
+                        // Créer une notification pour chaque expérimentateur
+                        foreach ($experimentateurs  as $idExpUser) {
+                            
                             envoyerNotification(
                                 $bdd,
                                 4, 
