@@ -897,7 +897,7 @@ function afficher_experiences_pagines(PDO $bdd, array $experiences, int $page_ac
                 $date_reservation = htmlspecialchars($exp['Date_reservation']);
                 $heure_debut = htmlspecialchars($exp['Heure_debut']);
                 $heure_fin = htmlspecialchars($exp['Heure_fin']);
-                $salle = htmlspecialchars($exp['Nom_salle'] ?? 'Non définie');
+                $salle = htmlspecialchars($exp['Nom_Salle'] ?? 'Non définie');
                 $nom_projet = htmlspecialchars($exp['Nom_projet'] ?? 'Sans projet');
                 $id_projet = htmlspecialchars($exp['ID_projet']);
                 ?>
@@ -1541,7 +1541,7 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
                                 // ajoute 2 boutons : modification et suppression 
                                 ?>
                                     <button class="btn btnViolet"  
-                                        onclick="event.stopPropagation(); location.href='page_modification_projet.php?id_projet=<?= $id_projet ?>'">
+                                        onclick="event.stopPropagation(); location.href='page_modification_projet.php?id_projet=<?= $id ?>'">
                                         Modifier</button>
                                     <a href="page_admin_projets.php?action=supprimer&id=<?php echo $id; ?>"
                                         class="btn btnRouge"

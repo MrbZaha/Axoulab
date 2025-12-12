@@ -12,11 +12,6 @@
     border-top: 3px solid rgb(244, 224, 127);
 }
 
-html, body {
-    height: 100%;
-    margin: 0;
-}
-
 .titre {
     font-size: larger;
     font-weight: bold;
