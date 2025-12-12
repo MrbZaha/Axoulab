@@ -32,17 +32,15 @@ form {
     margin-bottom: 20px;
 }
 
-/* Labels des champs */
+/* Labels */
 .project-box form label {
     margin-top: 10px;
     font-weight: bold;
 }
 
-/* Champs texte, date, textarea, select */
+/* Champs texte + textarea */
 .project-box input[type="text"],
-.project-box input[type="date"],
-.project-box textarea,
-.project-box select {
+.project-box textarea {
     padding: 10px;
     margin-top: 5px;
     border: 1px solid #ccc;
@@ -51,15 +49,14 @@ form {
     box-sizing: border-box;
 }
 
-/* Textarea pour la description */
 .project-box textarea {
     resize: vertical;
     min-height: 80px;
 }
 
 /* ======================= BOUTONS ======================= */
-.project-box input[type="submit"],
-.project-box button {
+.project-box button,
+.project-box input[type="submit"] {
     margin-top: 20px;
     padding: 12px 20px;
     background-color: #374693;
@@ -72,48 +69,18 @@ form {
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-/* Hover sur bouton principal */
-.project-box input[type="submit"]:hover,
-.project-box button:hover {
+.project-box button:hover,
+.project-box input[type="submit"]:hover {
     background-color: #0462c6;
     transform: scale(1.03);
 }
 
-/* ======================= RADIO BUTTONS ======================= */
-.project-box .user-type {
-    margin-top: 10px;
-}
-
-.project-box .user-type input[type="radio"] {
-    margin-right: 5px;
-}
-
-/* ======================= MESSAGES ======================= */
-.project-box .message-success {
-    color: #155724;
-    background-color: #d4edda;
-    padding: 12px;
-    border-radius: 5px;
-    border: 1px solid #c3e6cb;
-    margin-top: 15px;
-    text-align: center;
-}
-
-.project-box .message-error {
-    color: #721c24;
-    background-color: #f8d7da;
-    padding: 12px;
-    border-radius: 5px;
-    border: 1px solid #f5c6cb;
-    margin-top: 15px;
-    text-align: center;
-}
-
-/* ======================= SECTIONS PARTICIPANTS ======================= */
+/* ======================= SECTION EXPÉRIMENTATEURS ======================= */
 .participants-section {
     margin: 20px 0;
 }
 
+/* Alignement input + bouton Ajouter */
 .selection-container {
     display: flex;
     gap: 10px;
@@ -128,6 +95,7 @@ form {
     border-radius: 4px;
 }
 
+/* Bouton Ajouter */
 .btn-ajouter {
     padding: 8px 16px;
     background-color: #4CAF50;
@@ -138,6 +106,7 @@ form {
     transition: background-color 0.3s ease;
     margin-top: 0 !important;
     transform: none !important;
+    white-space: nowrap;
 }
 
 .btn-ajouter:hover {
@@ -145,7 +114,7 @@ form {
     transform: none !important;
 }
 
-/* ======================= LISTE DES PERSONNES SÉLECTIONNÉES ======================= */
+/* ======================= LISTE DES EXPÉRIMENTATEURS ======================= */
 .liste-selectionnes {
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -156,6 +125,14 @@ form {
     flex-wrap: wrap;
     gap: 8px;
     align-items: flex-start;
+}
+
+.liste-vide {
+    color: #999;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    width: 100%;
 }
 
 /* ======================= TAGS PERSONNES ======================= */
@@ -187,7 +164,7 @@ form {
     background-color: #9E9E9E;
 }
 
-/* ======================= BOUTON CROIX DE SUPPRESSION ======================= */
+/* ======================= BOUTON CROIX ======================= */
 .btn-croix {
     background: none;
     border: none;
@@ -209,10 +186,9 @@ form {
 
 .btn-croix:hover {
     background-color: rgba(0, 0, 0, 0.2);
-    transform: none !important;
 }
 
-/* ======================= TEXTE INFORMATIF ======================= */
+/* ======================= TEXTE INFO ======================= */
 .info-text {
     color: #666;
     font-size: 13px;
@@ -221,54 +197,22 @@ form {
     margin-bottom: 5px;
 }
 
-/* ======================= LISTE VIDE ======================= */
-.liste-vide {
-    color: #999;
-    font-style: italic;
-    text-align: center;
-    padding: 20px;
-    width: 100%;
-}
-
-/* ======================= ANCIENNES CLASSES (GARDÉES POUR COMPATIBILITÉ) ======================= */
-.badge {
-    font-size: 12px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    margin-left: 8px;
-}
-
-.badge-admin {
-    background-color: #ff5722;
-    color: white;
-}
-
-.badge-chercheur {
-    background-color: #2196F3;
-    color: white;
-}
-
-.badge-etudiant {
-    background-color: #9E9E9E;
-    color: white;
-}
-
 /* ======================= RESPONSIVE ======================= */
 @media (max-width: 768px) {
     .project-box {
         width: 95%;
         padding: 20px;
     }
-    
+
     .selection-container {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .btn-ajouter {
         width: 100%;
     }
-    
+
     .tag-personne {
         font-size: 12px;
         padding: 5px 10px;
