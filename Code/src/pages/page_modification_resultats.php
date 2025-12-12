@@ -1,6 +1,7 @@
 <?php
+
 require_once __DIR__ . '/../back_php/fonctions_site_web.php';
-// require_once __DIR__ . '/../back_php/fonctions_page_modification_resultats.php';
+require_once __DIR__ . '/../back_php/fonction_page/fonction_page_modification_resultats.php';
 
 $bdd = connectBDD();
 verification_connexion($bdd);
@@ -220,30 +221,6 @@ function format_file_size(int $bytes): string {
     return round($bytes / 1073741824, 2) . ' GB';
 }
 
-function afficher_resultats($text,$id_experience) {
-
-    $uploadDir = "../assets/resultats/" . $id_experience . "/";
-    $webUploadDir = "../assets/resultats/" . $id_experience . "/"; // chemin relatif pour <img src=>
-
-    // Générer aperçu HTML
-    $successHtml = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
-    $successHtml = nl2br($successHtml);
-
-    // Remplacer [[file:xxx]]
-    if (preg_match_all('/\[\[file:([^\]]+)\]\]/', $text, $matches)) {
-        foreach ($matches[1] as $filename) {
-            $filename = basename($filename);
-            $path = $webUploadDir . $filename;
-            if (is_file($uploadDir . $filename)) {
-                $imgTag = '<img class="inserted-image" src="' . htmlspecialchars($path, ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($filename, ENT_QUOTES, 'UTF-8') . '">';
-                $successHtml = str_replace('[[' . 'file:' . $filename . ']]', $imgTag, $successHtml);
-            }
-        }
-    }
-
-    return $successHtml;
-
-}
 
 // add_result.php
 // Simple page pour ajouter un texte et des images sans JS.
@@ -498,6 +475,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress_other'])) {
     $text = $_POST['content'] ?? '';
     $initial_textarea_value = $text;
 }
+
+$page_title="Modification experience ".$id_experience
 ?>
 
 
