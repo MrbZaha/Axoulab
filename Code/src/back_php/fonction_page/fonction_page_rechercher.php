@@ -57,7 +57,7 @@ function afficher_projets_experiences_pagines(array $items, int $page_actuelle =
                     $date_reservation = htmlspecialchars($item['Date_reservation']);
                     $heure_debut = htmlspecialchars($item['Heure_debut']);
                     $heure_fin = htmlspecialchars($item['Heure_fin']);
-                    $salle = htmlspecialchars($item['Salle'] ?? 'Non définie');
+                    $salle = htmlspecialchars($item['Nom_Salle'] ?? 'Non définie');
                     $nom_projet = htmlspecialchars($item['Nom_projet'] ?? 'Sans projet');
                     $id_projet = htmlspecialchars($item['ID_projet']);
                     ?>

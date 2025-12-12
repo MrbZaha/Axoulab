@@ -30,28 +30,24 @@ if ($page > $total_pages) $page = $total_pages;
 <head>
     <meta charset="UTF-8">
     <title>Mes expériences</title>
-    <!--permet d'uniformiser le style sur tous les navigateurs-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <link rel="stylesheet" href="../css/page_mes_experiences.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <div class=main-content>
-        <?php afficher_Bandeau_Haut($bdd, $id_compte)?>
-        <h1>Mes expériences</h1>
+    <?php afficher_Bandeau_Haut($bdd, $id_compte)?>
+    <h1>Mes expériences</h1>
 
-        <div class="experiences">
-            <section class="section-experiences">
-                <h2>Expériences (<?= count($experiences) ?>)</h2>
-                <?php afficher_experiences_pagines($bdd, $experiences, $page, $items_par_page, false); ?>
-                <?php afficher_pagination($page, $total_pages); ?>
-            </section>
+    <div class="experiences">
+        <section class="section-experiences">
+            <h2>Expériences (<?= count($experiences) ?>)</h2>
+            <?php afficher_experiences_pagines($bdd, $experiences, $page, $items_par_page, false); ?>
+            <?php afficher_pagination($page, $total_pages); ?>
+        </section>
 
-        </div>
-
-        <?php afficher_Bandeau_Bas() ?>
     </div>
+
+    <?php afficher_Bandeau_Bas() ?>
 </body>
 </html>

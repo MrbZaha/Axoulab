@@ -771,7 +771,7 @@ function afficher_experiences_pagines(PDO $bdd, array $experiences, int $page_ac
                 $date_reservation = htmlspecialchars($exp['Date_reservation']);
                 $heure_debut = htmlspecialchars($exp['Heure_debut']);
                 $heure_fin = htmlspecialchars($exp['Heure_fin']);
-                $salle = htmlspecialchars($exp['Nom_salle'] ?? 'Non définie');
+                $salle = htmlspecialchars($exp['Nom_Salle'] ?? 'Non définie');
                 $nom_projet = htmlspecialchars($exp['Nom_projet'] ?? 'Sans projet');
                 $id_projet = htmlspecialchars($exp['ID_projet']);
                 ?>
