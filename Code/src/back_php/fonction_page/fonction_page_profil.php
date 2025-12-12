@@ -2,11 +2,30 @@
 // ======================= FONCTIONS =======================
 require_once __DIR__ . '/../fonctions_site_web.php';  // Sans "back_php/" !
 
-// Fonction pour modifier le mot de passe
+// Fonction pour modifier le mot de passe avec vérification
 function modifier_mdp($bdd, $mdp, $user_ID) {
+    // Vérifier que le mot de passe respecte les critères de sécurité
+    $erreurs = verifier_mdp($mdp);
+    
+    // Si des erreurs sont détectées, on ne modifie pas le mot de passe
+    if (!empty($erreurs)) {
+        // Retourner false et les erreurs
+        return [
+            'success' => false,
+            'erreurs' => $erreurs
+        ];
+    }
+    
+    // Si tout est OK, on procède au hashage et à la mise à jour
     $hash = password_hash($mdp, PASSWORD_DEFAULT);
     $update = $bdd->prepare("UPDATE compte SET Mdp = ? WHERE ID_compte = ?");
-    return $update->execute([$hash, $user_ID]);
+    $resultat = $update->execute([$hash, $user_ID]);
+    
+    // Retourner le résultat
+    return [
+        'success' => $resultat,
+        'erreurs' => []
+    ];
 }
 
 // Fonction pour vérifier que deux mots de passe sont identiques

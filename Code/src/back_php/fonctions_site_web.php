@@ -47,6 +47,49 @@ function recuperer_id_compte($bdd, $email) {
     return null;
 }
 
+function verifier_mdp($mdp) {
+
+    // ============================================================================
+    //  FONCTION : verifier_mdp()
+    //  Vérifie que le mot de passe respecte plusieurs critères de sécurité :
+    //      ✔ au moins 8 caractères
+    //      ✔ au moins une MAJUSCULE
+    //      ✔ au moins une minuscule
+    //      ✔ au moins un chiffre
+    //      ✔ au moins un caractère spécial
+    //
+    //  Retourne :
+    //      - un tableau vide si TOUT est correct
+    //      - un tableau contenant les messages d'erreurs sinon
+    // ============================================================================
+    
+    // Tableau où seront ajoutées les erreurs éventuelles
+    $erreurs = [];
+
+    // Longueur minimale
+    if (strlen($mdp) < 8) 
+        $erreurs[] = "au moins 8 caractères";
+
+    // Présence d’une lettre majuscule
+    if (!preg_match('/[A-Z]/', $mdp)) 
+        $erreurs[] = "au moins une majuscule";
+
+    // Présence d’une lettre minuscule
+    if (!preg_match('/[a-z]/', $mdp)) 
+        $erreurs[] = "au moins une minuscule";
+
+    // Présence d'un chiffre
+    if (!preg_match('/[0-9]/', $mdp)) 
+        $erreurs[] = "au moins un chiffre";
+
+    // Présence d'un caractère spécial
+    // \W = tout ce qui n’est pas alphanumérique | _ = inclus aussi le souligné
+    if (!preg_match('/[\W_]/', $mdp)) 
+        $erreurs[] = "au moins un caractère spécial (!@#$%^&*...)";
+
+    // Retourne le tableau : vide si OK, rempli si erreurs
+    return $erreurs;
+}
 // =======================  AFFICHAGE BANDEAU DU HAUT =======================
 /* Affiche le Bandeau du haut */
 function afficher_Bandeau_Haut($bdd, $userID, $recherche = true) {
@@ -518,7 +561,7 @@ function get_last_notif($bdd, $IDuser, $limit = 10) {
 
     // Textes des notifications
     $texte_notifications = [
-        1  => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer l\'expérience {Nom_experience}',
+        1  => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé l\'expérience {Nom_experience}',
         2  => '{Nom_envoyeur} {Prenom_envoyeur} a validé l\'expérience {Nom_experience}',
         3  => '{Nom_envoyeur} {Prenom_envoyeur} a refusé l\'expérience {Nom_experience}',
         4  => '{Nom_envoyeur} {Prenom_envoyeur} vous a ajouté comme experimentateur surl\'expérience {Nom_experience}',
