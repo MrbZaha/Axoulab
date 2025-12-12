@@ -84,7 +84,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
     <!-- Affichage des projets un à un-->
         <section class="section-projets">
             <!-- Debug -->
-            <h2>Projet(s) (<?= count($projets) ?>)</h2>  <!--Titre affichant le nombre d'expérience-->
+            <h2>Projet(s) (<?= count($projets) ?>)</h2>  <!--Titre affichant le nombre de projets-->
             <?php afficher_projets_pagines($bdd, $projets, $page, $items_par_page, $page_admin); ?>
             <?php afficher_pagination($page, $total_pages); ?>
         </section>
