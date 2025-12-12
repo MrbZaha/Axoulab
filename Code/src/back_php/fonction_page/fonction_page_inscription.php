@@ -2,17 +2,6 @@
 // Inclusion des fonctions générales du site.
 require_once __DIR__ . '/../fonctions_site_web.php';
 
-
-
-function mot_de_passe_identique($mdp1, $mdp2) {
-    // ============================================================================
-    //  FONCTION : mot_de_passe_identique()
-    //  Compare le mot de passe saisi et sa confirmation.
-    //  Retourne true si identiques, false sinon.
-    // ============================================================================
-    return $mdp1 === $mdp2;
-}
-
 function verifier_email_axoulab($email,$prenom,$nom) {
     // Nettoyer les données (en minuscules, sans espaces)
     $email = strtolower(trim($email));
