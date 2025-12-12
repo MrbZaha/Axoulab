@@ -232,6 +232,8 @@ function afficher_utilisateurs_pagines($utilisateurs, $page_actuelle, $items_par
 <html lang="fr">
     <head>
         <meta charset="utf-8"/>
+        <!--permet d'uniformiser le style sur tous les navigateurs-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
         <link rel="stylesheet" href="../css/page_mes_experiences.css">
         <link rel="stylesheet" href="../css/page_admin_utilisateurs_materiel.css">
         <link rel="stylesheet" href="../css/admin.css">

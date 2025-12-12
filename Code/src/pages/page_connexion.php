@@ -100,6 +100,8 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
     <!-- Création de la page de connexion-->
     <meta charset="UTF-8">
     <title>Page de connexion</title>
+    <!--permet d'uniformiser le style sur tous les navigateurs-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <link rel="stylesheet" href="../css/page_connexion.css">
 
 </head>

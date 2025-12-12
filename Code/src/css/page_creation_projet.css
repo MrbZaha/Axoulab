@@ -1,4 +1,10 @@
-/* ======================= STYLE GÉNÉRAL ======================= */
+/* ======================= RESET & GLOBAL ======================= */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f3f3f3;
@@ -25,14 +31,13 @@ form {
     flex-direction: column;
 }
 
-/* ======================= TITRE ======================= */
 .project-box h2 {
     text-align: center;
     color: #374693;
     margin-bottom: 20px;
 }
 
-/* Labels des champs */
+/* Labels */
 .project-box form label {
     margin-top: 10px;
     font-weight: bold;
@@ -51,7 +56,7 @@ form {
     box-sizing: border-box;
 }
 
-/* Textarea pour la description */
+/* Textarea */
 .project-box textarea {
     resize: vertical;
     min-height: 80px;
@@ -69,17 +74,15 @@ form {
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    transition: background-color 0.3s ease;
 }
 
-/* Hover sur bouton principal */
 .project-box input[type="submit"]:hover,
 .project-box button:hover {
     background-color: #0462c6;
-    transform: scale(1.03);
 }
 
-/* ======================= RADIO BUTTONS ======================= */
+/* ======================= RADIO ======================= */
 .project-box .user-type {
     margin-top: 10px;
 }
@@ -89,7 +92,7 @@ form {
 }
 
 /* ======================= MESSAGES ======================= */
-.project-box .message-success {
+.message-success {
     color: #155724;
     background-color: #d4edda;
     padding: 12px;
@@ -99,7 +102,7 @@ form {
     text-align: center;
 }
 
-.project-box .message-error {
+.message-error {
     color: #721c24;
     background-color: #f8d7da;
     padding: 12px;
@@ -109,16 +112,26 @@ form {
     text-align: center;
 }
 
-/* ======================= SECTIONS PARTICIPANTS ======================= */
+/* ======================= PARTICIPANTS ======================= */
 .participants-section {
     margin: 20px 0;
 }
 
+/* CORRECTION ALIGNEMENT FIREFOX + CHROME */
 .selection-container {
     display: flex;
+    align-items: stretch;
     gap: 10px;
     margin-bottom: 10px;
-    align-items: center;
+    width: 100%;
+}
+
+.selection-container input[type="text"],
+.selection-container .btn-ajouter {
+    height: 40px;
+    line-height: 40px;
+    vertical-align: middle;
+    font-size: 14px;
 }
 
 .selection-container input[type="text"] {
@@ -128,24 +141,25 @@ form {
     border-radius: 4px;
 }
 
+/* ADD BUTTON */
 .btn-ajouter {
-    padding: 8px 16px;
+    padding: 0 16px;
     background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    margin-top: 0 !important;
-    transform: none !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-ajouter:hover {
     background-color: #45a049;
-    transform: none !important;
 }
 
-/* ======================= LISTE DES PERSONNES SÉLECTIONNÉES ======================= */
+/* ======================= LISTE SÉLECTIONNÉE ======================= */
 .liste-selectionnes {
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -154,11 +168,10 @@ form {
     background-color: #f9f9f9;
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    align-items: flex-start;
+    margin-top: 10px;
 }
 
-/* ======================= TAGS PERSONNES ======================= */
+/* ======================= TAGS ======================= */
 .tag-personne {
     display: inline-flex;
     align-items: center;
@@ -167,8 +180,8 @@ form {
     font-size: 14px;
     color: white;
     font-weight: 500;
-    gap: 8px;
-    transition: opacity 0.2s ease;
+    margin: 0 8px 8px 0;
+    white-space: nowrap;
 }
 
 .tag-personne:hover {
@@ -187,16 +200,13 @@ form {
     background-color: #9E9E9E;
 }
 
-/* ======================= BOUTON CROIX DE SUPPRESSION ======================= */
+/* ======================= CROIX ======================= */
 .btn-croix {
     background: none;
     border: none;
     color: white;
-    font-size: 20px;
-    line-height: 1;
+    font-size: 18px;
     cursor: pointer;
-    padding: 0;
-    margin: 0 !important;
     width: 20px;
     height: 20px;
     display: flex;
@@ -204,15 +214,15 @@ form {
     justify-content: center;
     border-radius: 50%;
     transition: background-color 0.2s ease;
-    transform: none !important;
+    padding: 0;
+    margin-left: 6px;
 }
 
 .btn-croix:hover {
     background-color: rgba(0, 0, 0, 0.2);
-    transform: none !important;
 }
 
-/* ======================= TEXTE INFORMATIF ======================= */
+/* ======================= TEXTE INFO ======================= */
 .info-text {
     color: #666;
     font-size: 13px;
@@ -230,28 +240,19 @@ form {
     width: 100%;
 }
 
-/* ======================= ANCIENNES CLASSES (GARDÉES POUR COMPATIBILITÉ) ======================= */
+/* ======================= BADGES LEGACY ======================= */
 .badge {
     font-size: 12px;
     padding: 2px 6px;
     border-radius: 3px;
     margin-left: 8px;
-}
-
-.badge-admin {
-    background-color: #ff5722;
+    background: rgba(255,255,255,0.25);
     color: white;
 }
 
-.badge-chercheur {
-    background-color: #2196F3;
-    color: white;
-}
-
-.badge-etudiant {
-    background-color: #9E9E9E;
-    color: white;
-}
+.badge-admin { background-color: #ff5722; }
+.badge-chercheur { background-color: #2196F3; }
+.badge-etudiant { background-color: #9E9E9E; }
 
 /* ======================= RESPONSIVE ======================= */
 @media (max-width: 768px) {
@@ -259,16 +260,17 @@ form {
         width: 95%;
         padding: 20px;
     }
-    
+
     .selection-container {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .btn-ajouter {
         width: 100%;
+        height: 40px;
     }
-    
+
     .tag-personne {
         font-size: 12px;
         padding: 5px 10px;
