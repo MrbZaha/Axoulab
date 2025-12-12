@@ -6,7 +6,7 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <title>Compte en cours de validation</title>
-   <!-- <link rel="stylesheet" href="../css/page_validation_style.css"> a mettre une fois que le style sera fait -->
+   <link rel="stylesheet" href="../css/page_validation_compte_style.css">
 </head>
 <body>
     <div class="validation-box">

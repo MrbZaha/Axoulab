@@ -47,6 +47,49 @@ function recuperer_id_compte($bdd, $email) {
     return null;
 }
 
+function verifier_mdp($mdp) {
+
+    // ============================================================================
+    //  FONCTION : verifier_mdp()
+    //  Vérifie que le mot de passe respecte plusieurs critères de sécurité :
+    //      ✔ au moins 8 caractères
+    //      ✔ au moins une MAJUSCULE
+    //      ✔ au moins une minuscule
+    //      ✔ au moins un chiffre
+    //      ✔ au moins un caractère spécial
+    //
+    //  Retourne :
+    //      - un tableau vide si TOUT est correct
+    //      - un tableau contenant les messages d'erreurs sinon
+    // ============================================================================
+    
+    // Tableau où seront ajoutées les erreurs éventuelles
+    $erreurs = [];
+
+    // Longueur minimale
+    if (strlen($mdp) < 8) 
+        $erreurs[] = "au moins 8 caractères";
+
+    // Présence d’une lettre majuscule
+    if (!preg_match('/[A-Z]/', $mdp)) 
+        $erreurs[] = "au moins une majuscule";
+
+    // Présence d’une lettre minuscule
+    if (!preg_match('/[a-z]/', $mdp)) 
+        $erreurs[] = "au moins une minuscule";
+
+    // Présence d'un chiffre
+    if (!preg_match('/[0-9]/', $mdp)) 
+        $erreurs[] = "au moins un chiffre";
+
+    // Présence d'un caractère spécial
+    // \W = tout ce qui n’est pas alphanumérique | _ = inclus aussi le souligné
+    if (!preg_match('/[\W_]/', $mdp)) 
+        $erreurs[] = "au moins un caractère spécial (!@#$%^&*...)";
+
+    // Retourne le tableau : vide si OK, rempli si erreurs
+    return $erreurs;
+}
 // =======================  AFFICHAGE BANDEAU DU HAUT =======================
 /* Affiche le Bandeau du haut */
 function afficher_Bandeau_Haut($bdd, $userID, $recherche = true) {
@@ -139,8 +182,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
                         $stmtNomExp->execute([$idExperience]);
                         $nomExp = $stmtNomExp->fetchColumn();
 
+<<<<<<< HEAD
                         // Retirer le gestionnaire qui a validé pour éviter doublon
                         $experimentateurs = array_diff($experimentateurs, [$idUtilisateur]);
+=======
+                        // Récupérer l'ID du créateur de l'expérience
+                        $stmtCreateurExp = $bdd->prepare("SELECT ID_compte FROM experience_experimentateur WHERE ID_experience = ?");
+                        $stmtCreateurExp->execute([$idExperience]);
+                        $idCreateurExp = $stmtCreateurExp->fetchColumn();
+
+                        // Retirer le gestionnaire actuel de la liste pour éviter de s'envoyer une notification
+                        $experimentateurs = array_diff($experimentateurs, [$idCreateurExp]);
+>>>>>>> 4ecd4e6635e770382305e91d62792f964508be65
 
                         // Création d'une notification pour chaque expérimentateur
                         foreach ($experimentateurs as $idExpUser) {
@@ -412,7 +465,7 @@ function get_last_notif($bdd, $IDuser, $limit = 10) {
 
     // Textes des notifications
     $texte_notifications = [
-        1  => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé de créer l\'expérience {Nom_experience}',
+        1  => '{Nom_envoyeur} {Prenom_envoyeur} vous a proposé l\'expérience {Nom_experience}',
         2  => '{Nom_envoyeur} {Prenom_envoyeur} a validé l\'expérience {Nom_experience}',
         3  => '{Nom_envoyeur} {Prenom_envoyeur} a refusé l\'expérience {Nom_experience}',
         4  => '{Nom_envoyeur} {Prenom_envoyeur} vous a ajouté comme experimentateur surl\'expérience {Nom_experience}',
@@ -1401,4 +1454,29 @@ function get_experimentateurs_ids(PDO $bdd, int $id_experience): array {
     return $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
+//Fonction permettant d'afficher les résultats en remplacant les balises par les fichiers correspondants
+function afficher_resultats($text,$id_experience) {
+
+    $uploadDir = "../assets/resultats/" . $id_experience . "/";
+    $webUploadDir = "../assets/resultats/" . $id_experience . "/"; // chemin relatif pour <img src=>
+
+    // Générer aperçu HTML
+    $successHtml = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    $successHtml = nl2br($successHtml);
+
+    // Remplacer [[file:xxx]]
+    if (preg_match_all('/\[\[file:([^\]]+)\]\]/', $text, $matches)) {
+        foreach ($matches[1] as $filename) {
+            $filename = basename($filename);
+            $path = $webUploadDir . $filename;
+            if (is_file($uploadDir . $filename)) {
+                $imgTag = '<img class="inserted-image" src="' . htmlspecialchars($path, ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($filename, ENT_QUOTES, 'UTF-8') . '">';
+                $successHtml = str_replace('[[' . 'file:' . $filename . ']]', $imgTag, $successHtml);
+            }
+        }
+    }
+
+    return $successHtml;
+
+}
 ?>

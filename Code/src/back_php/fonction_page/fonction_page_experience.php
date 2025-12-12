@@ -275,7 +275,7 @@ function afficher_erreur(string $erreur): void {
  *
  * @return void Affiche directement le HTML de la page, ne retourne rien
  */
-function afficher_experience(array $experience, array $experimentateurs, array $salles_materiel): void {
+function afficher_experience(int $id_experience, array $experience, array $experimentateurs, array $salles_materiel): void {
     // Regrouper les salles et le matériel
     $salles = [];
     $materiels = [];
@@ -334,11 +334,6 @@ if (isset($_SESSION['ID_compte']) && isset($experience['ID_experience'])) {
                     <div class="project-description">
                         <h3>Description</h3>
                         <p><?= nl2br(htmlspecialchars($experience['Description'])) ?></p>
-                        
-                        <?php if (!empty($experience['Resultat'])): ?>
-                            <h3 style="margin-top: 25px;">Résultats</h3>
-                            <p><?= nl2br(htmlspecialchars($experience['Resultat'])) ?></p>
-                        <?php endif; ?>
                     </div>
                     
                     <!-- Informations -->
@@ -376,6 +371,15 @@ if (isset($_SESSION['ID_compte']) && isset($experience['ID_experience'])) {
                             <p><?= htmlspecialchars(implode(', ', $salles)) ?></p>
                         <?php endif; ?>
                     </div>
+                    
+                    <!-- Résultats (nouveau conteneur séparé) -->
+                    <?php if (!empty($experience['Resultat'])): ?>
+                        <div class="project-results">
+                            <h3>Résultats</h3>
+                            <?= afficher_resultats($experience['Resultat'], $id_experience) ?>
+                        </div>
+                    <?php endif; ?>
+
                 </div>
 
                 <!-- Matériel utilisé -->
@@ -455,4 +459,5 @@ function charger_donnees_experience(PDO $bdd, int $id_compte, int $id_experience
         'salles_materiel' => get_salles_et_materiel($bdd, $id_experience)
     ];
 }
+
 ?>

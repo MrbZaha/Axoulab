@@ -126,6 +126,123 @@ function update_resultats_experience(PDO $bdd, int $id_experience, string $html)
     ]);
 }
 
+// Liste des fichiers non-images (documents, vidéos, audio, code, etc.)
+function list_files_for_experience(string $dir): array {
+    if (!is_dir($dir)) return [];
+    
+    // Extensions autorisées (JAMAIS .php, .sql, .sh, .exe, etc. pour la sécurité)
+    $extensions = [
+        // Documents
+        'pdf', 'doc', 'docx', 'txt', 'md', 'csv', 'xlsx', 'xls', 'odt', 'rtf',
+        // Code
+        'py', 'js', 'html', 'css', 'json', 'xml', 'yaml', 'yml', 'c', 'cpp', 'java', 'r',
+        // Vidéo
+        'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv',
+        // Audio
+        'mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac',
+        // Archives
+        'zip', 'rar', '7z', 'tar', 'gz'
+    ];
+    
+    $pattern = $dir . "*.{" . implode(',', $extensions) . "}";
+    $files = glob($pattern, GLOB_BRACE);
+    
+    // Aussi chercher les majuscules
+    $patternUpper = $dir . "*.{" . implode(',', array_map('strtoupper', $extensions)) . "}";
+    $filesUpper = glob($patternUpper, GLOB_BRACE);
+    
+    $allFiles = array_merge($files ?: [], $filesUpper ?: []);
+    sort($allFiles);
+    
+    return array_map('basename', $allFiles);
+}
+
+// Fonction pour obtenir l'icône selon le type de fichier
+function get_file_icon(string $filename): string {
+    $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+    
+$icons = [
+    // Documents
+    'pdf' => 'fa-file-pdf',
+    'doc' => 'fa-file-word', 'docx' => 'fa-file-word', 'odt' => 'fa-file-word',
+    'txt' => 'fa-file-text', 'md' => 'fa-file-text',
+    'csv' => 'fa-file-csv', 'tsv' => 'fa-file-csv', // ajout de tsv
+    'xlsx' => 'fa-file-excel', 'xls' => 'fa-file-excel',
+    'ppt' => 'fa-file-powerpoint', 'pptx' => 'fa-file-powerpoint',
+
+    // Code / scripts
+    'py' => 'fa-file-code', 'ipynb' => 'fa-file-code', // notebooks Jupyter
+    'js' => 'fa-file-code', 'html' => 'fa-file-code',
+    'css' => 'fa-file-code', 'json' => 'fa-file-code', 'xml' => 'fa-file-code',
+    'c' => 'fa-file-code', 'cpp' => 'fa-file-code', 'java' => 'fa-file-code', 'r' => 'fa-file-code',
+    'm' => 'fa-file-code', // Matlab
+
+    // Images / Graphiques
+    'png' => 'fa-file-image', 'jpg' => 'fa-file-image', 'jpeg' => 'fa-file-image',
+    'gif' => 'fa-file-image', 'tif' => 'fa-file-image', 'tiff' => 'fa-file-image',
+    'svg' => 'fa-file-image', 'bmp' => 'fa-file-image', 'eps' => 'fa-file-image',
+
+    // Vidéo
+    'mp4' => 'fa-file-video', 'avi' => 'fa-file-video', 'mov' => 'fa-file-video',
+    'wmv' => 'fa-file-video', 'flv' => 'fa-file-video', 'webm' => 'fa-file-video', 'mkv' => 'fa-file-video',
+
+    // Audio
+    'mp3' => 'fa-file-audio', 'wav' => 'fa-file-audio', 'ogg' => 'fa-file-audio',
+    'flac' => 'fa-file-audio', 'm4a' => 'fa-file-audio', 'aac' => 'fa-file-audio',
+
+    // Archives / données brutes
+    'zip' => 'fa-file-archive', 'rar' => 'fa-file-archive', '7z' => 'fa-file-archive',
+    'tar' => 'fa-file-archive', 'gz' => 'fa-file-archive',
+    'bz2' => 'fa-file-archive', 'xz' => 'fa-file-archive',
+
+    // Fichiers scientifiques / labo
+    'fasta' => 'fa-file-alt', 'fastq' => 'fa-file-alt', // séquences
+    'gb' => 'fa-file-alt', // GenBank
+    'sdf' => 'fa-file-alt', // chimie
+    'mol' => 'fa-file-alt', // chimie
+    'pdb' => 'fa-file-alt', // protéines
+    'csv' => 'fa-file-csv', // données expérimentales tabulaires
+    'tsv' => 'fa-file-csv',
+    'xls' => 'fa-file-excel', 'xlsx' => 'fa-file-excel',
+    'mat' => 'fa-file-code', // Matlab
+    'rds' => 'fa-file-code', // R
+];
+    
+    return $icons[$ext] ?? 'fa-file';
+}
+
+// Fonction pour formater la taille des fichiers
+function format_file_size(int $bytes): string {
+    if ($bytes < 1024) return $bytes . ' B';
+    if ($bytes < 1048576) return round($bytes / 1024, 2) . ' KB';
+    if ($bytes < 1073741824) return round($bytes / 1048576, 2) . ' MB';
+    return round($bytes / 1073741824, 2) . ' GB';
+}
+
+function afficher_resultats($text,$id_experience) {
+
+    $uploadDir = "../assets/resultats/" . $id_experience . "/";
+    $webUploadDir = "../assets/resultats/" . $id_experience . "/"; // chemin relatif pour <img src=>
+
+    // Générer aperçu HTML
+    $successHtml = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    $successHtml = nl2br($successHtml);
+
+    // Remplacer [[file:xxx]]
+    if (preg_match_all('/\[\[file:([^\]]+)\]\]/', $text, $matches)) {
+        foreach ($matches[1] as $filename) {
+            $filename = basename($filename);
+            $path = $webUploadDir . $filename;
+            if (is_file($uploadDir . $filename)) {
+                $imgTag = '<img class="inserted-image" src="' . htmlspecialchars($path, ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($filename, ENT_QUOTES, 'UTF-8') . '">';
+                $successHtml = str_replace('[[' . 'file:' . $filename . ']]', $imgTag, $successHtml);
+            }
+        }
+    }
+
+    return $successHtml;
+
+}
 
 // add_result.php
 // Simple page pour ajouter un texte et des images sans JS.
@@ -153,10 +270,8 @@ function list_images_for_experience(string $dir): array {
 }
 
 $existingFiles = list_images_for_experience($uploadDir);
+$existingOtherFiles = list_files_for_experience($uploadDir); // ← Ajoute ça
 
-$errors = [];
-$messages = [];
-$successHtml = null;
 
 // --- POST handling: suppression, upload, save ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_only'])) {
@@ -197,27 +312,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_only'])) {
     $initial_textarea_value = $text;
 }
 
+else if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['upload_files'])) {
+    // --- Upload fichiers (non-images) ---
+    if (!empty($_FILES['other_files']['name'][0])) {
+
+        // Extensions autorisées
+
+        $authorized = [
+            // Documents
+            'pdf', 'doc', 'docx', 'txt', 'md', 'csv', 'tsv', 'xlsx', 'xls', 'ppt', 'pptx','odt',
+
+            // Code / scripts
+            'py', 'ipynb', 'js', 'html', 'css', 'json', 'xml', 'c', 'cpp', 'java', 'r', 'm',
+
+            // Images / Graphiques
+            'png', 'jpg', 'jpeg', 'gif', 'tif', 'tiff', 'svg', 'bmp', 'eps',
+
+            // Vidéo
+            'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv',
+
+            // Audio
+            'mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac',
+
+            // Archives / données brutes
+            'zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz',
+
+            // Fichiers scientifiques / labo
+            'fasta', 'fastq', 'gb', 'sdf', 'mol', 'pdb', 'mat', 'rds'
+        ];
+        
+        for ($i = 0; $i < count($_FILES['other_files']['name']); $i++) {
+            $tmpName = $_FILES['other_files']['tmp_name'][$i];
+            $origName = basename($_FILES['other_files']['name'][$i]);
+            $size = $_FILES['other_files']['size'][$i];
+            $error = $_FILES['other_files']['error'][$i];
+
+            if ($error !== UPLOAD_ERR_OK) {
+                if ($error !== UPLOAD_ERR_NO_FILE) $errors[] = "$origName : erreur upload ($error)";
+                continue;
+            }
+
+            // Vérifier l'extension
+            $ext = strtolower(pathinfo($origName, PATHINFO_EXTENSION));
+            if (!in_array($ext, $authorized)) {
+                $errors[] = "$origName : type de fichier non autorisé";
+                continue;
+            }
+
+            if ($size > 50*1024*1024) { // 50MB max
+                $errors[] = "$origName : fichier trop volumineux (>50MB)";
+                continue;
+            }
+
+            $safeName = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $origName);
+            $newName = pathinfo($safeName, PATHINFO_FILENAME) . '_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+
+            if (!move_uploaded_file($tmpName, $uploadDir . $newName)) {
+                $errors[] = "$origName : impossible de déplacer";
+                continue;
+            }
+
+            @chmod($uploadDir . $newName, 0644);
+            $messages[] = "Fichier uploadé : $newName";
+        }
+    }
+    $existingOtherFiles = list_files_for_experience($uploadDir);
+    
+    // Récupérer le texte pour le garder dans le textarea
+    $text = $_POST['content'] ?? '';
+    $initial_textarea_value = $text;
+}
+
 else if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['preview'])) {
     // --- Générer UNIQUEMENT la prévisualisation (sans enregistrer en BDD) ---
     $text = $_POST['content'] ?? '';
     $initial_textarea_value = $text;
 
-    // Générer aperçu HTML
-    $successHtml = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
-    $successHtml = nl2br($successHtml);
-
-    // Remplacer [[file:xxx]]
-    if (preg_match_all('/\[\[file:([^\]]+)\]\]/', $text, $matches)) {
-        foreach ($matches[1] as $filename) {
-            $filename = basename($filename);
-            $path = $webUploadDir . $filename;
-            if (is_file($uploadDir . $filename)) {
-                $imgTag = '<img class="inserted-image" src="' . htmlspecialchars($path, ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($filename, ENT_QUOTES, 'UTF-8') . '">';
-                $successHtml = str_replace('[[' . 'file:' . $filename . ']]', $imgTag, $successHtml);
-            }
-        }
-    }
+    $successHtml=afficher_resultats($text,$id_experience);
 }
+
 
 else if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     // --- Enregistrer en BDD UNIQUEMENT ---
@@ -246,6 +419,19 @@ else if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
             }
         }
     }
+
+    // Remplacer [[link:xxx]] par des liens de téléchargement
+    if (preg_match_all('/\[\[link:([^\]]+)\]\]/', $text, $matches)) {
+        foreach ($matches[1] as $filename) {
+            $filename = basename($filename);
+            $path = $webUploadDir . $filename;
+            if (is_file($uploadDir . $filename)) {
+                $icon = get_file_icon($filename);
+                $linkTag = '<a href="' . htmlspecialchars($path, ENT_QUOTES, 'UTF-8') . '" download class="file-download-link"><i class="fa ' . $icon . '"></i> ' . htmlspecialchars($filename, ENT_QUOTES, 'UTF-8') . '</a>';
+                $successHtml = str_replace('[[' . 'link:' . $filename . ']]', $linkTag, $successHtml);
+            }
+        }
+    }
 } 
 
 else {
@@ -266,6 +452,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress'])) {
             }
         }
         $existingFiles = list_images_for_experience($uploadDir);
+    }
+    
+    // Récupérer le texte pour le garder
+    $text = $_POST['content'] ?? '';
+    $initial_textarea_value = $text;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress'])) {
+    // --- Suppression de fichiers (images) ---
+    if (!empty($_POST['delete_files']) && is_array($_POST['delete_files'])) {
+        foreach ($_POST['delete_files'] as $toDelete) {
+            $file = basename($toDelete);
+            $path = $uploadDir . $file;
+            if (is_file($path)) {
+                if (unlink($path)) $messages[] = "Fichier supprimé : $file";
+                else $errors[] = "Impossible de supprimer $file";
+            }
+        }
+        $existingFiles = list_images_for_experience($uploadDir);
+    }
+    
+    // Récupérer le texte pour le garder
+    $text = $_POST['content'] ?? '';
+    $initial_textarea_value = $text;
+}
+
+// Nouveau bloc pour supprimer les autres fichiers
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress_other'])) {
+    // --- Suppression de fichiers (non-images) ---
+    if (!empty($_POST['delete_other_files']) && is_array($_POST['delete_other_files'])) {
+        foreach ($_POST['delete_other_files'] as $toDelete) {
+            $file = basename($toDelete);
+            $path = $uploadDir . $file;
+            if (is_file($path)) {
+                if (unlink($path)) $messages[] = "Fichier supprimé : $file";
+                else $errors[] = "Impossible de supprimer $file";
+            }
+        }
+        $existingOtherFiles = list_files_for_experience($uploadDir);
     }
     
     // Récupérer le texte pour le garder
@@ -358,7 +583,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress'])) {
                 <?php endif; ?>
             </div>
 
-            <!-- Section téléversement et prévisualisation côte à côte -->
+            <!-- Section téléversement -->
             <div class="upload-save-section">
                 <div class="upload-area">
                     <label class="form-label" for="images">Téléverser des images (png, jpg, gif, webp) — max 5MB chacune</label>
@@ -367,11 +592,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress'])) {
                         <button type="submit" name="upload_only" class="button">Ajouter les fichiers</button>
                     </div>
                 </div>
-                
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #eee; text-align: center;" class="save-area">
-                        <button type="submit" name="preview" class="button" style="font-size: 16px; padding: 12px 24px;">Prévisualiser</button>
-                    </div>
-                </div>
+            </div>
+
+            <!-- Bouton prévisualiser centré en dessous -->
+            <div class="preview-button-wrapper">
+                <button type="submit" name="preview" class="button" style="font-size: 16px; padding: 12px 24px;">Prévisualiser</button>
             </div>
 
             <!-- Prévisualisation en pleine largeur -->
@@ -383,6 +608,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress'])) {
                     </div>
                 </div>
             <?php endif; ?>
+<!-- Section fichiers supplémentaires -->
+<div class="files-section" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #eee;">
+    <h3 style="margin-top:0; margin-bottom:15px;">📎 Fichiers supplémentaires (vidéos, documents, code, audio...)</h3>
+    
+    <!-- Upload de fichiers -->
+    <div style="background:#fafafa; border:1px solid #eee; padding:12px; border-radius:8px; margin-bottom:15px;">
+        <label class="form-label" for="other_files">Ajouter des fichiers (PDF, vidéo, audio, code, documents...)</label>
+        <div style="display: flex; gap: 10px; align-items: flex-end;">
+            <input id="other_files" type="file" name="other_files[]" multiple style="flex: 1;">
+            <button type="submit" name="upload_files" class="button">Ajouter les fichiers</button>
+        </div>
+        <p class="small" style="margin-top:8px;">Taille max : 50 MB par fichier. Pour insérer un lien : <span class="placeholder-sample">[[link:nom_fichier.ext]]</span></p>
+        <p class="small" style="color:var(--danger);">⚠️ Fichiers interdits : .php, .sql, .sh, .exe, .bat, .vbs</p>
+    </div>
+    
+    <!-- Liste des fichiers existants -->
+    <?php if (count($existingOtherFiles) > 0): ?>
+        <div style="background:#fafafa; border:1px solid #eee; padding:12px; border-radius:8px;">
+            <h4 style="margin-top:0; margin-bottom:10px;">Fichiers disponibles (<?= count($existingOtherFiles) ?>)</h4>
+            <div class="other-files-list">
+                <?php foreach ($existingOtherFiles as $fname): 
+                    $filePath = $uploadDir . $fname;
+                    $fileSize = file_exists($filePath) ? filesize($filePath) : 0;
+                    $icon = get_file_icon($fname);
+                ?>
+
+            <div class="other-file-item">
+                <div style="display:flex; align-items:center; gap:10px; flex:1;">
+                    <i class="fa <?= $icon ?>" style="font-size:24px; color:var(--accent);"></i>
+                    <div style="flex:1;">
+                        <div style="font-weight:600; font-size:14px;"><?= htmlspecialchars($fname, ENT_QUOTES, 'UTF-8') ?></div>
+                        <div class="small"><?= format_file_size($fileSize) ?></div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <a href="<?= htmlspecialchars($webUploadDir . $fname, ENT_QUOTES, 'UTF-8') ?>" download class="button" style="font-size:12px; padding:6px 10px;">
+                        <i class="fa fa-download"></i> Télécharger
+                    </a>
+                    <label style="display:flex; align-items:center; cursor:pointer;">
+                        <input class="checkbox" type="checkbox" name="delete_other_files[]" value="<?= htmlspecialchars($fname, ENT_QUOTES, 'UTF-8') ?>">
+                        <span class="small">Supprimer</span>
+                    </label>
+                </div>
+                <div style="margin-top:8px; width:100%;">
+                    <div class="placeholder-sample" style="font-size:12px;">[[link:<?= htmlspecialchars($fname, ENT_QUOTES, 'UTF-8') ?>]]</div>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    <div style="margin-top:12px;">
+        <button class="button" type="submit" name="suppress_other">Appliquer suppression</button>
+    </div>
+</div>
+<?php else: ?>
+<p class="small" style="text-align:center; color:var(--muted);">Aucun fichier supplémentaire pour cette expérience.</p>
+<?php endif; ?>
+</div>
 
             <!-- Bouton enregistrer en base à la fin -->
             <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #eee; text-align: center;">
