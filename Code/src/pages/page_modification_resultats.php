@@ -118,10 +118,11 @@ function get_resultats_experience(PDO $bdd, int $id_experience): ?string {
  * Met à jour le champ Resulat de l'expérience.
  */
 function update_resultats_experience(PDO $bdd, int $id_experience, string $html): bool {
-    $sql = "UPDATE experience SET Resultat = :res WHERE ID_experience = :id_experience";
+    $sql = "UPDATE experience SET Resultat = :res, Date_de_modification = :date_modif WHERE ID_experience = :id_experience";
     $stmt = $bdd->prepare($sql);
     return $stmt->execute([
         'res' => $html,
+        'date_modif' => date('Y-m-d'),
         'id_experience' => $id_experience
     ]);
 }
@@ -507,6 +508,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress_other'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?></title>
+    <!--permet d'uniformiser le style sur tous les navigateurs-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <link rel="stylesheet" href="../css/page_modification_resultats.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
@@ -534,17 +537,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress_other'])) {
 
 
 <div class="container">
-    <?php if (!empty($messages)): ?>
-        <div class="notice success">
-            <?php foreach ($messages as $m) echo htmlspecialchars($m) . "<br>"; ?>
-        </div>
-    <?php endif; ?>
-
-    <?php if (!empty($errors)): ?>
-        <div class="notice error">
-            <?php foreach ($errors as $e) echo htmlspecialchars($e) . "<br>"; ?>
-        </div>
-    <?php endif; ?>
+    <!-- Messages utilisateur supprimés (debug banners removed) -->
 
     <div class="content-area">
         <!-- Zone de texte principale -->

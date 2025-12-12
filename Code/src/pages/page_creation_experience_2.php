@@ -139,6 +139,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         // Associer au projet
                         associer_experience_projet($bdd, $id_projet, $id_experience);
 
+                        // Mettre à jour la date de dernière modification du projet parent
+                        try {
+                            $stmt_mod = $bdd->prepare("UPDATE projet SET Date_de_modification = :date_modif WHERE ID_projet = :id_projet");
+                            $stmt_mod->execute([
+                                'date_modif' => date('Y-m-d'),
+                                'id_projet' => $id_projet
+                            ]);
+                        } catch (Exception $e) {
+                            error_log('Impossible de mettre à jour la date de modification du projet: ' . $e->getMessage());
+                        }
+
                         // Ajouter les expérimentateurs
                         if (!empty($experimentateurs_ids)) {
                             ajouter_experimentateurs($bdd, $id_experience, $experimentateurs_ids);
@@ -236,6 +247,8 @@ $heures = range(8, 19);
 <meta charset="utf-8">
 <title>Réservation de salle - Étape 2</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<!--permet d'uniformiser le style sur tous les navigateurs-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
 <link rel="stylesheet" href="../css/page_creation_experience_2.css">
 <link rel="stylesheet" href="../css/Bandeau_haut.css">
 <link rel="stylesheet" href="../css/Bandeau_bas.css">

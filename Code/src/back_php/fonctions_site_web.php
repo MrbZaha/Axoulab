@@ -47,6 +47,7 @@ function recuperer_id_compte($bdd, $email) {
     return null;
 }
 
+//======================  VÉRIFICATION MOT DE PASSE CORRECT =======================
 function verifier_mdp($mdp) {
     // ============================================================================
     //  FONCTION : verifier_mdp()
@@ -233,10 +234,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 
             // ------------------- ENVOI DE NOTIFICATION DE RETOUR GÉNÉRALE -------------------
             if (!empty($typeRetour)) {
-                // Préparation des données pour envoyer la notification
-                // Vérifie si c'est un projet ou une expérience, récupère le nom et l'ID
-                // Évite les doublons
-                // Envoi de la notification
+                // Préparer les données selon le type
+                if ($isProjet) {
+                    if ($idProjet) {
+                        $stmtNom = $bdd->prepare("SELECT Nom_projet FROM projet WHERE ID_projet = ?");
+                        $stmtNom->execute([$idProjet]);
+                        $nomItem = $stmtNom->fetchColumn();
+                        $donneesNotif = ['ID_projet' => $idProjet, 'Nom_projet' => $nomItem];
+                    } else {
+                        error_log("DEBUG: ID_projet manquant pour la notif $idNotif");
+                        $donneesNotif = null;
+                    }
+                } else {
+                    if ($idExperience) {
+                        $stmtNom = $bdd->prepare("SELECT Nom FROM experience WHERE ID_experience = ?");
+                        $stmtNom->execute([$idExperience]);
+                        $nomItem = $stmtNom->fetchColumn();
+                        $donneesNotif = ['ID_experience' => $idExperience, 'Nom_experience' => $nomItem];
+                    } else {
+                        error_log("DEBUG: ID_experience manquant pour la notif $idNotif");
+                        $donneesNotif = null;
+                    }
+                }   
+                
+                // Envoyer seulement si on a les données
+                if ($donneesNotif) {
+                    // Éviter les doublons
+                    $colID = $isProjet ? 'ID_projet' : 'ID_experience';
+                    $valID = $isProjet ? $idProjet : $idExperience;
+                    
+                    $verif = $bdd->prepare("SELECT COUNT(*) FROM $table 
+                        WHERE $colID = ? AND ID_compte_envoyeur = ? AND ID_compte_receveur = ? AND Type_notif = ?");
+                    $verif->execute([$valID, $idUtilisateur, $idEnvoyeurOriginal, $typeRetour]);
+                    
+                    if (!$verif->fetchColumn()) {
+                        envoyerNotification($bdd, $typeRetour, $idUtilisateur, $donneesNotif, [$idEnvoyeurOriginal]);
+                    }
+                }
             }
 
             // ------------------- SUPPRESSION DE LA NOTIFICATION TRAITÉE -------------------

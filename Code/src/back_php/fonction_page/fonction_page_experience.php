@@ -316,6 +316,14 @@ if (isset($_SESSION['ID_compte']) && isset($experience['ID_experience'])) {
 
 <?php if ($canModifyExperience || $canModifyResults): ?>
     <div class="actions-experience">
+        <?php if ($canModifyExperience): ?> 
+            <form action="page_supprimer_experience.php" method="post" onsubmit="return confirm('Voulez-vous vraiment supprimer cette expérience ?');">
+                <input type="hidden" name="id_experience" value="<?= $id_experience ?>">
+                <input type="submit" value="Supprimer l'expérience" />
+            </form>
+        <?php endif; ?>
+
+        <div class="actions-experience-wrapper">
         <?php if ($canModifyExperience): ?>
             <form action="page_modification_experience.php?id_experience=<?= $experience['ID_experience'] ?>" method="post">
                 <input type="submit" value="Modifier l'expérience" />
@@ -327,6 +335,7 @@ if (isset($_SESSION['ID_compte']) && isset($experience['ID_experience'])) {
                 <input type="submit" value="Modifier les résultats" />
             </form>
         <?php endif; ?>
+        </div>
     </div>
 <?php endif; ?>
 
@@ -357,7 +366,7 @@ if (isset($_SESSION['ID_compte']) && isset($experience['ID_experience'])) {
                         <?php if (!empty($experience['Nom_projet'])): ?>
                             <h4>Projet lié</h4>
                             <p>
-                                <a href="projet.php?id_projet=<?= $experience['ID_projet'] ?>" class="link-projet">
+                                <a href="page_projet.php?id_projet=<?= $experience['ID_projet'] ?>" class="link-projet">
                                     <?= htmlspecialchars($experience['Nom_projet']) ?>
                                 </a>
                             </p>
@@ -372,14 +381,16 @@ if (isset($_SESSION['ID_compte']) && isset($experience['ID_experience'])) {
                         <?php endif; ?>
                     </div>
                     
-                    <!-- Résultats (nouveau conteneur séparé) -->
+                    <!-- Résultats -->
                     <?php if (!empty($experience['Resultat'])): ?>
-                        <div class="project-results">
+                        <div class="project-results-header">
                             <h3>Résultats</h3>
+                        </div>
+
+                        <div class="project-results">
                             <?= afficher_resultats($experience['Resultat'], $id_experience) ?>
                         </div>
                     <?php endif; ?>
-
                 </div>
 
                 <!-- Matériel utilisé -->

@@ -5,7 +5,13 @@ $bdd = connectBDD();
 verification_connexion($bdd);
 
 $id_compte = $_SESSION['ID_compte'];
-$id_projet = isset($_GET['id_projet']) ? (int)$_GET['id_projet'] : 0;
+// Support POST and GET so that form submissions without querystring keep the id
+$id_projet = 0;
+if (isset($_REQUEST['id_projet'])) {
+    $id_projet = (int)$_REQUEST['id_projet'];
+} elseif (isset($_GET['id_projet'])) {
+    $id_projet = (int)$_GET['id_projet'];
+}
 
 $erreur = null;
 $success = null;
@@ -153,8 +159,9 @@ function get_gestionnaires_ids(PDO $bdd, int $id_projet): array {
  * @return array Liste des IDs collaborateurs
  */
 function get_collaborateurs_ids(PDO $bdd, int $id_projet): array {
+    // Accepter les valeurs historiques de Statut pour les collaborateurs (0 ou 2)
     $sql = "SELECT ID_compte FROM projet_collaborateur_gestionnaire 
-            WHERE ID_projet = :id_projet AND Statut = 0";
+            WHERE ID_projet = :id_projet AND Statut IN (0,2)";
     $stmt = $bdd->prepare($sql);
     $stmt->execute(['id_projet' => $id_projet]);
     return $stmt->fetchAll(PDO::FETCH_COLUMN);
