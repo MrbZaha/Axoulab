@@ -972,7 +972,7 @@ function afficher_pagination(int $page_actuelle, int $total_pages): void {
  * $idEnvoyeur ID de l'utilisateur qui envoie
  * $donnees Données dynamiques (Nom_experience, Nom_projet, etc.)
  * $destinataires ID ou tableau d'IDs des destinataires (optionnel)
- * True si succès, false si échec
+
  */
 function envoyerNotification($bdd, $typeNotification, $idEnvoyeur, $donnees, $destinataires) {
     if (empty($destinataires)) return;
