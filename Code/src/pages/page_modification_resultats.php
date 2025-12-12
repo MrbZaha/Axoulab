@@ -475,7 +475,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress_other'])) {
     $initial_textarea_value = $text;
 }
 
-$page_title="Modification experience".$id_experience
+$page_title="Modification experience ".$id_experience
 ?>
 
 

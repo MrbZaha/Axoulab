@@ -11,7 +11,7 @@ $success = null;
 // Vérifications initiales
 if ($id_projet === 0) {
     $erreur = "ID de projet manquant.";
-} elseif (!est_gestionnaire($bdd, $id_compte, $id_projet)) {
+} elseif (!est_gestionnaire($bdd, $id_compte, $id_projet) && !est_admin_par_id($bdd, $id_compte)) {
     $erreur = "Vous n'avez pas les droits pour modifier ce projet.";
 } else {
     // Charger les participants actuels (TOUJOURS, même en POST initial)
