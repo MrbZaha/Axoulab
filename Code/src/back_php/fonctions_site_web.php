@@ -1514,4 +1514,29 @@ function get_experimentateurs_ids(PDO $bdd, int $id_experience): array {
     return $stmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
+//Fonction permettant d'afficher les résultats en remplacant les balises par les fichiers correspondants
+function afficher_resultats($text,$id_experience) {
+
+    $uploadDir = "../assets/resultats/" . $id_experience . "/";
+    $webUploadDir = "../assets/resultats/" . $id_experience . "/"; // chemin relatif pour <img src=>
+
+    // Générer aperçu HTML
+    $successHtml = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    $successHtml = nl2br($successHtml);
+
+    // Remplacer [[file:xxx]]
+    if (preg_match_all('/\[\[file:([^\]]+)\]\]/', $text, $matches)) {
+        foreach ($matches[1] as $filename) {
+            $filename = basename($filename);
+            $path = $webUploadDir . $filename;
+            if (is_file($uploadDir . $filename)) {
+                $imgTag = '<img class="inserted-image" src="' . htmlspecialchars($path, ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($filename, ENT_QUOTES, 'UTF-8') . '">';
+                $successHtml = str_replace('[[' . 'file:' . $filename . ']]', $imgTag, $successHtml);
+            }
+        }
+    }
+
+    return $successHtml;
+
+}
 ?>

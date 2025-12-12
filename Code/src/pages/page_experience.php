@@ -39,7 +39,7 @@ $page_title = $experience ? htmlspecialchars($experience['Nom']) : "Expérience"
 <?php if ($erreur): ?>
     <?php afficher_erreur($erreur); ?>
 <?php else: ?>
-    <?php afficher_experience($experience, $experimentateurs, $salles_materiel); ?>
+    <?php afficher_experience($id_experience,$experience, $experimentateurs, $salles_materiel); ?>
 <?php endif; ?>
 
 </div>

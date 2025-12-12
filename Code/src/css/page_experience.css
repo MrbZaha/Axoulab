@@ -117,14 +117,15 @@ h1 {
 /* Layout */
 .project-main {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1.3fr 1fr;
     gap: 25px;
     margin-bottom: 35px;
 }
 
 /* Cartes */
 .project-description,
-.project-info {
+.project-info,
+.project-results {
     background-color: #fff;
     padding: 25px;
     border-radius: 10px;
@@ -135,6 +136,60 @@ h1 {
 .project-info p {
     font-size: 15px;
     color: #555;
+}
+
+/* Conteneur des résultats - pleine largeur sous les autres conteneurs */
+.project-results {
+    grid-column: 1 / -1;
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    border: 1px solid #e0e0e0;
+}
+
+.project-results h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #2b5f7e;
+    font-size: 1.3rem;
+}
+
+.project-results p {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.6;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+/* Gérer les images dans les résultats */
+.project-results img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 10px 0;
+}
+
+/* Personnalisation de la scrollbar pour les résultats */
+.project-results::-webkit-scrollbar {
+    width: 8px;
+}
+
+.project-results::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.project-results::-webkit-scrollbar-thumb {
+    background: #2b5f7e;
+    border-radius: 10px;
+}
+
+.project-results::-webkit-scrollbar-thumb:hover {
+    background: #1e4a5f;
 }
 
 /* Badges */
@@ -193,5 +248,8 @@ h1 {
     .project-main {
         grid-template-columns: 1fr;
     }
+    
+    .project-results {
+        max-height: 300px;
+    }
 }
-

@@ -10,7 +10,6 @@ $id_projet = isset($_GET['id_projet']) ? (int)$_GET['id_projet'] : 0;
 $erreur = null;
 $success = null;
 
-// Vérifier que l'utilisateur est gestionnaire du projet
 /**
  * Vérifie si un compte est gestionnaire d’un projet.
  *
@@ -27,6 +26,7 @@ $success = null;
  * @param int $id_projet ID du projet concerné
  * @return bool
  */
+
 function est_gestionnaire(PDO $bdd, int $id_compte, int $id_projet): bool {
     $sql = "SELECT Statut FROM projet_collaborateur_gestionnaire 
             WHERE ID_projet = :id_projet AND ID_compte = :id_compte AND Statut = 1";

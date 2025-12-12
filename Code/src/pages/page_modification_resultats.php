@@ -219,6 +219,31 @@ function format_file_size(int $bytes): string {
     return round($bytes / 1073741824, 2) . ' GB';
 }
 
+function afficher_resultats($text,$id_experience) {
+
+    $uploadDir = "../assets/resultats/" . $id_experience . "/";
+    $webUploadDir = "../assets/resultats/" . $id_experience . "/"; // chemin relatif pour <img src=>
+
+    // Générer aperçu HTML
+    $successHtml = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+    $successHtml = nl2br($successHtml);
+
+    // Remplacer [[file:xxx]]
+    if (preg_match_all('/\[\[file:([^\]]+)\]\]/', $text, $matches)) {
+        foreach ($matches[1] as $filename) {
+            $filename = basename($filename);
+            $path = $webUploadDir . $filename;
+            if (is_file($uploadDir . $filename)) {
+                $imgTag = '<img class="inserted-image" src="' . htmlspecialchars($path, ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($filename, ENT_QUOTES, 'UTF-8') . '">';
+                $successHtml = str_replace('[[' . 'file:' . $filename . ']]', $imgTag, $successHtml);
+            }
+        }
+    }
+
+    return $successHtml;
+
+}
+
 // add_result.php
 // Simple page pour ajouter un texte et des images sans JS.
 // NOTE: en production, adapte la validation et ajoute protections CSRF si nécessaire.
@@ -363,22 +388,9 @@ else if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['preview'])) {
     $text = $_POST['content'] ?? '';
     $initial_textarea_value = $text;
 
-    // Générer aperçu HTML
-    $successHtml = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
-    $successHtml = nl2br($successHtml);
-
-    // Remplacer [[file:xxx]]
-    if (preg_match_all('/\[\[file:([^\]]+)\]\]/', $text, $matches)) {
-        foreach ($matches[1] as $filename) {
-            $filename = basename($filename);
-            $path = $webUploadDir . $filename;
-            if (is_file($uploadDir . $filename)) {
-                $imgTag = '<img class="inserted-image" src="' . htmlspecialchars($path, ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($filename, ENT_QUOTES, 'UTF-8') . '">';
-                $successHtml = str_replace('[[' . 'file:' . $filename . ']]', $imgTag, $successHtml);
-            }
-        }
-    }
+    $successHtml=afficher_resultats($text,$id_experience);
 }
+
 
 else if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     // --- Enregistrer en BDD UNIQUEMENT ---
