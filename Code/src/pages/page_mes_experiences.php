@@ -36,18 +36,20 @@ if ($page > $total_pages) $page = $total_pages;
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-    <?php afficher_Bandeau_Haut($bdd, $id_compte)?>
-    <h1>Mes expériences</h1>
+    <div class=main-content>
+        <?php afficher_Bandeau_Haut($bdd, $id_compte)?>
+        <h1>Mes expériences</h1>
 
-    <div class="experiences">
-        <section class="section-experiences">
-            <h2>Expériences (<?= count($experiences) ?>)</h2>
-            <?php afficher_experiences_pagines($bdd, $experiences, $page, $items_par_page, false); ?>
-            <?php afficher_pagination($page, $total_pages); ?>
-        </section>
+        <div class="experiences">
+            <section class="section-experiences">
+                <h2>Expériences (<?= count($experiences) ?>)</h2>
+                <?php afficher_experiences_pagines($bdd, $experiences, $page, $items_par_page, false); ?>
+                <?php afficher_pagination($page, $total_pages); ?>
+            </section>
 
+        </div>
+
+        <?php afficher_Bandeau_Bas() ?>
     </div>
-
-    <?php afficher_Bandeau_Bas() ?>
 </body>
 </html>
