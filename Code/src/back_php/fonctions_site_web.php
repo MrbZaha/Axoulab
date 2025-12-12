@@ -35,8 +35,7 @@ function connexion_valide($bdd, $email, $mdp) {
 }
 
 // =======================  RÉCUPÉRER ID COMPTE =======================
-/* Récupère l'ID du compte à partir de l'email
-   Retourne ID du compte si trouvé, null sinon */
+/* Retourne ID du compte si trouvé, null sinon */
 function recuperer_id_compte($bdd, $email) {
     $stmt = $bdd->prepare("SELECT ID_compte FROM compte WHERE email = ?");
     $stmt->execute([$email]);
