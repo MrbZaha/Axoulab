@@ -21,13 +21,17 @@ if (isset($_POST['id_projet'])) {
 // Gestion des actions (ajout/retrait)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Récupérer la liste actuelle
-    $experimentateurs_selectionnes = isset($_POST["experimentateurs_ids"]) ? array_filter(array_map('intval', explode(',', $_POST["experimentateurs_ids"]))) : [];
+    $experimentateurs_selectionnes = isset($_POST["experimentateurs_ids"]) && $_POST["experimentateurs_ids"] !== ''
+        ? array_values(array_filter(array_map('intval', explode(',', $_POST["experimentateurs_ids"]))))
+        : [];
     
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
             case 'ajouter_experimentateur':
                 if (!empty($_POST['nom_experimentateur'])) {
-                    $id = trouver_id_par_nom_complet($bdd, $_POST['nom_experimentateur']);
+                    // On retire "(Rôle)" pour retrouver le nom dans la base
+                    $nom_nettoye = trim(preg_replace('/\s*\(.*?\)$/', '', $_POST['nom_experimentateur']));
+                    $id = trouver_id_par_nom_complet($bdd, $nom_nettoye);
                     if ($id && !in_array($id, $experimentateurs_selectionnes)) {
                         $experimentateurs_selectionnes[] = $id;
                     }
@@ -37,12 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             case 'retirer_experimentateur':
                 if (isset($_POST['id_retirer']) && !empty($_POST['id_retirer'])) {
                     $id_a_retirer = intval($_POST['id_retirer']);
-                    $experimentateurs_selectionnes = array_diff($experimentateurs_selectionnes, [$id_a_retirer]);
+                    $experimentateurs_selectionnes = array_values(array_diff($experimentateurs_selectionnes, [$id_a_retirer]));
                 }
                 break;
         }
     }
-        // Charger les infos de TOUS les expérimentateurs sélectionnés
+
+    // Charger les infos de TOUS les expérimentateurs sélectionnés
     if (!empty($experimentateurs_selectionnes)) {
         $placeholders = implode(',', array_fill(0, count($experimentateurs_selectionnes), '?'));
         $stmt = $bdd->prepare("
@@ -57,12 +62,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $experimentateurs_info = [];
     }
 
-
     // Validation et passage à la page 2
     if (isset($_POST["continuer_reservation"])) {
         $nom_experience = trim($_POST["nom_experience"]);
         $description = trim($_POST["description"]);
-        $experimentateurs_selectionnes = isset($_POST["experimentateurs_ids"]) ? array_filter(array_map('intval', explode(',', $_POST["experimentateurs_ids"]))) : [];
+        $experimentateurs_selectionnes = isset($_POST["experimentateurs_ids"]) && $_POST["experimentateurs_ids"] !== ''
+            ? array_values(array_filter(array_map('intval', explode(',', $_POST["experimentateurs_ids"]))))
+            : [];
 
         // Vérification des champs
         $erreurs = [];
@@ -86,8 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Redirection vers page 2 avec les données en POST
             echo '<form id="form-redirect" method="post" action="page_creation_experience_2.php">';
             echo '<input type="hidden" name="id_projet" value="' . $id_projet . '">';
-            echo '<input type="hidden" name="nom_experience" value="' . htmlspecialchars($nom_experience) . '">';
-            echo '<input type="hidden" name="description" value="' . htmlspecialchars($description) . '">';
+            echo '<input type="hidden" name="nom_experience" value="' . htmlspecialchars($nom_experience, ENT_QUOTES) . '">';
+            echo '<input type="hidden" name="description" value="' . htmlspecialchars($description, ENT_QUOTES) . '">';
             echo '<input type="hidden" name="experimentateurs_ids" value="' . implode(',', $experimentateurs_selectionnes) . '">';
             echo '</form>';
             echo '<script>document.getElementById("form-redirect").submit();</script>';
@@ -96,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// S'assurer que le créateur est toujours dans la sélection pour qu'il n'apparaisse
+// S'assurer que le créateur est toujours dans la sélection
 $creator_id = $_SESSION['ID_compte'] ?? null;
 if ($creator_id && !in_array($creator_id, $experimentateurs_selectionnes)) {
     $experimentateurs_selectionnes[] = $creator_id;
@@ -105,15 +111,19 @@ if ($creator_id && !in_array($creator_id, $experimentateurs_selectionnes)) {
 // Récupérer les personnes disponibles (exclut les IDs déjà sélectionnés)
 $experimentateurs_disponibles = get_personnes_disponibles($bdd, $experimentateurs_selectionnes);
 
-// s'assurer que le créateur ($id_compte) est dans la sélection
+// s'assurer que le créateur est dans la sélection (et recharger les infos)
 $creator_id = $_SESSION['ID_compte'] ?? null;
 if ($creator_id && !in_array($creator_id, $experimentateurs_selectionnes)) {
     $experimentateurs_selectionnes[] = $creator_id;
-    // recharger les infos pour inclure le créateur
+}
+
+if (!empty($experimentateurs_selectionnes)) {
     $placeholders = implode(',', array_fill(0, count($experimentateurs_selectionnes), '?'));
     $stmt = $bdd->prepare("SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE ID_compte IN ($placeholders)");
     $stmt->execute($experimentateurs_selectionnes);
     $experimentateurs_info = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    $experimentateurs_info = [];
 }
 
 ?>
@@ -123,6 +133,8 @@ if ($creator_id && !in_array($creator_id, $experimentateurs_selectionnes)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Création d'expérience - Étape 1</title>
+    <!--permet d'uniformiser le style sur tous les navigateurs-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <link rel="stylesheet" href="../css/page_creation_experience_1.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
@@ -166,13 +178,12 @@ if ($creator_id && !in_array($creator_id, $experimentateurs_selectionnes)) {
                 </div>
                 <datalist id="liste-experimentateurs-disponibles">
                     <?php foreach ($experimentateurs_disponibles as $personne): ?>
-                        <option value="<?= htmlspecialchars($personne['Prenom'] . ' ' . $personne['Nom']) ?>">
-                            <?php 
-                                if ($personne['Etat'] == 1) echo 'Étudiant';
-                                elseif ($personne['Etat'] == 2) echo 'Chercheur';
-                                else echo 'Administrateur';
-                            ?>
-                        </option>
+                        <?php
+                            $nom = htmlspecialchars($personne['Prenom'] . ' ' . $personne['Nom']);
+                            $role = $personne['Etat'] == 1 ? 'Étudiant' : ($personne['Etat'] == 2 ? 'Chercheur' : 'Administrateur');
+                            $affichage = $nom . ' (' . $role . ')';
+                        ?>
+                        <option value="<?= $affichage ?>"><?= $affichage ?></option>
                     <?php endforeach; ?>
                 </datalist>
                 
@@ -181,11 +192,10 @@ if ($creator_id && !in_array($creator_id, $experimentateurs_selectionnes)) {
                         <div class="liste-vide">Aucun expérimentateur ajouté</div>
                     <?php else: ?>
                         <?php foreach ($experimentateurs_info as $exp): ?>
-                            <span class="tag-personne <?php 
-                                if ($exp['Etat'] == 1) echo 'tag-etudiant';
-                                elseif ($exp['Etat'] == 2) echo 'tag-chercheur';
-                                else echo 'tag-admin';
-                            ?>">
+                            <?php
+                                $tag_class = $exp['Etat'] == 1 ? 'tag-etudiant' : ($exp['Etat'] == 2 ? 'tag-chercheur' : 'tag-admin');
+                            ?>
+                            <span class="tag-personne <?= $tag_class ?>">
                                 <?= htmlspecialchars($exp['Prenom'] . ' ' . $exp['Nom']) ?>
                                 <button type="submit" name="action" value="retirer_experimentateur" class="btn-croix"
                                         onclick="this.form.id_retirer.value=<?= $exp['ID_compte'] ?>; return true;">

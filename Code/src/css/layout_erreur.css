@@ -1,5 +1,4 @@
 .small_dog {
-    /* position: relative; */
     display: block;
     margin-left: auto;
     margin-right: auto;  
@@ -15,15 +14,9 @@
     background-color: black;
 }
 
-.dog2 {
+.dog {
     position: absolute;
     width: 30%;
-    opacity: 0;
-}
-
-.dog1 {
-    position: absolute;
-    width : 30%;
 }
 
 #text_error {

@@ -1,21 +1,19 @@
 /* Reset sélectif - UNIQUEMENT pour le contenu, pas le bandeau */
-.projets,
-.project-container,
-.project-main,
-.section-projets,
-.materiel-list,
-.materiel-card {
+.projets, .project-container, .project-main, .section-projets, .materiel-list, .materiel-card {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+
 .link-projet{
     color: #2b5f7e;
     text-decoration: none;
 }
+
 .link-projet:hover {
-    color: #9a2666; /* bleu plus foncé au survol */
+    color: #9a2666;
 }
+
 /* Nouveau wrapper principal */
 .experience-page {
     width: 100%;
@@ -26,7 +24,7 @@
 
 /* Conteneur principal des pages d'expérience : limiter la largeur et centrer */
 .projets {
-    max-width: 1000px; /* largeur souhaitée, ajustez si besoin */
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
     box-sizing: border-box;
@@ -58,7 +56,7 @@ h1 {
 }
 
 .actions-experience {
-    display: flex;
+    display: contents;
     gap: 12px;
     justify-content: flex-end;
     margin-bottom: 30px;
@@ -75,6 +73,7 @@ h1 {
     margin: 0;
 }
 
+/* Style général */
 .actions-experience input[type="submit"] {
     background-color: #3498db;
     color: #fff;
@@ -92,13 +91,34 @@ h1 {
     transform: translateY(-2px);
 }
 
-.actions-experience form:last-child input[type="submit"] {
+/* ✔ Modifier l'expérience → BLEU (couleur par défaut) */
+input[type="submit"][value="Modifier l'expérience"] {
+    background-color: #3498db;
+}
+
+input[type="submit"][value="Modifier l'expérience"]:hover {
+    background-color: #2b86c6;
+}
+
+/* ❌ Supprimer : ne plus utiliser first-child → utiliser value */
+input[type="submit"][value="Supprimer l'expérience"] {
+    background-color: #e74c3c;
+}
+
+input[type="submit"][value="Supprimer l'expérience"]:hover {
+    background-color: #c0392b;
+}
+
+/* ✔ Modifier les résultats → VERT */
+input[type="submit"][value="Modifier les résultats"] {
     background-color: #2ecc71;
 }
 
-.actions-experience form:last-child input[type="submit"]:hover {
+input[type="submit"][value="Modifier les résultats"]:hover {
     background-color: #27ae60;
 }
+
+
 
 /* Titres */
 .section-projets {
@@ -117,24 +137,121 @@ h1 {
 /* Layout */
 .project-main {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1.3fr 1fr;
     gap: 25px;
     margin-bottom: 35px;
 }
 
+/* Réorganiser les actions pour séparer le bouton supprimer */
+.actions-experience {
+    display: contents; /* Permet aux enfants de participer à la grille parent */
+}
+
+/* Bouton supprimer dans la colonne de gauche */
+.actions-experience form:first-child {
+    grid-column: 1;
+    justify-self: start;
+}
+
+/* Les deux autres boutons dans la colonne de droite */
+.actions-experience form:nth-child(2){
+    grid-column: 2;
+    justify-self: start;
+    align-self: start;
+}
+
+.actions-experience form:nth-child(3) {
+    grid-column: 2;
+    justify-self: end;
+    align-self: start;
+}
+
+/* Wrapper pour les deux derniers boutons */
+.actions-experience form:nth-child(2) ~ form {
+    display: inline-block;
+    margin-left: 12px;
+}
+
+/* Wrapper contenant les boutons 2 et 3 */
+.actions-experience-wrapper {
+    grid-column: 2;
+    display: flex;
+    gap: 12px;
+    justify-self: end;
+}
+
+
+
 /* Cartes */
-.project-description,
-.project-info {
+.project-description, .project-info, .project-results {
     background-color: #fff;
     padding: 25px;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-.project-description p,
-.project-info p {
+.project-description p, .project-info p {
     font-size: 15px;
     color: #555;
+}
+
+/* Conteneur des résultats - pleine largeur sous les autres conteneurs */
+/* Titre des résultats, non scrollable */
+.project-results-header h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: #2b5f7e;
+    font-size: 1.35rem;
+    font-weight: 600;
+}
+
+/* Conteneur des résultats */
+.project-results {
+    grid-column: 1 / -1;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 1px solid #e0e0e0;
+}
+
+.project-results p {
+    font-size: 15px;
+    color: #555;
+    line-height: 1.6;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+/* Gérer les images dans les résultats */
+.project-results img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 10px 0;
+}
+
+/* Personnalisation de la scrollbar pour les résultats */
+.project-results::-webkit-scrollbar {
+    width: 8px;
+}
+
+.project-results::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.project-results::-webkit-scrollbar-thumb {
+    background: #2b5f7e;
+    border-radius: 10px;
+}
+
+.project-results::-webkit-scrollbar-thumb:hover {
+    background: #1e4a5f;
 }
 
 /* Badges */
@@ -150,6 +267,7 @@ h1 {
     color: #856404;
     border: 1px solid #ffc107;
 }
+
 .badge-termine {
     background-color: #d4edda;
     color: #155724;
@@ -170,6 +288,7 @@ h1 {
     border: 1px solid #e0e0e0;
     transition: .2s;
 }
+
 .materiel-card:hover {
     border-color: #2b5f7e;
     transform: translateY(-2px);
@@ -187,11 +306,12 @@ h1 {
     margin: 30px auto;
 }
 
-
 /* Responsive */
 @media (max-width: 768px) {
     .project-main {
         grid-template-columns: 1fr;
     }
+    .project-results {
+        max-height: 300px;
+    }
 }
-

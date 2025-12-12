@@ -2,8 +2,8 @@
 // Inclusion des fonctions générales du site.
 require_once __DIR__ . '/../fonctions_site_web.php';
 
-function verifier_mdp($mdp) {
 
+<<<<<<< HEAD
     // ============================================================================
     //  FONCTION : verifier_mdp()
     //  Vérifie que le mot de passe respecte plusieurs critères de sécurité :
@@ -45,6 +45,8 @@ function verifier_mdp($mdp) {
     // Retourne le tableau : vide si OK, rempli si erreurs
     return $erreurs;
 }
+=======
+>>>>>>> cd2448bd6bb929027d6b5127b43b943ccc82a58b
 
 function mot_de_passe_identique($mdp1, $mdp2) {
     // ============================================================================
@@ -55,22 +57,17 @@ function mot_de_passe_identique($mdp1, $mdp2) {
     return $mdp1 === $mdp2;
 }
 
-function verifier_email_axoulab($email) {
-    // Nettoyer l'email (en minuscules)
+function verifier_email_axoulab($email,$prenom,$nom) {
+    // Nettoyer les données (en minuscules, sans espaces)
     $email = strtolower(trim($email));
-
-    // Vérifie que l'email se termine par @axoulab.fr
-    if (!str_ends_with($email, '@axoulab.fr')) {
-        return false;
-    }
-
-    // Vérifie le format prenom.nom@axoulab.fr
-    $pattern = '/^[a-z]+(\.[a-z]+)?@axoulab\.fr$/'; 
-    // ^[a-z]+       -> au moins une lettre pour le prénom
-    // (\.[a-z]+)?   -> un point suivi d'au moins une lettre pour le nom
-    // @axoulab\.fr$ -> domaine exact
-
-    if (preg_match($pattern, $email)) {
+    $prenom = strtolower(trim($prenom));
+    $nom = strtolower(trim($nom));
+    
+    // Construire l'email attendu
+    $email_attendu = $prenom . '.' . $nom . '@axoulab.fr';
+    
+    // Vérifier que l'email saisi correspond exactement à l'email attendu
+    if ($email === $email_attendu) {
         return true;
     } else {
         return false;
