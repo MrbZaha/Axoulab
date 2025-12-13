@@ -109,6 +109,12 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
 </head>
 <body>
 
+<?php if (!empty($erreur) && $compte_bloque): ?>
+    <div class="popup-gif-container">
+        <img src="..\assets\homer-simpson-homer-dance.gif" class="popup-gif left" alt="Chargement...">
+    </div>
+<?php endif; ?>
+
     <form action ="" method="post"> <!-- Envoie vers la page (qui est juste au-dessus) qui permet de récuperer les informations du l'utilisateur-->
     <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
 
@@ -134,12 +140,12 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
 </div>
 </form>
 
- <?php if ($compte_bloque): ?>
-        <?php 
-        // Affiche la popup si elle existe
-        echo $erreur;
-        ?>
-    <?php endif; ?>
+<?php if (!empty($erreur) && $compte_bloque): ?>
+    <div class="popup-gif-container">
+        <?= $erreur ?>
+        <img src="..\assets\homer-simpson-homer-dance.gif" class="popup-gif right" alt="Chargement...">
+    </div>
+<?php endif; ?>
 </body>
 </html> 
 
