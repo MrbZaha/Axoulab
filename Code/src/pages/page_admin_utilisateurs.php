@@ -2,7 +2,6 @@
 // Inclure le fichier de fonctions
 include_once '../back_php/fonctions_site_web.php';
 include_once '../back_php/fonction_page/fonction_page_admin_utilisateurs.php';
-session_start();
 
 $bdd = connectBDD();
 
@@ -13,7 +12,7 @@ $message = "";  // Variable globale pour les messages
 verification_connexion($bdd);
 
 // On vérifie si l'utilisateur a les droits pour accéder à cette page
-if (est_admin($bdd, $_SESSION["email"])){
+if (est_admin_par_id($bdd, $_SESSION["ID_compte"])){
     // Le code peut poursuivre
 }
 else {

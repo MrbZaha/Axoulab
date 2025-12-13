@@ -3,7 +3,6 @@
 require_once __DIR__ . '/../fonctions_site_web.php';  // Sans "back_php/" !
 
 $bdd = connectBDD();
-verification_connexion($bdd);
 
 $id_compte = $_SESSION['ID_compte'];
 $id_projet = isset($_GET['id_projet']) ? (int)$_GET['id_projet'] : 0;

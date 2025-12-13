@@ -4,6 +4,13 @@ require_once __DIR__ . '/../back_php/fonctions_site_web.php';
 $bdd = connectBDD();
 verification_connexion($bdd);
 
+/**
+ * Cette fonction permet de récupérer l'id du projet à partir de celui du projet
+ *
+ * @param PDO $bdd permet d'établir la connexion avec la base de données
+ * @param int $id_experience Id de l'expérience
+ * @return bool Renvoie true si l'experience est confidentiel
+ */
 function get_projet_from_experience(PDO $bdd, int $id_experience) {
     $sql = "
     SELECT pe.ID_projet
