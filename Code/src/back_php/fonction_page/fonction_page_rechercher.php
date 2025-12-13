@@ -6,7 +6,7 @@ $bdd = connectBDD();
 verification_connexion($bdd);
 $id_compte = $_SESSION['ID_compte'];
 
-function afficher_projets_experiences_pagines(array $items, int $page_actuelle = 1, int $items_par_page = 6): void {
+function afficher_projets_experiences_pagines(PDO $bdd, array $items, int $page_actuelle = 1, int $items_par_page = 6): void {
     // Calcul de la tranche à afficher
     $debut = ($page_actuelle - 1) * $items_par_page;
     $items_page = array_slice($items, $debut, $items_par_page);
@@ -35,6 +35,10 @@ function afficher_projets_experiences_pagines(array $items, int $page_actuelle =
                     <a class='projet-card' href='page_projet.php?id_projet=<?= $id ?>'>
                         <h3><?= $nom ?></h3>
                         <p><?= $desc ?></p>
+
+                    <?php if ($confidentiel) :?>
+                        <span class="conf-badge"></span>
+                    <?php endif; ?>
                         <p><strong>Date de création :</strong> <?= $date ?></p>
                         <p><strong>Rôle :</strong> <?= $role ?></p>
                     </a>
@@ -64,6 +68,9 @@ function afficher_projets_experiences_pagines(array $items, int $page_actuelle =
                         <div class="experience-header">
                             <h3><?= $nom ?></h3>
                             <span class="projet-badge"><?= $nom_projet ?></span>
+                            <?php if (experience_confidentiel($bdd, $id_experience)) :?>
+                                <span class="conf-badge"></span>
+                            <?php endif; ?>
                         </div>
                         <p class="description"><?= $desc ?></p>
                         <div class="experience-details">

@@ -330,7 +330,7 @@ function associer_experience_projet(PDO $bdd,int $id_projet, int $id_experience)
  * 
  * @return void
  */
-function ajouter_experimentateurs(PDO $bdd, int $id_experience, int $experimentateurs) :void{
+function ajouter_experimentateurs(PDO $bdd, int $id_experience, array $experimentateurs) :void{
     $sql = $bdd->prepare("
         INSERT INTO experience_experimentateur (ID_experience, ID_compte)
         VALUES (?, ?)
