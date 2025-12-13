@@ -327,13 +327,6 @@ if ($canModifyExperience || $canModifyResults): ?>
         <?php endif; ?>
 
         <div class="actions-experience-wrapper">
-        <?php if ($canModifyExperience): ?>
-            <form action="page_modification_experience.php?id_experience=<?= $experience['ID_experience'] ?>" method="post">
-                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                <input type="hidden" name="id_experience" value="<?= $id_experience ?>">
-                    <input type="submit" value="Supprimer l'expérience" />
-                </form>
-            <?php endif; ?>
 
             <div class="actions-experience-wrapper">
             <?php if ($canModifyExperience): ?>

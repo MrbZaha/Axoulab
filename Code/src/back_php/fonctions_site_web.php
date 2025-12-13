@@ -432,7 +432,6 @@ function afficher_Bandeau_Haut(PDO $bdd, int $userID, $recherche = true) :void{
     $notifications = get_last_notif($bdd, $userID);
     $nb_non_traitees = count(array_filter($notifications, fn($n) => $n['valide'] == 0));
     afficher_Bandeau_Haut_notification($bdd, $userID, $recherche=true);
-    
 
     ?>
     <nav class="site_nav">
@@ -520,8 +519,7 @@ function afficher_Bandeau_Haut(PDO $bdd, int $userID, $recherche = true) :void{
                                                 ?>
                                             </div>
                                         <?php endif; ?>
-
-                                        <a href="<?= htmlspecialchars($notif['link']) ?>" class="notif-link">Voir détails →</a>
+                                        <a href="<?= htmlspecialchars($notif['link']) ?>" class="notif-link"> Voir détails →</a>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
@@ -710,7 +708,7 @@ function get_last_notif(PDO $bdd, int $IDuser, int $limit = 10) :array{
         // Détermination du lien associé à la notification
         $link = ($type >= 1 && $type <= 4)
             ? "page_experience.php?id_projet=".$notif['ID_projet']."&id_experience=".$notif['ID_experience']
-            : ($type >= 11 && $type <= 13
+            : ($type >= 11 && $type <= 16
                 ? "page_projet.php?id_projet=".$notif['ID_projet']
                 : "#"
             );
@@ -1383,13 +1381,12 @@ function filtrer_trier_pro_exp(PDO $bdd,
 
     $info = [];
 
-    echo '<pre>';
-    print_r($types);
-    echo '</pre>';
+    $types_vides = empty($types);
 
-    // --- Filtrer les projets si "projet" est dans le tableau
-    if (in_array('projet', $types)) {
-        $projets = get_all_projet($bdd, $id_compte); 
+
+    // --- Projets
+    if ($types_vides || in_array('projet', $types)) {
+        $projets = get_all_projet($bdd, $id_compte);
         foreach ($projets as &$p) {
             $p["Type"] = "projet";
         }
@@ -1398,8 +1395,8 @@ function filtrer_trier_pro_exp(PDO $bdd,
         $projets_filtree = [];
     }
 
-    // --- Filtrer les expériences si "experience" est dans le tableau
-    if (in_array('experience', $types)) {
+    // --- Expériences
+    if ($types_vides || in_array('experience', $types)) {
         $experiences = get_mes_experiences_complets_recherche($bdd);
         foreach ($experiences as &$e) {
             $e["Type"] = "experience";
@@ -1409,7 +1406,9 @@ function filtrer_trier_pro_exp(PDO $bdd,
         $exp_filtree = [];
     }
 
+    // Fusion finale
     $info = array_merge($projets_filtree, $exp_filtree);
+
 
     if (!empty($info)) {
         usort($info, function($a, $b) use ($tri, $ordre) {
