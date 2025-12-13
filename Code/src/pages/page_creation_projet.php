@@ -125,8 +125,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $id_projet = creer_projet($bdd, $nom_projet, $description, $confidentialite, $_SESSION["ID_compte"], 0);
 
                     $tous_collaborateurs = array_unique(array_merge($collaborateurs_selectionnes, [$_SESSION["ID_compte"]]));
-
-                    ajouter_participants($bdd, $id_projet, $gestionnaires_selectionnes, $tous_collaborateurs);
+                    
+                    ajouter_participants($bdd, $id_projet, $gestionnaires_selectionnes, $tous_collaborateurs;
 
                     $donnees = ['ID_projet' => $id_projet, 'Nom_projet' => $nom_projet];
 
@@ -171,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 /* ============================================================
    RÉCUPÉRATION DES PERSONNES DISPONIBLES
    ============================================================ */
-$tous_ids_selectionnes = array_merge($gestionnaires_selectionnes, $collaborateurs_selectionnes, [$_SESSION["ID_compte"]]);
+$tous_ids_selectionnes = array_merge($gestionnaires_selectionnes, $collaborateurs_selectionnes);
 
 $personnes_gestionnaires = get_personnes_disponibles($bdd, $tous_ids_selectionnes, true);
 $personnes_collaborateurs = get_personnes_disponibles($bdd, $tous_ids_selectionnes, false);
@@ -199,7 +199,7 @@ if (!empty($collaborateurs_selectionnes)) {
 <head>
     <meta charset="UTF-8">
     <title>Créer un projet</title>
-    <!--permet d'uniformiser le style sur tous les navigateurs-->
+     <!--permet d'uniformiser le style sur tous les navigateurs-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <link rel="stylesheet" href="../css/page_creation_projet.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
