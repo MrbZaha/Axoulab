@@ -139,7 +139,13 @@ function update_resultats_experience(PDO $bdd, int $id_experience, string $html)
     ]);
 }
 
-// Liste des fichiers non-images (documents, vidéos, audio, code, etc.)
+/**
+ * Met à jour le champ résultat dans la BDD
+ *
+ * @param string $dir Répertoire des fichiers
+ * 
+ * @return array Tableau des noms des ficheirs
+ */
 function list_files_for_experience(string $dir): array {
     if (!is_dir($dir)) return [];
     
@@ -170,7 +176,14 @@ function list_files_for_experience(string $dir): array {
     return array_map('basename', $allFiles);
 }
 
-// Fonction pour obtenir l'icône selon le type de fichier
+
+/**
+ * Fonction retournant le chemin de l'icone correspondant au type de fichier
+ *
+ * @param string $dir Répertoire des fichiers
+ * 
+ * @return array Tableau des noms des ficheirs
+ */
 function get_file_icon(string $filename): string {
     $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
     
