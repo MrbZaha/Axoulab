@@ -1383,21 +1383,9 @@ function filtrer_trier_pro_exp(PDO $bdd,
 
     $info = [];
 
-    if (empty($types)) {
-        $projets = get_all_projet($bdd, $id_compte);
-        foreach ($projets as &$p) {
-            $p["Type"] = "projet";
-        }
-        $projets_filtree = filtrer_projets($projets, $texte, $confid, $statut_proj);
-
-        $experiences = get_mes_experiences_complets_recherche($bdd);
-        foreach ($experiences as &$e) {
-            $e["Type"] = "experience";
-        }
-        $exp_filtree = filtrer_experience($experiences, $texte, $statut_exp);
-    }
-
-
+    echo '<pre>';
+    print_r($types);
+    echo '</pre>';
 
     // --- Filtrer les projets si "projet" est dans le tableau
     if (in_array('projet', $types)) {
