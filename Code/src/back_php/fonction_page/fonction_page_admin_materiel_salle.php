@@ -110,12 +110,12 @@ function afficher_materiel_pagines(array $materiel, int $page_actuelle, int $ite
     <tbody>
 
 <?php
-foreach ($materiel_page as $user):
+foreach ($materiel_page as $mat):
 
     // Protection XSS à l'affichage
-    $id    = htmlspecialchars($user['ID_materiel'], ENT_QUOTES, 'UTF-8');
-    $salle = htmlspecialchars($user['Nom_salle'],   ENT_QUOTES, 'UTF-8');
-    $mat   = htmlspecialchars($user['Materiel'],    ENT_QUOTES, 'UTF-8');
+    $id_materiel    = htmlspecialchars($mat['ID_materiel'], ENT_QUOTES, 'UTF-8');
+    $salle = htmlspecialchars($mat['Nom_salle'],   ENT_QUOTES, 'UTF-8');
+    $mat   = htmlspecialchars($mat['Materiel'],    ENT_QUOTES, 'UTF-8');
 ?>
 
     <tr>
