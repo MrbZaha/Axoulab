@@ -94,50 +94,66 @@ function afficher_materiel_pagines(array $materiel, int $page_actuelle, int $ite
     $debut = ($page_actuelle - 1) * $items_par_page;
     $materiel_page = array_slice($materiel, $debut, $items_par_page);
     ?>
-        <?php if (empty($materiel_page)): ?>
-            <p class="no-experiences">Il n'y a pas de matériel</p>
-        <?php else: ?>
+<?php if (empty($materiel_page)): ?>
+    <p class="no-experiences">Il n'y a pas de matériel</p>
+<?php else: ?>
 
-    <table class="whole_table">
-        <thead class="tablehead">
-            <tr>
-                <th>Salle</th>
-                <th>Matériel</th>
-                <th>Modifier</th>
-                <th>Supprimer</th>
-            </tr>
-        </thead>
-        <tbody>
-    <?php
-        foreach ($materiel_page as $user):
-            $id  = htmlspecialchars($user['ID_materiel']);
-            $salle = htmlspecialchars($user['Nom_salle']);
-            $mat = htmlspecialchars($user['Materiel']);
-    ?>
+<table class="whole_table">
+    <thead class="tablehead">
         <tr>
-            <form action="page_admin_materiel_salle.php" method="POST">
-                <td>
-                    <input type="text" name="salle" value="<?=$salle?>">
-                </td>
-                <td>
-                    <input type="text" name="materiel" value="<?=$mat?>">
-                </td>
-                <td>
-                    <input type="hidden" name="action" value="modifier">
-                    <input type="hidden" name="id" value="<?=$id?>">
-                    <button class="btn btnViolet" type="submit">Modifier</button>
-                </td>
-                <td>
-                    <a class="btn btnRouge"
-                        href="page_admin_materiel_salle.php?action=supprimer&id=<?= $id ?>">
-                        Supprimer</a>
-                </td>
-            </form>
+            <th>Salle</th>
+            <th>Matériel</th>
+            <th>Modifier</th>
+            <th>Supprimer</th>
         </tr>
-    <?php endforeach; ?>
-        </tbody>
-    </table>
-        <?php endif; ?>
+    </thead>
+    <tbody>
+
+<?php
+foreach ($materiel_page as $user):
+
+    // Protection XSS à l'affichage
+    $id    = htmlspecialchars($user['ID_materiel'], ENT_QUOTES, 'UTF-8');
+    $salle = htmlspecialchars($user['Nom_salle'],   ENT_QUOTES, 'UTF-8');
+    $mat   = htmlspecialchars($user['Materiel'],    ENT_QUOTES, 'UTF-8');
+?>
+
+    <tr>
+        <form action="page_admin_materiel_salle.php" method="POST">
+            <td>
+                <input type="text" name="salle" value="<?= $salle ?>" required>
+            </td>
+            <td>
+                <input type="text" name="materiel" value="<?= $mat ?>" required>
+            </td>
+            <td>
+                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                <input type="hidden" name="action" value="modifier">
+                <input type="hidden" name="id" value="<?= $id ?>">
+                <button class="btn btnViolet" type="submit">Modifier</button>
+            </td>
+        </form>
+
+        <td>
+            <form action="page_admin_materiel_salle.php" method="POST" style="display:inline;">
+                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                <input type="hidden" name="action" value="supprimer">
+                <input type="hidden" name="id" value="<?= $id ?>">
+                <button class="btn btnRouge" type="submit"
+                        onclick="return confirm('Confirmer la suppression ?');">
+                    Supprimer
+                </button>
+            </form>
+        </td>
+    </tr>
+
+<?php endforeach; ?>
+
+    </tbody>
+</table>
+
+<?php endif; ?>
+
     <?php
 }
 ?>

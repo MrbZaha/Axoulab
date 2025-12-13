@@ -271,6 +271,8 @@ $heures = range(8, 19);
 <link rel="stylesheet" href="../css/page_creation_experience_2.css">
 <link rel="stylesheet" href="../css/Bandeau_haut.css">
 <link rel="stylesheet" href="../css/Bandeau_bas.css">
+<!-- Permet d'afficher la loupe pour le bandeau de recherche -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 .cell-content.selected {
     background-color: #e3f2fd;

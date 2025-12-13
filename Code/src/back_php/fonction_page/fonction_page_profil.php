@@ -14,7 +14,7 @@ require_once __DIR__ . '/../fonctions_site_web.php';  // Sans "back_php/" !
  * @param int $user_ID ID de l'utilisateur
  * @return array ['success' => bool, 'erreurs' => array] Indique si l'opération a réussi et liste les erreurs éventuelles
  */
-function modifier_mdp($bdd, $mdp, $user_ID) {
+function modifier_mdp(PDO $bdd, string $mdp, int $user_ID) :array{
     // Vérifier que le mot de passe respecte les critères de sécurité
     $erreurs = verifier_mdp($mdp);
     
@@ -48,7 +48,7 @@ function modifier_mdp($bdd, $mdp, $user_ID) {
  * @param int $user_ID ID de l'utilisateur
  * @return bool|null True si la modification a réussi, false si le format est invalide ou si la sauvegarde a échoué, null si aucun fichier uploadé
  */
-function modifier_photo_de_profil($user_ID) {
+function modifier_photo_de_profil(int $user_ID) : ?bool{
     // Vérification qu'un fichier a été uploadé
     if (!isset($_FILES['photo']) || $_FILES['photo']['error'] !== UPLOAD_ERR_OK) {
         return null; // Aucun fichier ou erreur d'upload

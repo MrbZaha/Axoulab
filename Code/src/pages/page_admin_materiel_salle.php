@@ -9,6 +9,11 @@ if (session_status() == PHP_SESSION_NONE) {
 
 $bdd = connectBDD();
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
+
+
 $ajouter = false;
 $message = "";  // Variable globale pour les messages
 
@@ -103,8 +108,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'valider') {
 <html lang="fr">
     <head>
         <meta charset="utf-8"/>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
-        <link rel="stylesheet" href="../css/page_mes_experiences.css">   <!-- Utilisé pour les titres -->
+            <link rel="stylesheet" href="../css/page_mes_experiences.css">   <!-- Utilisé pour les titres -->
         <link rel="stylesheet" href="../css/page_admin_utilisateurs_materiel.css">
         <link rel="stylesheet" href="../css/admin.css">
         <link rel="stylesheet" href="../css/Bandeau_haut.css">

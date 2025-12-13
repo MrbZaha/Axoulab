@@ -18,13 +18,17 @@ h1 {
 /* —— ACTIONS (BOUTONS) ———————————————————————— */
 .actions-projet {
     display: flex;
-    gap: 12px;
-    justify-content: flex-end;
+    gap: 10px;
+    align-items: center;
     margin-bottom: 30px;
 }
 
-.actions-projet form {
-    margin: 0;
+.actions-projet form:first-child {
+    margin-right: auto; /* pousse les autres vers la droite */
+}
+
+.actions-projet form:not(:first-child) {
+    margin-left: 0; /* optionnel, s'assure qu'ils restent à droite */
 }
 
 .actions-projet input[type="submit"] {
@@ -39,9 +43,18 @@ h1 {
     transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
+
 .actions-projet input[type="submit"]:hover {
     background-color: #2b86c6;
     transform: translateY(-2px);
+}
+
+.actions-projet form:first-child input[type="submit"]{
+    background-color: #e74c3c;
+}
+
+.actions-projet form:first-child input[type="submit"]:hover{
+    background-color: #c0392b;
 }
 
 .actions-projet form:last-child input[type="submit"] {

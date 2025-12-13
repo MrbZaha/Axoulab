@@ -70,7 +70,7 @@ function ajouter_participants(PDO $bdd, int $id_projet, array $gestionnaires, ar
 
     foreach ($gestionnaires as $id_compte) {
         $sql->execute([$id_projet, $id_compte, 1]); // 1 = gestionnaire
-    }
+    } 
 
     foreach ($collaborateurs as $id_compte) {
         $sql->execute([$id_projet, $id_compte, 0]); // 0 = collaborateur
