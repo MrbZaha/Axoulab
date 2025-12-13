@@ -1830,7 +1830,7 @@ function trouver_id_par_email(PDO $bdd, string $email): ?int {
  * @param string $page Page de redirection lors de la fermeture de la popup (nom sans .php)
  * @return string HTML complet de la popup
  */
-function afficher_popup(string $titre,string $texte, string $type = "success", string $page) :string{
+function afficher_popup(string $titre, string $texte, string $type = "success", string $page) :string{
     $classe = ($type === "error") ? "popup-error" : "popup-success";
     return '
     <div class="popup-overlay" id="popup">
