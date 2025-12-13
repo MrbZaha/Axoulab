@@ -369,7 +369,7 @@ function associer_materiel_experience($bdd, $id_experience, $materiels_ids) {
  *
  * @return string|null Nom du projet ou null s'il n'existe pas
  */
-function get_nom_projet($bdd, $id_projet){
+function get_nom_projet($bdd, $id_projet) :string{
     $sql = "
         SELECT 
             p.Nom_projet

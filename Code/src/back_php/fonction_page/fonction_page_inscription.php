@@ -33,7 +33,7 @@ function verifier_email_axoulab($email,$prenom,$nom) {
 // =======================  INSÉRER UN UTILISATEUR =======================
 /* Insère un nouvel utilisateur dans la base de données
    Retourne true si insertion réussie, false sinon */
-function inserer_utilisateur($bdd, $nom, $prenom, $date, $etat, $email, $mdp_hash) {
+function inserer_utilisateur(PDO $bdd, string $nom, string $prenom, string $date,int $etat, string $email, string $mdp_hash) {
     $sql = $bdd->prepare("INSERT INTO compte (Nom, Prenom, date_de_naissance, etat, email, Mdp) VALUES (?, ?, ?, ?, ?, ?)");
     return $sql->execute([$nom, $prenom, $date, $etat, $email, $mdp_hash]);
 }
