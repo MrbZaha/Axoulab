@@ -88,15 +88,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'experimentateurs_ids' => $experimentateurs_selectionnes
             ];
             
-            // Redirection vers page 2 avec les données en POST
-            echo '<form id="form-redirect" method="post" action="page_creation_experience_2.php">';
-            echo '<input type="hidden" name="id_projet" value="' . $id_projet . '">';
-            echo '<input type="hidden" name="nom_experience" value="' . htmlspecialchars($nom_experience, ENT_QUOTES) . '">';
-            echo '<input type="hidden" name="description" value="' . htmlspecialchars($description, ENT_QUOTES) . '">';
-            echo '<input type="hidden" name="experimentateurs_ids" value="' . implode(',', $experimentateurs_selectionnes) . '">';
-            echo '</form>';
-            echo '<script>document.getElementById("form-redirect").submit();</script>';
-            exit();
+    $_SESSION['creation_experience'] = [
+        'id_projet' => $id_projet,
+        'nom_experience' => $nom_experience,
+        'description' => $description,
+        'experimentateurs_ids' => $experimentateurs_selectionnes
+        ];
+
+        header('Location: page_creation_experience_2.php');
+    exit;
+
         }
     }
 }

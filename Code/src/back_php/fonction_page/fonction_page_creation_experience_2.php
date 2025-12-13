@@ -278,7 +278,20 @@ function organiser_reservations_par_creneau(array $reservations, array $dates_se
  *
  * @return int|false ID de l'expérience créée ou false en cas d'échec
  */
-function creer_experience(PDO $bdd, string $validation, string $nom_experience, string $description, string $date_reservation, string $date_creation, string $heure_debut, string $heure_fin, string $nom_salle) {
+function creer_experience($bdd, $validation, $nom_experience, $description, $date_reservation, $date_creation, $heure_debut, $heure_fin, $nom_salle) {
+    if ($heure_debut < "08:00") {
+        $heure_debut = "08:00";
+    }
+
+    if ($heure_fin > "19:00") {
+        $heure_fin = "19:00";
+    }
+
+    // Vérification logique
+    if ($heure_debut >= $heure_fin) {
+        return false; // ou throw Exception
+    }
+
     $sql = $bdd->prepare("
         INSERT INTO experience (Nom, Description, Date_reservation, Date_de_creation, Heure_debut, Heure_fin, Statut_experience, Validation)
         VALUES (?, ?, ?,?, ?, ?, 'En attente', 0)

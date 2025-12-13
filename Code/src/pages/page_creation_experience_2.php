@@ -10,6 +10,18 @@ $materiels_selectionnes = [];
 $id_projet = null;
 $creneau_selectionne = null;
 
+if (isset($_SESSION['creation_experience'])) {
+    $data = $_SESSION['creation_experience'];
+
+    $id_projet = $data['id_projet'];
+    $nom_experience = $data['nom_experience'];
+    $description = $data['description'];
+    $experimentateurs_ids = $data['experimentateurs_ids'];
+
+    // Optionnel : nettoyage
+    unset($_SESSION['creation_experience']);
+}
+
 // Récupération de l'ID du projet depuis POST OU GET
 if (isset($_POST['id_projet']) && !empty($_POST['id_projet'])) {
     $id_projet = intval($_POST['id_projet']);
@@ -276,7 +288,6 @@ $heures = range(8, 19);
             <p><strong>Projet :</strong> <?= htmlspecialchars($nom_projet) ?></p>
         </div>
 
-        <!-- Sélection de salle -->
         <!-- Sélection de salle -->
 <form method="get" action="" class="form-row">
     <input type="hidden" name="id_projet" value="<?= $id_projet ?>">
