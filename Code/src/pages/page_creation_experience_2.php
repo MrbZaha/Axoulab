@@ -393,7 +393,14 @@ $planning = organiser_reservations_par_creneau($reservations, $dates_semaine, $h
                                     $cls = 'couleur-' . (($i % 4) + 1);
                                     ?>
                                     <div class="reservation-continue <?= $cls ?>" 
-                                         style="height: calc(<?= $duree ?> * 100%); position: absolute; top: 0; left: 0; right: 0; z-index: <?= 2 + $i ?>; border-radius: 4px; padding: 8px; cursor: pointer; transition: transform 0.2s;">
+     style="height: calc(<?= $duree ?> * 100%); position: absolute; top: 0; left: 0; right: 0; z-index: <?= 2 + $i ?>; border-radius: 4px; padding: 8px; cursor: pointer; transition: transform 0.2s;"
+     onmouseover="this.querySelector('.reservation-overlay').style.display='block'; 
+                  let rect = this.getBoundingClientRect(); 
+                  let overlay = this.querySelector('.reservation-overlay');
+                  overlay.style.top = (rect.bottom + 5) + 'px';
+                  overlay.style.left = (rect.left + rect.width/2) + 'px';
+                  overlay.style.transform = 'translateX(-50%)';"
+     onmouseout="this.querySelector('.reservation-overlay').style.display='none';">
                                         <div class="reservation-content" style="font-size: 0.85em;">
                                                 <div class="experimentateur" style="font-weight: 700; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                                 <?= htmlspecialchars($res['experimentateurs_ids'] ?? ($res['experimentateurs'] ?? 'Non assigné')) ?>
