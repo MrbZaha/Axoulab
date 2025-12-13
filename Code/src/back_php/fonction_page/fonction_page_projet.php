@@ -65,7 +65,7 @@ function verifier_confidentialite(PDO $bdd, int $id_compte, int $id_projet): boo
  * @param int $id_projet : ID_projet
  * @return array : un tableau contenant les informations du projet, ou null dans le cas où il n'y a pas de projet
  */
-function get_info_projet(PDO $bdd, int $id_compte, int $id_projet) {
+function get_info_projet(PDO $bdd, int $id_compte, int $id_projet) :array{
     if (!verifier_confidentialite($bdd, $id_compte, $id_projet)) {
         return null;
     }
