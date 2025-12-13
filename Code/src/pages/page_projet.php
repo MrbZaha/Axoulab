@@ -46,6 +46,13 @@ $page_title = $projet ? htmlspecialchars($projet['Nom_projet']) : "Projet";
     
     <?php if (!$erreur): ?>
         <div class="actions-projet">
+            
+            <form action="page_supprimer_projet.php" method="post" onsubmit="return confirm('Voulez-vous vraiment supprimer ce projet ?');">
+                
+                <input type="hidden" name="id_projet" value="<?= $id_projet ?>">
+                <input type="submit" value="Supprimer le projet" />
+            </form>
+
             <form action="page_creation_experience_1.php?id_projet=<?= $id_projet ?>" method="post">
                 <input type="submit" value="Ajouter une expérience" />
             </form>
