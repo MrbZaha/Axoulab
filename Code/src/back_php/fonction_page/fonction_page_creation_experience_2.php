@@ -266,24 +266,6 @@ function organiser_reservations_par_creneau($reservations, $dates_semaine, $heur
 }
 
 /**
- * Vérifie si une heure correspond au début d'une réservation.
- *
- * @param array $reservations Liste des réservations du créneau
- * @param int $heure Heure à tester
- *
- * @return bool True si une réservation commence à cette heure, sinon False
- */
-function est_debut_reservation($reservations, $heure) {
-    foreach ($reservations as $res) {
-        $heure_debut = (int)date('G', strtotime($res['Heure_debut']));
-        if ($heure_debut === $heure) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/**
  * Crée une nouvelle expérience dans la base de données.
  *
  * @param PDO    $bdd              Connexion PDO
