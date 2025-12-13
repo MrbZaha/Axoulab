@@ -28,7 +28,7 @@ function connectBDD() {
         return $bdd;
     } catch (Exception $e) {
         // Si une erreur se produit lors de la connexion, affichage du message d'erreur
-        die("Erreur : " . $e->getMessage());
+        die("Erreur de connexion à la base de donnée");
     }
 }
 
@@ -47,7 +47,7 @@ function connectBDD() {
  */
 function email_existe($bdd, $email) {
     // Préparation de la requête SQL pour vérifier l'existence de l'email
-    $stmt = $bdd->prepare("SELECT * FROM compte WHERE email = ?");
+    $stmt = $bdd->prepare("SELECT 1 FROM compte WHERE email = ?");
     $stmt->execute([$email]);
 
     // Vérifie si le nombre de lignes renvoyées est supérieur à 0
@@ -1257,7 +1257,9 @@ function filtrer_trier_pro_exp(PDO $bdd,
 
     $info = [];
 
-    if (in_array('projet', $types)) {
+    
+    // --- Filtrer les projets si "projet" est dans le tableau
+    if (in_array('projet', $types) || empty($type)) {
         $projets = get_all_projet($bdd, $id_compte); 
         foreach ($projets as &$p) {
             $p["Type"] = "projet";
@@ -1267,7 +1269,8 @@ function filtrer_trier_pro_exp(PDO $bdd,
         $projets_filtree = [];
     }
 
-    if (in_array('experience', $types)) {
+    // --- Filtrer les expériences si "experience" est dans le tableau
+    if (in_array('experience', $types)|| empty($type)) {
         $experiences = get_mes_experiences_complets($bdd);
         foreach ($experiences as &$e) {
             $e["Type"] = "experience";
@@ -1409,8 +1412,8 @@ function filtrer_experience(
         }
 
         // --- 2. Statut (plusieurs possibles)
-        if (!empty($statuts)) {
-            if (!in_array($exp["Statut_experience"], $statuts)) {
+        if (!empty($statut)) {
+            if (!in_array($exp["Statut_experience"], $statut)) {
                 continue;
             }
         }
