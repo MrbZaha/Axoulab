@@ -435,10 +435,42 @@ if (!empty($materiels_selectionnes)) {
                                                     if ($heure_debut_res === $heure):
                                                         $cls = 'couleur-' . (($i % 4) + 1);
                                             ?>
-                                                        <div class="reservation-continue <?= $cls ?>" style="height:calc(<?= $duree ?> * 100%);position:relative;padding:6px;border-radius:4px;">
-                                                            <div style="font-weight:700;font-size:0.9em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?= htmlspecialchars($res['nom_experience'] ?: ($res['Nom_projet'] ?? '')) ?></div>
-                                                            <div style="font-size:0.85em;opacity:0.85;"><?= htmlspecialchars($res['experimentateurs_ids'] ?? ($res['experimentateurs'] ?? '')) ?></div>
-                                                        </div>
+                                                        <div class="reservation-continue <?= $cls ?>" style="height:calc(<?= $duree ?> * 100%);position:absolute;top:0;left:0;right:0;padding:6px;border-radius:4px;">
+    <div class="reservation-content" style="font-size:0.85em;">
+        <div class="experimentateur" style="font-weight:700;margin-bottom:3px;">
+            <?= htmlspecialchars($res['experimentateurs'] ?? 'Non assigné') ?>
+        </div>
+        <div class="projet" style="font-size:0.9em;opacity:0.9;">
+            <?= htmlspecialchars($res['Nom_projet'] ?: 'Sans projet') ?>
+        </div>
+    </div>
+    
+    <!-- Overlay avec détails -->
+    <div class="reservation-overlay">
+        <div class="overlay-content" style="font-size:0.9em;color:#333;">
+            <div style="margin-bottom:8px;line-height:1.4;">
+                <strong style="color:#000;display:inline-block;min-width:130px;">Expérience :</strong> 
+                <?= htmlspecialchars($res['nom_experience']) ?>
+            </div>
+            <div style="margin-bottom:8px;line-height:1.4;">
+                <strong style="color:#000;display:inline-block;min-width:130px;">Projet :</strong> 
+                <?= htmlspecialchars($res['Nom_projet'] ?: 'Non défini') ?>
+            </div>
+            <div style="margin-bottom:8px;line-height:1.4;">
+                <strong style="color:#000;display:inline-block;min-width:130px;">Expérimentateur(s) :</strong> 
+                <?= htmlspecialchars($res['experimentateurs'] ?? 'Non assigné') ?>
+            </div>
+            <div style="margin-bottom:8px;line-height:1.4;">
+                <strong style="color:#000;display:inline-block;min-width:130px;">Horaire :</strong> 
+                <?= htmlspecialchars(substr($res['Heure_debut'],0,5)) ?> — <?= htmlspecialchars(substr($res['Heure_fin'],0,5)) ?>
+            </div>
+            <div style="margin-bottom:0;line-height:1.4;">
+                <strong style="color:#000;display:inline-block;min-width:130px;">Matériel :</strong> 
+                <?= htmlspecialchars($res['materiels_utilises']) ?>
+            </div>
+        </div>
+    </div>
+</div>
                                             <?php
                                                     endif;
                                                 endforeach;

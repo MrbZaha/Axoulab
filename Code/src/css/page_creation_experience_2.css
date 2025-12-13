@@ -77,7 +77,7 @@ thead th {
 
 .reservation-continue:hover { 
     transform: scale(1.02); 
-    z-index:9999_ !important; 
+    z-index: 99998 !important;
     box-shadow:0 6px 18px rgba(0,0,0,0.12); 
     overflow:visible !important;
 }
