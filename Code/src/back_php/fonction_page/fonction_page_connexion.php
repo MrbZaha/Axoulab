@@ -9,9 +9,9 @@ require_once __DIR__ . '/../fonctions_site_web.php';
  *
  * @param PDO $bdd Connexion à la base de données
  * @param str $email Email de l'utilisateur
- * @return bool False si compte validé, Ture si il est non vérifié ou désactivé
+ * @return bool False si compte validé, True si il est non vérifié ou désactivé
  */
-function en_cours_validation($bdd, $email) {
+function en_cours_validation(PDO $bdd, string $email) :bool{
 
     // Préparation de la requête : récupérer l’état du compte pour cet email
     $stmt = $bdd->prepare("SELECT validation, etat FROM compte WHERE email = ?");
@@ -45,7 +45,7 @@ function en_cours_validation($bdd, $email) {
  * @return bool True si mot de passe valide, False si il est erroné
  */
 
-function mot_de_passe_correct($bdd, $email, $mdp) {
+function mot_de_passe_correct(PDO $bdd, string $email, string $mdp) :bool{
 
     // On sélectionne le mot de passe hashé du compte correspondant à l'email
     $stmt = $bdd->prepare("SELECT Mdp FROM compte WHERE email = ?");

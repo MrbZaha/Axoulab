@@ -16,7 +16,7 @@ if (!defined('TEST_MODE')) {
  * @param string $description Description du projet à vérifier
  * @return array Tableau des messages d'erreur (vide si aucune erreur)
  */
-function verifier_champs_projet($nom_projet, $description) {
+function verifier_champs_projet(string $nom_projet, string $description) :array{
     $erreurs = [];
 
     if (strlen($nom_projet) < 3 || strlen($nom_projet) > 100) {
@@ -41,7 +41,7 @@ function verifier_champs_projet($nom_projet, $description) {
  * @param int $valide Statut de validation (0 = en attente, 1 = validé)
  * @return int|false ID du projet créé (lastInsertId) ou false en cas d'échec
  */
-function creer_projet($bdd, $nom_projet, $description, $confidentialite, $id_compte, $valide) {
+function creer_projet(PDO $bdd, string $nom_projet, string $description,int $confidentialite,int $id_compte, int $valide) {
     $date_creation = date('Y-m-d');
 
     $sql = $bdd->prepare("
@@ -62,7 +62,7 @@ function creer_projet($bdd, $nom_projet, $description, $confidentialite, $id_com
  * @param array $collaborateurs Tableau des ID_compte des collaborateurs à ajouter
  * @return void
  */
-function ajouter_participants($bdd, $id_projet, $gestionnaires, $collaborateurs) {
+function ajouter_participants(PDO $bdd, int $id_projet, array $gestionnaires, array $collaborateurs) :void{
     $sql = $bdd->prepare("
         INSERT INTO projet_collaborateur_gestionnaire (ID_projet, ID_compte, Statut)
         VALUES (?, ?, ?)

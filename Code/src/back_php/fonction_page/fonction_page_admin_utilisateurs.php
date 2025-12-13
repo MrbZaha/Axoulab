@@ -42,7 +42,7 @@ function modifier_utilisateur(PDO $bdd, int $id){
  * @param PDO $bdd Connexion à la base de données
  * @return array Retourne un tableau contenant la liste de l'ensemble des utilisateurs
  */
-function get_utilisateurs(PDO $bdd) {
+function get_utilisateurs(PDO $bdd) :array{
     $sql_utilisateurs = "
         SELECT ID_compte,
         Nom,
@@ -67,7 +67,7 @@ function get_utilisateurs(PDO $bdd) {
  * @param PDO $bdd Connexion à la base de données
  * @return void C'est une procédure qui ne retourne rien
  */
-function afficher_utilisateurs_pagines(array $utilisateurs, int $page_actuelle, int $items_par_page, PDO $bdd) {
+function afficher_utilisateurs_pagines(array $utilisateurs, int $page_actuelle, int $items_par_page, PDO $bdd) :void{
     $debut = ($page_actuelle - 1) * $items_par_page;
     $utilisateur_page = array_slice($utilisateurs, $debut, $items_par_page);
     ?>
