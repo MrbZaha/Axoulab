@@ -60,6 +60,7 @@ Liste verticale des expériences
 .experience-card h3 {
     margin: 0;
     color: #1a1a1a;
+    padding-right: 120px; /* Espace pour le badge confidentiel */
     font-size: 1.1rem;
     font-weight: 600;
     flex: 1;
@@ -76,6 +77,7 @@ Liste verticale des expériences
     font-weight: 500;
     white-space: nowrap;
 }
+
 
 /* Description de l'expérience */
 .experience-card .description {
@@ -219,4 +221,12 @@ h1 {
     .projet-badge {
         font-size: 0.8rem;
     }
+
+    .conf-badge {
+        font-size: 0.7rem;
+        padding: 5px 10px;
+        top: 12px;
+        right: 12px;
+    }
+    
 }

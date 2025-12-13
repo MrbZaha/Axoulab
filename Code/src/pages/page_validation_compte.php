@@ -6,9 +6,7 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <title>Compte en cours de validation</title>
-    <!--permet d'uniformiser le style sur tous les navigateurs-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
-   <link rel="stylesheet" href="../css/page_validation_compte_style.css">
+       <link rel="stylesheet" href="../css/page_validation_compte_style.css">
 </head>
 <body>
     <div class="validation-box">
