@@ -2,14 +2,15 @@
 // Inclusion du fichier de fonctions
 include_once '../back_php/fonctions_site_web.php';
 
-// Connexion à la base
-$bdd = connectBDD();
+session_start();
 
+$bdd = connectBDD();
 
 $message = "";
 $type_message = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
     check_csrf();
 }
 
@@ -55,7 +56,8 @@ if (!empty($_POST["email"])) {
         ?>
        
         <!-- Formulaire de demande de réinitialisation -->
-        <form method="POST" action="">
+        <form method="post" action="">
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
             <div class="form-group">
                 <label for="email">Adresse email :</label>
                 <input type="email" id="email" name="email" required placeholder="votre.email@exemple.com" value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">

@@ -786,20 +786,110 @@ function afficher_Bandeau_Bas() :void{
     </nav>
 <?php }
 
+
+
 /**
  * Récupère la liste complète des expériences.
  *
  * Cette fonction récupère toutes les expériences depuis la base de données,
  * en incluant les projets associés, les salles utilisées et les expérimentateurs.
- * Si un identifiant de compte est fourni, seules les expériences liées à
- * cet utilisateur sont retournées.
  *
  * @param PDO      $bdd       Connexion à la base de données
- * @param int|null $id_compte ID du compte utilisateur (optionnel)
  *
  * @return array Tableau associatif contenant les expériences
  */
-function get_mes_experiences_complets(PDO $bdd, ?int $id_compte = null): array {
+function get_mes_experiences_complets_recherche(PDO $bdd): array {
+
+// --- 1. Requête principale
+$sql_experiences = "
+    SELECT DISTINCT
+        e.ID_experience, 
+        e.Nom, 
+        e.Validation, 
+        e.Description, 
+        e.Date_reservation,
+        e.Heure_debut,
+        e.Heure_fin,
+        e.Resultat,
+        e.Statut_experience,
+        e.Date_de_creation,
+        e.Date_de_modification,
+
+        GROUP_CONCAT(DISTINCT s.Nom_Salle SEPARATOR ', ') AS Nom_Salle,
+        GROUP_CONCAT(DISTINCT p.Nom_projet SEPARATOR ', ') AS Nom_projet,
+        GROUP_CONCAT(DISTINCT p.ID_projet SEPARATOR ',') AS ID_projet
+
+    FROM experience e
+    LEFT JOIN projet_experience pe
+        ON pe.ID_experience = e.ID_experience
+    LEFT JOIN projet p
+        ON p.ID_projet = pe.ID_projet
+    LEFT JOIN materiel_experience se
+        ON e.ID_experience = se.ID_experience
+    LEFT JOIN salle_materiel s
+        ON se.ID_materiel = s.ID_materiel
+    LEFT JOIN experience_experimentateur ee
+        ON e.ID_experience = ee.ID_experience
+";
+
+// IMPORTANT : Groupement pour supprimer les doublons
+$sql_experiences .= " GROUP BY e.ID_experience";
+
+$stmt = $bdd->prepare($sql_experiences);
+
+$stmt->execute();
+
+$experiences = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+if (empty($experiences)) {
+    return [];
+}
+
+    // --- 2. Récupérer tous les IDs d'expérience
+    $ids_exp = array_column($experiences, 'ID_experience');
+    $in = str_repeat('?,', count($ids_exp) - 1) . '?';
+
+    // --- 3. Requête pour récupérer tous les expérimentateurs
+    $sql_experimentateurs = "
+        SELECT 
+            ee.ID_experience,
+            c.Nom,
+            c.Prenom
+        FROM experience_experimentateur ee
+        INNER JOIN compte c
+            ON ee.ID_compte = c.ID_compte
+        WHERE ee.ID_experience IN ($in)
+    ";
+    $stmt2 = $bdd->prepare($sql_experimentateurs);
+    $stmt2->execute($ids_exp);
+    $rows = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
+    // --- 4. Regrouper les expérimentateurs par expérience
+    $experimentateurs = [];
+    foreach ($rows as $row) {
+        $experimentateurs[$row['ID_experience']][] = $row['Prenom'] . ' ' . $row['Nom'];
+    }
+
+    // --- 5. Ajouter les expérimentateurs et progression
+    foreach ($experiences as &$exp) {
+        $exp['Experimentateurs'] = $experimentateurs[$exp['ID_experience']] ?? [];
+    }
+    return $experiences;
+}
+
+
+/**
+ * Récupère la liste complète des expériences.
+ *
+ * Cette fonction récupère toutes les expériences depuis la base de données,
+ * en incluant les projets associés, les salles utilisées et les expérimentateurs.
+ *
+ * @param PDO $bdd       Connexion à la base de données
+ * @param int $id_compte ID du compte utilisateur (optionnel)
+ *
+ * @return array Tableau associatif contenant les expériences
+ */
+function get_mes_experiences_complets(PDO $bdd, int $id_compte = null): array {
     $sql_experiences = "
         SELECT DISTINCT
             e.ID_experience, 
@@ -822,18 +912,14 @@ function get_mes_experiences_complets(PDO $bdd, ?int $id_compte = null): array {
         LEFT JOIN materiel_experience se ON e.ID_experience = se.ID_experience
         LEFT JOIN salle_materiel s ON se.ID_materiel = s.ID_materiel
         INNER JOIN experience_experimentateur ee ON e.ID_experience = ee.ID_experience AND ee.ID_compte = :id_compte
-
-    ";
-
-    if ($id_compte !== null) {
-        $sql_experiences .= " WHERE (ee.ID_compte = :id_compte
+        WHERE (ee.ID_compte = :id_compte
             OR EXISTS (
                 SELECT 1 FROM projet_experience pe2
                 JOIN projet_collaborateur_gestionnaire pcg ON pcg.ID_projet = pe2.ID_projet
                 WHERE pe2.ID_experience = e.ID_experience AND pcg.ID_compte = :id_compte
             )
-        )";
-    }
+        )
+    ";
 
     $sql_experiences .= " GROUP BY e.ID_experience";
 
@@ -1297,7 +1383,22 @@ function filtrer_trier_pro_exp(PDO $bdd,
 
     $info = [];
 
-    
+    if (empty($types)) {
+        $projets = get_all_projet($bdd, $id_compte);
+        foreach ($projets as &$p) {
+            $p["Type"] = "projet";
+        }
+        $projets_filtree = filtrer_projets($projets, $texte, $confid, $statut_proj);
+
+        $experiences = get_mes_experiences_complets_recherche($bdd);
+        foreach ($experiences as &$e) {
+            $e["Type"] = "experience";
+        }
+        $exp_filtree = filtrer_experience($experiences, $texte, $statut_exp);
+    }
+
+
+
     // --- Filtrer les projets si "projet" est dans le tableau
     if (in_array('projet', $types)) {
         $projets = get_all_projet($bdd, $id_compte); 
@@ -1311,7 +1412,7 @@ function filtrer_trier_pro_exp(PDO $bdd,
 
     // --- Filtrer les expériences si "experience" est dans le tableau
     if (in_array('experience', $types)) {
-        $experiences = get_mes_experiences_complets($bdd);
+        $experiences = get_mes_experiences_complets_recherche($bdd);
         foreach ($experiences as &$e) {
             $e["Type"] = "experience";
         }
