@@ -1383,13 +1383,12 @@ function filtrer_trier_pro_exp(PDO $bdd,
 
     $info = [];
 
-    echo '<pre>';
-    print_r($types);
-    echo '</pre>';
+    $types_vides = empty($types);
 
-    // --- Filtrer les projets si "projet" est dans le tableau
-    if (in_array('projet', $types)) {
-        $projets = get_all_projet($bdd, $id_compte); 
+
+    // --- Projets
+    if ($types_vides || in_array('projet', $types)) {
+        $projets = get_all_projet($bdd, $id_compte);
         foreach ($projets as &$p) {
             $p["Type"] = "projet";
         }
@@ -1398,8 +1397,8 @@ function filtrer_trier_pro_exp(PDO $bdd,
         $projets_filtree = [];
     }
 
-    // --- Filtrer les expériences si "experience" est dans le tableau
-    if (in_array('experience', $types)) {
+    // --- Expériences
+    if ($types_vides || in_array('experience', $types)) {
         $experiences = get_mes_experiences_complets_recherche($bdd);
         foreach ($experiences as &$e) {
             $e["Type"] = "experience";
@@ -1409,7 +1408,9 @@ function filtrer_trier_pro_exp(PDO $bdd,
         $exp_filtree = [];
     }
 
+    // Fusion finale
     $info = array_merge($projets_filtree, $exp_filtree);
+
 
     if (!empty($info)) {
         usort($info, function($a, $b) use ($tri, $ordre) {
