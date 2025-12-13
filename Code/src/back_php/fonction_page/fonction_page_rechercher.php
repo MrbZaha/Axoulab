@@ -2,9 +2,9 @@
 include_once "../back_php/fonctions_site_web.php";
 
 $bdd = connectBDD();
+#On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
+verification_connexion($bdd);
 $id_compte = $_SESSION['ID_compte'];
-
-
 
 function afficher_projets_experiences_pagines(array $items, int $page_actuelle = 1, int $items_par_page = 6): void {
     // Calcul de la tranche à afficher

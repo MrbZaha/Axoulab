@@ -3,6 +3,7 @@ require_once __DIR__ . '/../back_php/fonctions_site_web.php';
 require_once __DIR__ . '/../back_php/fonction_page/fonction_page_modification_projet.php';
 require_once __DIR__ . '/../back_php/fonction_page/fonction_page_creation_experience_2.php';
 require_once __DIR__ . '/../back_php/fonction_page/fonction_page_projet.php';
+require_once __DIR__ . '/../back_php/fonction_page/fonction_page_modification_experience.php';
 
 $bdd = connectBDD();
 verification_connexion($bdd);
