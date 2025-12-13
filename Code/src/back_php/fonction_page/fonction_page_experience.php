@@ -302,11 +302,24 @@ function afficher_experience(int $id_experience, array $experience, array $exper
             
             <div class="project-container">
                 <div class="project-main">
-<?php
-global $bdd;
-$canModifyExperience = false;
-$canModifyResults = false;
+    <?php
+    global $bdd;
+    $canModifyExperience = false;
+    $canModifyResults = false;
 
+<<<<<<< HEAD
+    if (isset($_SESSION['ID_compte']) && isset($id_experience)) {
+        $acces = verifier_acces_experience($bdd, $_SESSION['ID_compte'], $id_experience);
+        $canModifyExperience = ($acces === 'modification');
+        $canModifyResults = ($acces === 'modification');
+    }
+    ?>
+
+    <?php if ($canModifyExperience || $canModifyResults): ?>
+        <div class="actions-experience">
+            <?php if ($canModifyExperience): ?> 
+                <form action="page_supprimer_experience.php" method="post" onsubmit="return confirm('Voulez-vous vraiment supprimer cette expérience ?');">
+=======
 if (isset($_SESSION['ID_compte'])) {
     $acces = verifier_acces_experience($bdd, $_SESSION['ID_compte'], $id_experience);
     $canModifyExperience = ($acces === 'modification');
@@ -329,84 +342,94 @@ if ($canModifyExperience || $canModifyResults): ?>
         <div class="actions-experience-wrapper">
         <?php if ($canModifyExperience): ?>
             <form action="page_modification_experience.php?id_experience=<?= $experience['ID_experience'] ?>" method="post">
+>>>>>>> 59f491660c608545c8797217e0f0437dd14160ca
                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                <input type="submit" value="Modifier l'expérience" />
-            </form>
-        <?php endif; ?>
+                <input type="hidden" name="id_experience" value="<?= $id_experience ?>">
+                    <input type="submit" value="Supprimer l'expérience" />
+                </form>
+            <?php endif; ?>
 
-        <?php if ($canModifyResults): ?>
-            <form action="page_modification_resultats.php?id_experience=<?= $experience['ID_experience'] ?>" method="post">
-                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                <input type="submit" value="Modifier les résultats" />
-            </form>
-        <?php endif; ?>
+            <div class="actions-experience-wrapper">
+            <?php if ($canModifyExperience): ?>
+                <form action="page_modification_experience.php?id_experience=<?= $experience['ID_experience'] ?>" method="post">
+                    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                    <input type="submit" value="Modifier l'expérience" />
+                </form>
+            <?php endif; ?>
+
+            <?php if ($canModifyResults): ?>
+                <form action="page_modification_resultats.php?id_experience=<?= $experience['ID_experience'] ?>" method="post">
+                    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                    <input type="submit" value="Modifier les résultats" />
+                </form>
+            <?php endif; ?>
+            </div>
         </div>
+    <?php endif; ?>
+
+    <!-- Description -->
+    <div class="project-description">
+        <h3>Description</h3>
+        <p><?= nl2br(htmlspecialchars($experience['Description'])) ?></p>
     </div>
-<?php endif; ?>
-
-                    <!-- Description -->
-                    <div class="project-description">
-                        <h3>Description</h3>
-                        <p><?= nl2br(htmlspecialchars($experience['Description'])) ?></p>
-                    </div>
+    
+    <!-- Informations -->
+    <div class="project-info">
+        <h3>Informations</h3>
+        
+        <p><strong>Date de création:</strong> <?= date('d/m/Y', strtotime($experience['Date_de_creation'])) ?></p>
+        <p><strong>Date de l'expérience:</strong> <?= date('d/m/Y', strtotime($experience['Date_reservation'])) ?></p>
+        <p><strong>Horaires :</strong> <?= substr($experience['Heure_debut'], 0, 5) ?> - <?= substr($experience['Heure_fin'], 0, 5) ?></p>
+    <p><strong>Statut :</strong> 
+        <span class="badge 
+            <?php 
+                if ($experience['Statut_experience'] === 0) echo 'badge-a-venir';
+                elseif ($experience['Statut_experience'] === 1) echo 'badge-en-cours';
+                else echo 'badge-termine';
+            ?>
+        ">
+            <?php
+                if ($experience['Statut_experience'] === 0) echo 'À venir';
+                elseif ($experience['Statut_experience'] === 1) echo 'En cours';
+                else echo 'Terminée';
+            ?>
+        </span>
+    </p>
+    <p><strong>Validation :</strong> 
+        <span class="badge-validation <?= $experience['Validation'] ? 'badge-valide' : 'badge-attente' ?>">
+            <?= $experience['Validation'] ? 'Validée' : 'En attente' ?>
+        </span>
+    </p>
+                        
+    <?php if (!empty($experience['Nom_projet'])): ?>
+        <h4>Projet lié</h4>
+        <p>
+            <a href="page_projet.php?id_projet=<?= $experience['ID_projet'] ?>" class="link-projet">
+                <?= htmlspecialchars($experience['Nom_projet']) ?>
+            </a>
+        </p>
+    <?php endif; ?>
+    
+    <h4>Expérimentateur(s)</h4>
+    <p><?= !empty($experimentateurs) ? htmlspecialchars(implode(', ', $experimentateurs)) : "Aucun" ?></p>
+    
+    <?php if (!empty($salles)): ?>
+        <h4>Salle(s) utilisée(s)</h4>
+        <p><?= htmlspecialchars(implode(', ', $salles)) ?></p>
+    <?php endif; ?>
+    </div>
                     
-                    <!-- Informations -->
-                    <div class="project-info">
-                        <h3>Informations</h3>
-                        
-                        <p><strong>Date de création:</strong> <?= date('d/m/Y', strtotime($experience['Date_de_creation'])) ?></p>
-                        <p><strong>Date de l'expérience:</strong> <?= date('d/m/Y', strtotime($experience['Date_reservation'])) ?></p>
-                        <p><strong>Horaires :</strong> <?= substr($experience['Heure_debut'], 0, 5) ?> - <?= substr($experience['Heure_fin'], 0, 5) ?></p>
-<p><strong>Statut :</strong> 
-    <span class="badge 
-        <?php 
-            if ($experience['Statut_experience'] === 0) echo 'badge-a-venir';
-            elseif ($experience['Statut_experience'] === 1) echo 'badge-en-cours';
-            else echo 'badge-termine';
-        ?>
-    ">
-        <?php
-            if ($experience['Statut_experience'] === 0) echo 'À venir';
-            elseif ($experience['Statut_experience'] === 1) echo 'En cours';
-            else echo 'Terminée';
-        ?>
-    </span>
-</p>
-<p><strong>Validation :</strong> 
-    <span class="badge-validation <?= $experience['Validation'] ? 'badge-valide' : 'badge-attente' ?>">
-        <?= $experience['Validation'] ? 'Validée' : 'En attente' ?>
-    </span>
-</p>
-                        
-                        <?php if (!empty($experience['Nom_projet'])): ?>
-                            <h4>Projet lié</h4>
-                            <p>
-                                <a href="page_projet.php?id_projet=<?= $experience['ID_projet'] ?>" class="link-projet">
-                                    <?= htmlspecialchars($experience['Nom_projet']) ?>
-                                </a>
-                            </p>
-                        <?php endif; ?>
-                        
-                        <h4>Expérimentateur(s)</h4>
-                        <p><?= !empty($experimentateurs) ? htmlspecialchars(implode(', ', $experimentateurs)) : "Aucun" ?></p>
-                        
-                        <?php if (!empty($salles)): ?>
-                            <h4>Salle(s) utilisée(s)</h4>
-                            <p><?= htmlspecialchars(implode(', ', $salles)) ?></p>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <!-- Résultats -->
-                    <?php if (!empty($experience['Resultat'])): ?>
-                        <div class="project-results-header">
-                            <h3>Résultats</h3>
-                        </div>
+    <!-- Résultats -->
+    <?php if (!empty($experience['Resultat'])): ?>
+        <div class="project-results-header">
+            <h3>Résultats</h3>
+        </div>
 
-                        <div class="project-results">
-                            <?= afficher_resultats($experience['Resultat'], $id_experience) ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
+        <div class="project-results">
+            <?= afficher_resultats($experience['Resultat'], $id_experience) ?>
+        </div>
+    <?php endif; ?>
+</div>
 
                 <!-- Matériel utilisé -->
                 <?php if (!empty($materiels)): ?>
