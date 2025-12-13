@@ -1375,7 +1375,15 @@ function filtrer_projets(
 
 
 
-// =======================  Fonction de filtration des expériences =======================
+/**
+ * Filtre une liste de d'experience selon plusieurs critères
+ *
+ * @param array $liste_experience Tableau des expériences à filtrer
+ * @param string|null $texte Texte à rechercher dans le nom, description, experimentateurs
+ * @param array|null $statut Tableau des états d'experiences acceptées
+ *
+ * @return array Tableau des experiences filtrées
+ */
 
 function filtrer_experience(
     array $liste_experience, 
@@ -1384,7 +1392,7 @@ function filtrer_experience(
 ): array {
 
     $resultat = [];
-    $ids_vus = []; // <-- Anti-doublons
+    $ids_vus = [];
     $t = strtolower($texte ?? "");
 
     foreach ($liste_experience as $exp) {

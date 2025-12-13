@@ -3,15 +3,15 @@
 // __DIR__ représente le dossier actuel. 
 require_once __DIR__ . '/../fonctions_site_web.php';
 
-function en_cours_validation($bdd, $email) {
 
-    // ============================================================================
-    //  FONCTION : en_cours_validation()
-    //  Vérifie si un compte existe et si celui-ci est encore en cours de validation.
-    //  Un compte est considéré "en cours de validation" si :
-    //   - la colonne "validation" = 0  (email non vérifié)
-    //   - OU la colonne "etat" = 0     (compte désactivé / inactif)
-    // ============================================================================
+/**
+ * Vérifie si un compte existe et si celui-ci est encore en cours de validation.
+ *
+ * @param PDO $bdd Connexion à la base de données
+ * @param str $email Email de l'utilisateur
+ * @return bool False si compte validé, Ture si il est non vérifié ou désactivé
+ */
+function en_cours_validation($bdd, $email) {
 
     // Préparation de la requête : récupérer l’état du compte pour cet email
     $stmt = $bdd->prepare("SELECT validation, etat FROM compte WHERE email = ?");
@@ -35,14 +35,17 @@ function en_cours_validation($bdd, $email) {
     return false;
 }
 
+
+/**
+ * Vérifie que le mot de passe entré correspond à celui stocké en base.
+ *
+ * @param PDO $bdd Connexion à la base de données
+ * @param str $email Email de l'utilisateur
+ * @param str $mdp Mot de passe de l'utilisateur
+ * @return bool True si mot de passe valide, False si il est erroné
+ */
+
 function mot_de_passe_correct($bdd, $email, $mdp) {
-    
-    // ============================================================================
-    //  FONCTION : mot_de_passe_correct()
-    //  Vérifie que le mot de passe entré correspond à celui stocké en base.
-    //  ATTENTION : le mot de passe stocké en BDD est un hash, pas le mot de passe brut.
-    //  On utilise password_verify() pour comparer proprement.
-    // ============================================================================
 
     // On sélectionne le mot de passe hashé du compte correspondant à l'email
     $stmt = $bdd->prepare("SELECT Mdp FROM compte WHERE email = ?");
