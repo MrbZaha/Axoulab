@@ -439,6 +439,7 @@ $heures = range(8, 19);
                                     else: 
                                     ?>
                                         <form method="post" style="margin:0;height:100%;">
+                                            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                                             <input type="hidden" name="id_projet" value="<?= $id_projet ?>">
                                             <input type="hidden" name="nom_experience" value="<?= htmlspecialchars($nom_experience) ?>">
                                             <input type="hidden" name="description" value="<?= htmlspecialchars($description) ?>">

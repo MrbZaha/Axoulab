@@ -307,6 +307,7 @@ function afficher_experience(int $id_experience, array $experience, array $exper
     $canModifyExperience = false;
     $canModifyResults = false;
 
+<<<<<<< HEAD
     if (isset($_SESSION['ID_compte']) && isset($id_experience)) {
         $acces = verifier_acces_experience($bdd, $_SESSION['ID_compte'], $id_experience);
         $canModifyExperience = ($acces === 'modification');
@@ -318,6 +319,30 @@ function afficher_experience(int $id_experience, array $experience, array $exper
         <div class="actions-experience">
             <?php if ($canModifyExperience): ?> 
                 <form action="page_supprimer_experience.php" method="post" onsubmit="return confirm('Voulez-vous vraiment supprimer cette expérience ?');">
+=======
+if (isset($_SESSION['ID_compte'])) {
+    $acces = verifier_acces_experience($bdd, $_SESSION['ID_compte'], $id_experience);
+    $canModifyExperience = ($acces === 'modification');
+    $canModifyResults = ($acces === 'modification');
+}
+
+?>
+
+<?php 
+if ($canModifyExperience || $canModifyResults): ?>
+    <div class="actions-experience">
+        <?php if ($canModifyExperience): ?> 
+            <form action="page_supprimer_experience.php" method="post" onsubmit="return confirm('Voulez-vous vraiment supprimer cette expérience ?');">
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+            <input type="hidden" name="id_experience" value="<?= $id_experience ?>">
+                <input type="submit" value="Supprimer l'expérience" />
+            </form>
+        <?php endif; ?>
+
+        <div class="actions-experience-wrapper">
+        <?php if ($canModifyExperience): ?>
+            <form action="page_modification_experience.php?id_experience=<?= $experience['ID_experience'] ?>" method="post">
+>>>>>>> 59f491660c608545c8797217e0f0437dd14160ca
                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <input type="hidden" name="id_experience" value="<?= $id_experience ?>">
                     <input type="submit" value="Supprimer l'expérience" />

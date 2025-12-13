@@ -2,115 +2,148 @@
 -- (Comptes, salles/matériel, projets, associations, expériences)
 
 START TRANSACTION;
+-- ========================================
+-- INSERTION DES COMPTES (60 personnes)
+-- ========================================
+-- Etat: 1=étudiant, 2=professeur/chercheur, 3=ADMIN
+-- Validation: 1=Validé, 0=Non validé
 
--- 1) Comptes (ID_compte explicites pour associations faciles)
-INSERT INTO compte (ID_compte, Nom, Prenom, Date_de_naissance, Email, Mdp, Etat, validation) VALUES
-(1, 'Admin', 'Principal', '1980-01-01', 'admin1@axoulab.fr', 'password', 3, 1),
-(2, 'Dupont', 'Alice', '1996-03-12', 'alice.dupont@axoulab.fr', 'password', 1, 1),
-(3, 'Martin', 'Bob', '1990-07-08', 'bob.martin@axoulab.fr', 'password', 2, 1),
-(4, 'Bernard', 'Claire', '1988-11-02', 'claire.bernard@axoulab.fr', 'password', 2, 1),
-(5, 'Leroy', 'David', '1998-05-20', 'david.leroy@axoulab.fr', 'password', 1, 1),
-(6, 'Nguyen', 'Emma', '1995-12-30', 'emma.nguyen@axoulab.fr', 'password', 1, 1),
-(7, 'Rossi', 'Francesco', '1985-04-11', 'francesco.rossi@axoulab.fr', 'password', 2, 1),
-(8, 'Gonzalez', 'Hugo', '1993-09-17', 'hugo.gonzalez@axoulab.fr', 'password', 1, 1),
-(9, 'Khan', 'Iman', '1992-02-26', 'iman.khan@axoulab.fr', 'password', 2, 1),
-(10,'Moreau', 'Julie', '1997-06-06', 'julie.moreau@axoulab.fr', 'password', 1, 1),
+INSERT INTO compte (Nom, Prenom, Date_de_naissance, Email, Mdp, Etat, validation) VALUES
+('Dubois', 'Marie', '1988-03-15', 'marie.dubois@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Martin', 'Pierre', '1992-07-22', 'pierre.martin@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Bernard', 'Sophie', '1985-11-08', 'sophie.bernard@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Petit', 'Lucas', '1990-05-12', 'lucas.petit@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Robert', 'Emma', '1987-09-30', 'emma.robert@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Richard', 'Thomas', '1995-01-18', 'thomas.richard@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Durand', 'Léa', '1989-12-25', 'lea.durand@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Leroy', 'Hugo', '1993-04-07', 'hugo.leroy@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Moreau', 'Chloé', '1986-08-14', 'chloe.moreau@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Simon', 'Alexandre', '1991-06-19', 'alexandre.simon@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Laurent', 'Camille', '1994-02-28', 'camille.laurent@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Lefebvre', 'Nathan', '1988-10-03', 'nathan.lefebvre@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Michel', 'Julie', '1990-07-16', 'julie.michel@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Garcia', 'Antoine', '1987-03-22', 'antoine.garcia@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('David', 'Manon', '1992-11-09', 'manon.david@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Bertrand', 'Maxime', '1989-05-27', 'maxime.bertrand@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Roux', 'Laura', '1991-09-14', 'laura.roux@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Vincent', 'Nicolas', '1986-12-01', 'nicolas.vincent@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Fournier', 'Sarah', '1993-08-20', 'sarah.fournier@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Girard', 'Julien', '1990-04-11', 'julien.girard@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 3, 1),
+('Bonnet', 'Océane', '1994-06-15', 'oceane.bonnet@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Lambert', 'Mathis', '1988-09-23', 'mathis.lambert@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Fontaine', 'Inès', '1991-02-11', 'ines.fontaine@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Rousseau', 'Théo', '1987-12-30', 'theo.rousseau@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Blanc', 'Clara', '1993-05-08', 'clara.blanc@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Guerin', 'Louis', '1989-11-17', 'louis.guerin@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Muller', 'Jade', '1995-03-25', 'jade.muller@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Henry', 'Adam', '1986-07-14', 'adam.henry@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Faure', 'Lola', '1992-10-05', 'lola.faure@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Giraud', 'Gabriel', '1990-01-20', 'gabriel.giraud@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Andre', 'Zoé', '1994-08-28', 'zoe.andre@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Mercier', 'Tom', '1988-04-12', 'tom.mercier@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Blanchard', 'Alice', '1991-12-19', 'alice.blanchard@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Robin', 'Arthur', '1987-06-07', 'arthur.robin@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Perrin', 'Rose', '1993-09-16', 'rose.perrin@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Clement', 'Raphaël', '1989-02-24', 'raphael.clement@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Gauthier', 'Margaux', '1995-11-03', 'margaux.gauthier@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Lemoine', 'Victor', '1986-05-29', 'victor.lemoine@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Masson', 'Lily', '1992-03-18', 'lily.masson@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Barbier', 'Paul', '1990-08-09', 'paul.barbier@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 3, 1),
+('Renard', 'Eva', '1994-01-14', 'eva.renard@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Olivier', 'Noah', '1988-11-27', 'noah.olivier@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Chevalier', 'Anna', '1991-05-03', 'anna.chevalier@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Marchand', 'Luc', '1987-09-18', 'luc.marchand@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Dupont', 'Mia', '1993-12-22', 'mia.dupont@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Roche', 'Ethan', '1989-07-08', 'ethan.roche@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Rey', 'Charlotte', '1995-04-16', 'charlotte.rey@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Colin', 'Maxence', '1986-10-31', 'maxence.colin@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Vidal', 'Lina', '1992-02-07', 'lina.vidal@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Arnaud', 'Dylan', '1988-08-25', 'dylan.arnaud@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Legrand', 'Elise', '1994-11-11', 'elise.legrand@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Aubert', 'Théo', '1990-06-19', 'theo.aubert@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Caron', 'Léna', '1987-01-28', 'lena.caron@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Picard', 'Hugo', '1993-03-04', 'hugo.picard@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Girard', 'Sofia', '1991-10-12', 'sofia.girard@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Roger', 'Mathéo', '1989-05-21', 'matheo.roger@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1),
+('Moulin', 'Léonie', '1995-12-30', 'leonie.moulin@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Dumas', 'Nathan', '1986-08-15', 'nathan.dumas@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 3, 1),
+('Lefebvre', 'Juliette', '1992-04-23', 'juliette.lefebvre@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 1, 1),
+('Blanchard', 'Antoine', '1988-09-06', 'antoine.blanchard@axoulab.fr', '$2y$10$qfCTiM6N9cDeq8/FpEcMteWA5YfkmFZBUMurOxf7F5xSXXBbidRW.', 2, 1);
 
--- quelques comptes en attente de validation (validation = 0)
-(11,'Petit','Karim','1999-08-12','karim.petit@axoulab.fr','password',1,0),
-(12,'Dubois','Laura','2000-10-02','laura.dubois@axoulab.fr','password',1,0),
-(13,'Fischer','Mark','1991-03-03','mark.fischer@axoulab.fr','password',2,0),
 
--- un second admin optionnel
-(14,'Admin','Secondaire','1979-02-14','admin2@axoulab.fr','password',3,1),
+-- ========================================
+-- INSERTION DES SALLES ET MATÉRIEL (5 salles, 5 matériels par salle)
+-- ========================================
+INSERT INTO salle_materiel (Nom_Salle, Materiel) VALUES
+-- Salle A101 - Chimie
+('A101', 'Microscope optique'),
+('A101', 'Bécher 500ml'),
+('A101', 'Pipette automatique'),
+('A101', 'Centrifugeuse'),
+('A101', 'Balance de précision'),
 
--- autres utilisateurs pour peupler projets/expériences
-(15,'Gautier','Nina','1994-01-21','nina.gautier@axoulab.fr','password',1,1),
-(16,'Lam','Oscar','1987-12-05','oscar.lam@axoulab.fr','password',2,1),
-(17,'Ibrahim','Pasha','1984-07-30','pasha.ibrahim@axoulab.fr','password',2,1),
-(18,'Silva','Rosa','1996-04-04','rosa.silva@axoulab.fr','password',1,1),
-(19,'Sato','Takumi','1993-11-11','takumi.sato@axoulab.fr','password',2,1),
-(20,'Olsen','Ulla','1990-09-09','ulla.olsen@axoulab.fr','password',1,1),
-(21,'Vega','Luis','1995-08-08','luis.vega@axoulab.fr','password',1,1),
-(22,'Becker','Mia','1998-05-30','mia.becker@axoulab.fr','password',1,1),
-(23,'Kowalski','Jan','1986-02-02','jan.kowalski@axoulab.fr','password',2,1),
-(24,'Ivanov','Olga','1989-06-16','olga.ivanov@axoulab.fr','password',2,1),
-(25,'Singh','Raj','1992-12-12','raj.singh@axoulab.fr','password',2,1),
-(26,'Brown','Zoe','1997-07-07','zoe.brown@axoulab.fr','password',1,1),
-(27,'Ng','Wei','1991-10-10','wei.ng@axoulab.fr','password',2,1),
-(28,'Chen','Ying','1994-03-03','ying.chen@axoulab.fr','password',1,1),
-(29,'Martinez','Carlos','1990-01-01','carlos.martinez@axoulab.fr','password',2,1),
-(30,'Lopez','Ana','1996-09-09','ana.lopez@axoulab.fr','password',1,1);
+-- Salle A102 - Biologie
+('A102', 'Microscope électronique'),
+('A102', 'Incubateur'),
+('A102', 'Autoclave'),
+('A102', 'Hotte flux laminaire'),
+('A102', 'Congélateur -80°C'),
 
--- 2) Salles et matériel
--- On crée plusieurs salles, chacune avec plusieurs matériels
-INSERT INTO salle_materiel (ID_materiel, Nom_Salle, Materiel) VALUES
-(1,'Salle A','Microscope A1'),
-(2,'Salle A','Centrifugeuse A2'),
-(3,'Salle A','Pipettes A pack'),
-(4,'Salle B','Oscilloscope B1'),
-(5,'Salle B','Générateur B2'),
-(6,'Salle B','Station PC B'),
-(7,'Salle C','Chambre froide C1'),
-(8,'Salle C','Agitateur C2'),
-(9,'Salle C','Hotplate C3'),
-(10,'Salle D','Spectromètre D1'),
-(11,'Salle D','Balance D2'),
-(12,'Salle E','Caméra E1'),
-(13,'Salle E','Projecteur E2'),
-(14,'Salle F','Imprimante 3D F1'),
-(15,'Salle F','Station de soudure F2'),
-(16,'Salle G','Analyseur G1'),
-(17,'Salle G','Pompe G2'),
-(18,'Salle H','Laser H1'),
-(19,'Salle H','Optique H2'),
-(20,'Salle I','Réseau I1'),
-(21,'Salle I','Switch I2'),
-(22,'Salle J','Table vibrante J1'),
-(23,'Salle J','Enceinte J2');
+-- Salle B201 - Physique
+('B201', 'Oscilloscope'),
+('B201', 'Générateur signaux'),
+('B201', 'Multimètre'),
+('B201', 'Alimentation stabilisée'),
+('B201', 'Spectromètre'),
 
--- 3) Projets (40 projets)
-INSERT INTO projet (ID_projet, Nom_projet, Description, Confidentiel, Validation, Date_de_creation, Date_de_modification) VALUES
-(1,'Projet Alpha','Description du projet Alpha',0,1,DATE_SUB(CURDATE(), INTERVAL 400 DAY), DATE_SUB(CURDATE(), INTERVAL 200 DAY)),
-(2,'Projet Beta','Description du projet Beta',0,1,DATE_SUB(CURDATE(), INTERVAL 380 DAY), DATE_SUB(CURDATE(), INTERVAL 120 DAY)),
-(3,'Projet Gamma','Description du projet Gamma',1,1,DATE_SUB(CURDATE(), INTERVAL 360 DAY), DATE_SUB(CURDATE(), INTERVAL 100 DAY)),
-(4,'Projet Delta','Description du projet Delta',0,1,DATE_SUB(CURDATE(), INTERVAL 350 DAY), DATE_SUB(CURDATE(), INTERVAL 90 DAY)),
-(5,'Projet Epsilon','Description du projet Epsilon',0,0,DATE_SUB(CURDATE(), INTERVAL 340 DAY), DATE_SUB(CURDATE(), INTERVAL 80 DAY)),
-(6,'Projet Zeta','Description du projet Zeta',1,1,DATE_SUB(CURDATE(), INTERVAL 330 DAY), DATE_SUB(CURDATE(), INTERVAL 70 DAY)),
-(7,'Projet Eta','Description du projet Eta',0,1,DATE_SUB(CURDATE(), INTERVAL 320 DAY), DATE_SUB(CURDATE(), INTERVAL 60 DAY)),
-(8,'Projet Theta','Description du projet Theta',0,1,DATE_SUB(CURDATE(), INTERVAL 310 DAY), DATE_SUB(CURDATE(), INTERVAL 50 DAY)),
-(9,'Projet Iota','Description du projet Iota',0,1,DATE_SUB(CURDATE(), INTERVAL 300 DAY), DATE_SUB(CURDATE(), INTERVAL 40 DAY)),
-(10,'Projet Kappa','Description du projet Kappa',0,1,DATE_SUB(CURDATE(), INTERVAL 290 DAY), DATE_SUB(CURDATE(), INTERVAL 30 DAY)),
-(11,'Projet Lambda','Description du projet Lambda',0,1,DATE_SUB(CURDATE(), INTERVAL 280 DAY), DATE_SUB(CURDATE(), INTERVAL 25 DAY)),
-(12,'Projet Mu','Description du projet Mu',0,1,DATE_SUB(CURDATE(), INTERVAL 270 DAY), DATE_SUB(CURDATE(), INTERVAL 20 DAY)),
-(13,'Projet Nu','Description du projet Nu',0,0,DATE_SUB(CURDATE(), INTERVAL 260 DAY), DATE_SUB(CURDATE(), INTERVAL 15 DAY)),
-(14,'Projet Xi','Description du projet Xi',0,1,DATE_SUB(CURDATE(), INTERVAL 250 DAY), DATE_SUB(CURDATE(), INTERVAL 12 DAY)),
-(15,'Projet Omicron','Description du projet Omicron',0,1,DATE_SUB(CURDATE(), INTERVAL 240 DAY), DATE_SUB(CURDATE(), INTERVAL 10 DAY)),
-(16,'Projet Pi','Description du projet Pi',0,1,DATE_SUB(CURDATE(), INTERVAL 230 DAY), DATE_SUB(CURDATE(), INTERVAL 9 DAY)),
-(17,'Projet Rho','Description du projet Rho',0,1,DATE_SUB(CURDATE(), INTERVAL 220 DAY), DATE_SUB(CURDATE(), INTERVAL 8 DAY)),
-(18,'Projet Sigma','Description du projet Sigma',0,1,DATE_SUB(CURDATE(), INTERVAL 210 DAY), DATE_SUB(CURDATE(), INTERVAL 7 DAY)),
-(19,'Projet Tau','Description du projet Tau',0,1,DATE_SUB(CURDATE(), INTERVAL 200 DAY), DATE_SUB(CURDATE(), INTERVAL 6 DAY)),
-(20,'Projet Upsilon','Description du projet Upsilon',1,1,DATE_SUB(CURDATE(), INTERVAL 190 DAY), DATE_SUB(CURDATE(), INTERVAL 5 DAY)),
-(21,'Projet Phi','Description du projet Phi',0,1,DATE_SUB(CURDATE(), INTERVAL 180 DAY), DATE_SUB(CURDATE(), INTERVAL 4 DAY)),
-(22,'Projet Chi','Description du projet Chi',0,1,DATE_SUB(CURDATE(), INTERVAL 170 DAY), DATE_SUB(CURDATE(), INTERVAL 3 DAY)),
-(23,'Projet Psi','Description du projet Psi',0,1,DATE_SUB(CURDATE(), INTERVAL 160 DAY), DATE_SUB(CURDATE(), INTERVAL 2 DAY)),
-(24,'Projet Omega','Description du projet Omega',0,1,DATE_SUB(CURDATE(), INTERVAL 150 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
-(25,'Projet A1','Description du projet A1',0,1,DATE_SUB(CURDATE(), INTERVAL 140 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
-(26,'Projet B2','Description du projet B2',0,1,DATE_SUB(CURDATE(), INTERVAL 130 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
-(27,'Projet C3','Description du projet C3',0,1,DATE_SUB(CURDATE(), INTERVAL 120 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
-(28,'Projet D4','Description du projet D4',0,1,DATE_SUB(CURDATE(), INTERVAL 110 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
-(29,'Projet E5','Description du projet E5',0,1,DATE_SUB(CURDATE(), INTERVAL 100 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
-(30,'Projet F6','Description du projet F6',0,1,DATE_SUB(CURDATE(), INTERVAL 90 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
-(31,'Projet G7','Description du projet G7',0,1,DATE_SUB(CURDATE(), INTERVAL 80 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
-(32,'Projet H8','Description du projet H8',0,1,DATE_SUB(CURDATE(), INTERVAL 70 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
-(33,'Projet I9','Description du projet I9',0,1,DATE_SUB(CURDATE(), INTERVAL 60 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
-(34,'Projet J10','Description du projet J10',0,0,DATE_SUB(CURDATE(), INTERVAL 50 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
-(35,'Projet K11','Description du projet K11',0,1,DATE_SUB(CURDATE(), INTERVAL 40 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
-(36,'Projet L12','Description du projet L12',0,1,DATE_SUB(CURDATE(), INTERVAL 30 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
-(37,'Projet M13','Description du projet M13',0,1,DATE_SUB(CURDATE(), INTERVAL 20 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
-(38,'Projet N14','Description du projet N14',0,1,DATE_SUB(CURDATE(), INTERVAL 10 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
-(39,'Projet O15','Description du projet O15',0,1,DATE_SUB(CURDATE(), INTERVAL 5 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY)),
-(40,'Projet P16','Description du projet P16',0,1,DATE_SUB(CURDATE(), INTERVAL 2 DAY), DATE_SUB(CURDATE(), INTERVAL 1 DAY));
+-- Salle B202 - Électronique
+('B202', 'Station soudage'),
+('B202', 'Analyseur spectre'),
+('B202', 'Fer à souder'),
+('B202', 'Plaque prototypage'),
+('B202', 'Imprimante 3D'),
+
+-- Salle C301 - Informatique
+('C301', 'Serveur HPC'),
+('C301', 'Station GPU'),
+('C301', 'Oscilloscope numérique'),
+('C301', 'Analyseur logique'),
+('C301', 'Switch réseau');
+
+-- ========================================
+-- INSERTION DES PROJETS (30 projets)
+-- ========================================
+INSERT INTO projet (Nom_projet, Description, Confidentiel, Validation, Date_de_creation, Date_de_modification) VALUES
+('Nanotechnologie Médicale', 'Développement de nanoparticules pour le traitement ciblé du cancer. Collaboration avec le CHU local.', 1, 1, '2024-01-15', '2024-11-20'),
+('Intelligence Artificielle Prédictive', 'Système de prédiction basé sur le machine learning pour l''analyse de données climatiques.', 0, 1, '2024-02-01', '2024-11-15'),
+('Bioplastiques Innovants', 'Recherche sur des polymères biodégradables à partir de déchets agricoles.', 0, 1, '2024-01-20', '2024-10-30'),
+('Optique Quantique', 'Étude des propriétés quantiques de la lumière pour des applications en cryptographie.', 1, 1, '2024-03-10', '2024-11-18'),
+('Robotique Collaborative', 'Développement de robots collaboratifs pour l''assistance aux personnes âgées.', 0, 1, '2024-02-15', '2024-11-10'),
+('Énergie Solaire 3G', 'Amélioration du rendement des cellules photovoltaïques par nanostructuration.', 0, 1, '2024-01-05', '2024-11-22'),
+('Neurosciences Cognitives', 'Étude des mécanismes cérébraux de la mémoire par imagerie fonctionnelle.', 1, 1, '2024-03-01', '2024-11-12'),
+('Matériaux Supraconducteurs', 'Recherche de nouveaux composés supraconducteurs à haute température critique.', 1, 1, '2024-02-20', '2024-11-08'),
+('Microbiome Intestinal', 'Analyse de l''impact du microbiome sur les maladies inflammatoires chroniques.', 0, 1, '2024-01-25', '2024-11-05'),
+('Systèmes Embarqués IoT', 'Conception de capteurs ultra-basse consommation pour l''Internet des Objets.', 0, 1, '2024-03-15', '2024-11-20'),
+('Biotechnologie Marine', 'Extraction de molécules bioactives à partir de micro-algues pour applications pharmaceutiques.', 0, 1, '2024-04-05', '2024-11-25'),
+('Impression 3D Médicale', 'Développement de prothèses personnalisées par fabrication additive métallique.', 1, 1, '2024-04-10', '2024-11-18'),
+('Capteurs Environnementaux', 'Réseau de capteurs pour la surveillance de la qualité de l''air en milieu urbain.', 0, 1, '2024-03-20', '2024-11-14'),
+('Batteries Lithium-Soufre', 'Développement de batteries nouvelle génération avec densité énergétique améliorée.', 1, 1, '2024-02-28', '2024-11-10'),
+('Génomique Végétale', 'Séquençage et annotation du génome de plantes d''intérêt agronomique.', 0, 1, '2024-04-15', '2024-11-22'),
+('Holographie Numérique', 'Systèmes d''affichage holographique pour applications médicales et industrielles.', 1, 1, '2024-03-25', '2024-11-16'),
+('Purification de l''Eau', 'Membranes nanostructurées pour la désalinisation et la purification de l''eau.', 0, 1, '2024-04-20', '2024-11-19'),
+('Catalyse Enzymatique', 'Développement d''enzymes modifiées pour la synthèse chimique verte.', 0, 1, '2024-02-10', '2024-11-08'),
+('Véhicules Autonomes', 'Algorithmes de perception et de décision pour la conduite autonome en milieu urbain.', 1, 1, '2024-03-30', '2024-11-21'),
+('Textiles Intelligents', 'Intégration de capteurs et d''électronique dans les fibres textiles.', 0, 1, '2024-04-25', '2024-11-17'),
+('Fusion Nucléaire', 'Étude de plasmas confinés magnétiquement pour la fusion contrôlée.', 1, 1, '2024-01-30', '2024-11-13'),
+('Biodiversité Urbaine', 'Analyse de la biodiversité en milieu urbain et stratégies de préservation.', 0, 1, '2024-05-01', '2024-11-23'),
+('Cryptographie Post-Quantique', 'Développement d''algorithmes de chiffrement résistants aux ordinateurs quantiques.', 1, 1, '2024-03-05', '2024-11-09'),
+('Agriculture de Précision', 'Optimisation des rendements agricoles par analyse de données satellite et drones.', 0, 1, '2024-05-05', '2024-11-24'),
+('Immunothérapie Ciblée', 'Développement de thérapies cellulaires CAR-T pour le traitement des cancers.', 1, 1, '2024-02-05', '2024-11-11'),
+('Réseaux Neuronaux Optiques', 'Circuits photoniques pour l''accélération de calculs d''intelligence artificielle.', 1, 1, '2024-04-30', '2024-11-20'),
+('Cosmétiques Naturels', 'Formulation de produits cosmétiques à partir d''extraits végétaux locaux.', 0, 1, '2024-05-10', '2024-11-26'),
+('Acoustique Architecturale', 'Optimisation acoustique des espaces publics par modélisation numérique.', 0, 1, '2024-03-12', '2024-11-15'),
+('Biocapteurs Médicaux', 'Développement de capteurs implantables pour le monitoring continu de biomarqueurs.', 1, 1, '2024-05-15', '2024-11-27'),
+('Recyclage Plastiques', 'Procédés innovants de valorisation chimique des déchets plastiques.', 0, 1, '2024-04-08', '2024-11-12');
 
 -- 4) Associer pour chaque projet 1 gestionnaire et 0..3 collaborateurs
 -- Gestionnaire: on cycle sur comptes 2..10

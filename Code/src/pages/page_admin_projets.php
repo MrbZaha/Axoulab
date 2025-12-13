@@ -79,6 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         unset($_SESSION['popup_message']); // Pour ne pas l’afficher à chaque reload
     }
     ?>
+    
     <!-- import du header de la page -->
     <?php
     afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);

@@ -54,7 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $id_experience = (int)$_POST['id_experience'];
 
         supprimer_experience($bdd, $id_experience);
-        
+
+        $_SESSION['popup_message'] = afficher_popup("Suppression réussie", "L'expérience a été supprimée avec succès.", "success","page_admin_experiences");
         // Redirection propre (PRG pattern)
         header("Location: page_admin_experiences.php?suppression=ok");
         exit;
@@ -73,6 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         <link rel="stylesheet" href="../css/Bandeau_haut.css">
         <link rel="stylesheet" href="../css/Bandeau_bas.css">
         <link rel="stylesheet" href="../css/boutons.css">
+        <link rel="stylesheet" href="../css/popup.css">
+
 
         <!-- Permet d'afficher la loupe pour le bandeau de recherche -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -80,6 +83,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
     </head>
     <body>
+
+    <?php 
+    if (isset($_SESSION['popup_message'])) {
+        echo $_SESSION['popup_message'];
+        unset($_SESSION['popup_message']); // Pour ne pas l’afficher à chaque reload
+    }
+    ?>
 
     <!-- import du header de la page -->
     <?php

@@ -45,11 +45,14 @@ if ($page > $total_pages) $page = $total_pages;
 ///////////////////////////////////////////////////////////////////////////////
 // Gestion des actions POST (CSRF check)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    check_csrf();
 
+    check_csrf();
+    echo ("1");
+    echo gettype($_POST['id']);
     // Supprimer un matériel
     if (isset($_POST['action']) && $_POST['action'] === 'supprimer' && isset($_POST['id'])) {
         $id_materiel = intval($_POST['id']);
+        echo gettype($id_materiel);
         supprimer_materiel($bdd, $id_materiel);
         header("Location: page_admin_materiel_salle.php?suppression=ok");
         exit;
