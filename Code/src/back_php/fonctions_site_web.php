@@ -817,16 +817,12 @@ function get_mes_experiences_complets(PDO $bdd, ?int $id_compte = null): array {
             GROUP_CONCAT(DISTINCT p.Nom_projet SEPARATOR ', ') AS Nom_projet,
             GROUP_CONCAT(DISTINCT p.ID_projet SEPARATOR ',') AS ID_projet
         FROM experience e
-        LEFT JOIN projet_experience pe
-            ON pe.ID_experience = e.ID_experience
-        LEFT JOIN projet p
-            ON p.ID_projet = pe.ID_projet
-        LEFT JOIN materiel_experience se
-            ON e.ID_experience = se.ID_experience
-        LEFT JOIN salle_materiel s
-            ON se.ID_materiel = s.ID_materiel
-        LEFT JOIN experience_experimentateur ee
-            ON e.ID_experience = ee.ID_experience
+        LEFT JOIN projet_experience pe ON pe.ID_experience = e.ID_experience
+        LEFT JOIN projet p ON p.ID_projet = pe.ID_projet
+        LEFT JOIN materiel_experience se ON e.ID_experience = se.ID_experience
+        LEFT JOIN salle_materiel s ON se.ID_materiel = s.ID_materiel
+        INNER JOIN experience_experimentateur ee ON e.ID_experience = ee.ID_experience AND ee.ID_compte = :id_compte
+
     ";
 
     if ($id_compte !== null) {
