@@ -1946,4 +1946,44 @@ function est_gestionnaire(PDO $bdd, int $id_compte, int $id_projet): bool {
     return $stmt->fetch() !== false;
 }
 
+// ======================= CSRF =======================
+
+/**
+ * Génère ou récupère un token CSRF unique pour la session.
+ *
+ * Fonctionnement :
+ *  - Vérifie si un token CSRF est déjà stocké dans la session.
+ *  - Si aucun token n'existe, en crée un nouveau via `random_bytes` et le stocke.
+ *  - Retourne le token actuel pour l'inclure dans les formulaires.
+ *
+ * @return string Token CSRF de 64 caractères hexadécimaux
+ */
+function csrf_token() {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Vérifie la validité d'un token CSRF envoyé via POST.
+ *
+ * Fonctionnement :
+ *  - Vérifie que le token CSRF est présent dans $_POST et dans la session.
+ *  - Compare les deux tokens avec `hash_equals` pour éviter les attaques par timing.
+ *  - Si la vérification échoue, renvoie une erreur 403 et stoppe l'exécution.
+ *
+ * @throws 403 si le token CSRF est absent ou invalide
+ */
+function check_csrf() {
+    if (
+        !isset($_POST['csrf_token']) ||
+        !isset($_SESSION['csrf_token']) ||
+        !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
+    ) {
+        http_response_code(403);
+        die("Action non autorisée (CSRF détecté)");
+    }
+}
+
 ?>
