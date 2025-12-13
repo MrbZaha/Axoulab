@@ -12,7 +12,7 @@ $page_admin = true;  // On déclare qu'on est sur une page admin pour les foncti
 verification_connexion($bdd);
 
 // On vérifie si l'utilisateur a les droits pour accéder à cette page
-if (est_admin($bdd, $_SESSION["email"])){
+if (est_admin_par_id($bdd, $_SESSION["ID_compte"])){
     // Le code peut poursuivre
 } else {
     // On change le layout de la page et on invite l'utilisateur à revenir sur la page précédente

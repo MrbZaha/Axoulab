@@ -2,6 +2,10 @@
 require_once __DIR__ . '/../back_php/fonctions_site_web.php';
 require_once __DIR__ . '/../back_php/fonction_page/fonction_page_creation_experience_2.php';
 
+$bdd = connectBDD();
+// On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
+verification_connexion($bdd);
+
 $message = "";
 $nom_experience = "";
 $description = "";
@@ -9,6 +13,18 @@ $experimentateurs_ids = [];
 $materiels_selectionnes = [];
 $id_projet = null;
 $creneau_selectionne = null;
+
+if (isset($_SESSION['creation_experience'])) {
+    $data = $_SESSION['creation_experience'];
+
+    $id_projet = $data['id_projet'];
+    $nom_experience = $data['nom_experience'];
+    $description = $data['description'];
+    $experimentateurs_ids = $data['experimentateurs_ids'];
+
+    // Optionnel : nettoyage
+    unset($_SESSION['creation_experience']);
+}
 
 // Récupération de l'ID du projet depuis POST OU GET
 if (isset($_POST['id_projet']) && !empty($_POST['id_projet'])) {
@@ -131,6 +147,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 try {
                     $date_creation = (new DateTime())->format('Y-m-d');
+
+                    // Récupérer l'info de si le compte est gestionnaire
+                    if (est_gestionnaire($bdd, $_SESSION["ID_compte"], $id_projet)) {
+                        $validation = 1;
+                    }
+                    else {
+                        $validation = 0;
+                    }
                     
                     // Créer l'expérience
                     $id_experience = creer_experience($bdd, $validation, $nom_experience, $description, $date_reservation, $date_creation, $heure_debut, $heure_fin, $nom_salle);
@@ -276,7 +300,6 @@ $heures = range(8, 19);
             <p><strong>Projet :</strong> <?= htmlspecialchars($nom_projet) ?></p>
         </div>
 
-        <!-- Sélection de salle -->
         <!-- Sélection de salle -->
 <form method="get" action="" class="form-row">
     <input type="hidden" name="id_projet" value="<?= $id_projet ?>">

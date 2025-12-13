@@ -1,11 +1,10 @@
 <?php
-session_start();
-
 // Inclusion du fichier de fonctions
 include_once '../back_php/fonctions_site_web.php';
 
 // Connexion à la base
 $bdd = connectBDD();
+
 
 $message = "";
 $type_message = "";

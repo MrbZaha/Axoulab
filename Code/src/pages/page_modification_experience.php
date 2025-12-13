@@ -14,8 +14,6 @@ $id_experience = isset($_GET['id_experience']) ? (int)$_GET['id_experience'] : 0
 $erreur = null;
 $success = null;
 
-
-
 $id_projet = get_projet_from_experience($bdd, $id_experience);
 $experimentateurs_selectionnes = [];
 $materiels_selectionnes = [];
@@ -24,17 +22,11 @@ $nom_salle_selectionnee = '';
 if ($id_experience === 0) {
     $erreur = "ID d'expérience manquant.";
 } else {
-    // Autoriser si gestionnaire du projet OU administrateur global
-    $isGestionnaire = $id_projet ? est_gestionnaire($bdd, $id_compte, $id_projet) : false;
-    $isAdmin = est_admin_par_id($bdd, $id_compte);
-    if (!($isGestionnaire || $isAdmin)) {
-        $erreur = "Vous n'avez pas les droits pour modifier cette expérience";
-    } else {
-        $experimentateurs_selectionnes = get_experimentateurs_ids($bdd, $id_experience);
-        $materiels_selectionnes = get_materiels_experience($bdd, $id_experience);
-        $nom_salle_selectionnee = get_salle_from_experience($bdd, $id_experience);
+    $experimentateurs_selectionnes = get_experimentateurs_ids($bdd, $id_experience);
+    $materiels_selectionnes = get_materiels_experience($bdd, $id_experience);
+    $nom_salle_selectionnee = get_salle_from_experience($bdd, $id_experience);
     }
-}
+
     $experimentateurs_selectionnes = get_experimentateurs_ids($bdd, $id_experience);
     $materiels_selectionnes = get_materiels_experience($bdd, $id_experience);
     $nom_salle_selectionnee = get_salle_from_experience($bdd, $id_experience);
@@ -396,7 +388,7 @@ if (!empty($materiels_selectionnes)) {
                     <div style="margin-bottom:8px;">
                         <strong>Matériels sélectionnés :</strong>
                         <?php foreach ($selected_materiels_names as $m): ?>
-                            <span class="tag-materiel" style="margin-left:8px; display:inline-block; padding:4px 8px; border-radius:6px; background:#f0f4f8;"><?= htmlspecialchars($m) ?></span>
+                            <span class="tag-materiel" style="margin-left:8px; display:inline-block; padding:4px 8px; border-radius:6px; background:#f093fb;"><?= htmlspecialchars($m) ?></span>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>

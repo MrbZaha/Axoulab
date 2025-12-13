@@ -17,31 +17,6 @@ $erreur = null;
 $success = null;
 
 /**
- * Vérifie si un compte est gestionnaire d’un projet.
- *
- * Effectue la vérification suivante :
- *  - Recherche dans la table projet_collaborateur_gestionnaire si l'utilisateur
- *    possède le statut 1 (gestionnaire) pour le projet donné.
- *
- * Retourne :
- *   - true  : si l'utilisateur est gestionnaire
- *   - false : sinon
- *
- * @param PDO $bdd Connexion PDO à la base de données
- * @param int $id_compte ID du compte à vérifier
- * @param int $id_projet ID du projet concerné
- * @return bool
- */
-
-function est_gestionnaire(PDO $bdd, int $id_compte, int $id_projet): bool {
-    $sql = "SELECT Statut FROM projet_collaborateur_gestionnaire 
-            WHERE ID_projet = :id_projet AND ID_compte = :id_compte AND Statut = 1";
-    $stmt = $bdd->prepare($sql);
-    $stmt->execute(['id_projet' => $id_projet, 'id_compte' => $id_compte]);
-    return $stmt->fetch() !== false;
-}
-
-/**
  * Récupère les informations essentielles d’un projet pour une modification.
  *
  * Données récupérées :

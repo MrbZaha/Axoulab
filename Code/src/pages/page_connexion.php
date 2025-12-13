@@ -14,7 +14,7 @@ $erreur = "";
 
 // PARAMÈTRES DE SÉCURITÉ : LIMITE DE TENTATIVES 
 $tentatives_max = 5;       // Nombre maximum de tentatives autorisées
-$delai_blocage = 60;        // Durée du blocage en secondes
+$delai_blocage = 300;        // Durée du blocage en secondes
 
 // Initialiser le compteur de tentatives si nécessaire
 if (!isset($_SESSION['tentatives_connexion'])) {
@@ -35,8 +35,7 @@ if ($_SESSION['tentatives_connexion'] >= $tentatives_max) {
         $temps_restant_secondes = $delai_blocage - $temps_ecoule;
         $temps_restant_minutes = ceil($temps_restant_secondes / 60);
 
-        $erreur = "Trop de tentatives échouées. Votre compte est temporairement bloqué.<br>";
-        $erreur .= "Veuillez réessayer dans <strong>$temps_restant_minutes minute(s)</strong>.";
+        $erreur = afficher_popup("Trop de tentatives échouées.", "Veuillez réessayer dans $temps_restant_minutes minute(s).", "error", "page_connexion");
     } else {
         // Le délai est écoulé, réinitialiser
         $_SESSION['tentatives_connexion'] = 0;
@@ -67,10 +66,8 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
             }
 
             if (est_admin($bdd, $email)) {
-                $_SESSION['est_admin'] = true;
                 header("Location: page_admin.php");
             } else {
-                $_SESSION['est_admin'] = false;
                 header("Location: Main_page_connected.php");
             }
             exit;
@@ -79,16 +76,14 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
             $_SESSION['tentatives_connexion']++;
             $_SESSION['dernier_essai'] = time();
             $tentatives_restantes = $tentatives_max - $_SESSION['tentatives_connexion'];
-            $erreur = "Email ou mot de passe incorrect.<br>";
-            $erreur .= "<small>Il vous reste <strong>$tentatives_restantes tentative(s)</strong>.</small>";
-        }
+            $erreur = afficher_popup("Email ou mot de passe incorrect", "Il vous reste $tentatives_restantes tentative(s).", "error", "page_connexion");
+         }
     } else {
         // Email inexistant
         $_SESSION['tentatives_connexion']++;
         $_SESSION['dernier_essai'] = time();
         $tentatives_restantes = $tentatives_max - $_SESSION['tentatives_connexion'];
-        $erreur = "Email ou mot de passe incorrect.<br>";
-        $erreur .= "<small>Il vous reste <strong>$tentatives_restantes tentative(s)</strong>.</small>";
+        $erreur = afficher_popup("Email ou mot de passe incorrect", "Il vous reste $tentatives_restantes tentative(s).", "error", "page_connexion");
     }
 }
 ?>
@@ -103,16 +98,10 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
     <!--permet d'uniformiser le style sur tous les navigateurs-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <link rel="stylesheet" href="../css/page_connexion.css">
+    <link rel="stylesheet" href="../css/popup.css">
 
 </head>
 <body>
-    <!--affichage du message si le compte est bloqué-->
-    <?php if ($compte_bloque) : ?>
-        <div class='compte-bloque'>;
-        Votre compte est temporairement verrouillé.<br>;
-        Temps restant : <strong><?php echo $temps_restant_minutes; ?> minute(s)</strong>
-        </div>
-        <?php endif; ?>
 
     <form action ="" method="post"> <!-- Envoie vers la page (qui est juste au-dessus) qui permet de récuperer les informations du l'utilisateur-->
 
@@ -124,7 +113,10 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
     
     <!-- affichage du message d'erreur : email ou mdp incorrect et le nombre de tentatives restantes-->
     <?php if (!empty($erreur) && !$compte_bloque): ?>
-        <div class='message-erreur'><?php echo $erreur; ?></div>
+        <?php 
+        // Affiche la popup si elle existe
+        echo $erreur;
+        ?>
     <?php endif; ?>
 
     <div class ="liens">
@@ -136,12 +128,10 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
 </form>
 
  <?php if ($compte_bloque): ?>
-    <script>
-        // Rafraîchir automatiquement la page quand le blocage expire
-        setTimeout(function() {
-            location.reload();
-        }, <?php echo ($temps_restant_minutes * 60 * 1000); ?>);
-    </script>
+        <?php 
+        // Affiche la popup si elle existe
+        echo $erreur;
+        ?>
     <?php endif; ?>
 </body>
 </html> 

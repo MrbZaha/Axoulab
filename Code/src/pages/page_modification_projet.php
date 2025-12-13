@@ -2,6 +2,10 @@
 require_once __DIR__ . '/../back_php/fonctions_site_web.php';
 require_once __DIR__ . '/../back_php/fonction_page/fonction_page_modification_projet.php';
 
+$bdd = connectBDD();
+// On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
+verification_connexion($bdd);
+
 // Variables pour les sélections
 $gestionnaires_selectionnes = [];
 $collaborateurs_selectionnes = [];
