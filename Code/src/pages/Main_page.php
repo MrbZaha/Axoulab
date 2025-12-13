@@ -1,6 +1,12 @@
 <?php
 
+require_once '../back_php/fonctions_site_web.php';
+
 session_start();
+
+if  ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
 
 ?>
 
