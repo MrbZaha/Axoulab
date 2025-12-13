@@ -97,56 +97,36 @@ function get_info_projet(PDO $bdd, int $id_compte, int $id_projet) :array{
 }
 
 /**
- * Récupère les noms et prénoms des gestionnaires du projet
+ * Récupère les noms et prénoms des membres d'un projet selon leur statut
  *
- * @param PDO $bdd : Connexion à la base de données
- * @param int $id_projet : ID_projet
- * @return array : un tableau contenant les Nom et Prénoms des gestionnaires du projet
+ * @param PDO $bdd Connexion à la base de données
+ * @param int $id_projet ID du projet
+ * @param int $statut Statut à filtrer : 1 = gestionnaire, 0 = collaborateur
+ * @return array Tableau contenant les noms complets des membres
  */
-function get_gestionnaires(PDO $bdd, int $id_projet): array {
+function get_membres_projet(PDO $bdd, int $id_projet, int $statut): array {
     $sql = "
-        SELECT c.Nom, c.Prenom
+        SELECT c.Prenom, c.Nom
         FROM projet_collaborateur_gestionnaire pcg
         JOIN compte c ON pcg.ID_compte = c.ID_compte
-        WHERE pcg.ID_projet = :id_projet AND pcg.Statut = 1
+        WHERE pcg.ID_projet = :id_projet AND pcg.Statut = :statut
+        ORDER BY c.Nom, c.Prenom
     ";
     
     $stmt = $bdd->prepare($sql);
-    $stmt->execute(['id_projet' => $id_projet]);
+    $stmt->execute([
+        'id_projet' => $id_projet,
+        'statut' => $statut
+    ]);
     
-    $gestionnaires = [];
+    $membres = [];
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $gestionnaires[] = $row['Prenom'] . ' ' . $row['Nom'];
+        $membres[] = $row['Prenom'] . ' ' . $row['Nom'];
     }
     
-    return $gestionnaires;
+    return $membres;
 }
 
-/**
- * Récupère les noms et prénoms des collaborateurs du projet
- *
- * @param PDO $bdd : Connexion à la base de données
- * @param int $id_projet : ID_projet
- * @return array : un tableau contenant les Nom et Prénoms des collaborateurs du projet
- */
-function get_collaborateurs(PDO $bdd, int $id_projet): array {
-    $sql = "
-        SELECT c.Nom, c.Prenom
-        FROM projet_collaborateur_gestionnaire pcg
-        JOIN compte c ON pcg.ID_compte = c.ID_compte
-        WHERE pcg.ID_projet = :id_projet AND pcg.Statut = 0
-    ";
-    
-    $stmt = $bdd->prepare($sql);
-    $stmt->execute(['id_projet' => $id_projet]);
-    
-    $collaborateurs = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $collaborateurs[] = $row['Prenom'] . ' ' . $row['Nom'];
-    }
-    
-    return $collaborateurs;
-}
 
 /**
  * Récupère les informations des expériences du projet
@@ -225,8 +205,8 @@ function charger_donnees_projet(PDO $bdd, int $id_compte, int $id_projet): array
     return [
         'erreur' => null,
         'projet' => $projet,
-        'gestionnaires' => get_gestionnaires($bdd, $id_projet),
-        'collaborateurs' => get_collaborateurs($bdd, $id_projet),
+        'gestionnaires' => get_membres_projet($bdd, $id_projet, 1),
+        'collaborateurs' => get_membres_projet($bdd, $id_projet, 0),
         'experiences' => get_experiences($bdd, $id_projet)
     ];
 }
