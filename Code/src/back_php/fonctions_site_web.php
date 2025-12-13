@@ -1983,8 +1983,6 @@ function est_gestionnaire(PDO $bdd, int $id_compte, int $id_projet): bool{
     return $stmt->fetch() !== false;
 }
 
-
-
 // ======================= CSRF =======================
 
 /**
