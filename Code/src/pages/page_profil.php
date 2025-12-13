@@ -6,6 +6,10 @@ session_start();
 require_once __DIR__ . '/../back_php/fonctions_site_web.php';
 require_once __DIR__ . '/../back_php/fonction_page/fonction_page_profil.php';
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
+
 $user_ID = $_SESSION["ID_compte"];
 
 // Connexion à la base de données
@@ -129,6 +133,8 @@ if (!file_exists($path)) {
       <!-- Section photo de profil -->
       <div class="avatar-section">
         <form method="post" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+
           <label for="photo">
             <img src="<?= $path . '?t=' . time() ?>" alt="Photo de profil" class="avatar" />
           </label>
@@ -137,6 +143,7 @@ if (!file_exists($path)) {
 
         <span class="role"> <?= get_etat($etat) ?> </span>
         <form action="../back_php/logout.php" method="post">
+          <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
           <input type="submit" value="Déconnexion" class="btn-deconnect">
         </form>
       </div>
@@ -156,6 +163,7 @@ if (!file_exists($path)) {
         </form>
       <?php else: ?>
         <form action="" method="post" class="mdp-form">
+          <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
           <input type="password" name="ancien_mdp" placeholder="Ancien mot de passe" required>
           <input type="password" name="nouveau_mdp" placeholder="Nouveau mot de passe" required>
           <input type="password" name="confirmer_mdp" placeholder="Confirmer le nouveau mot de passe" required>

@@ -1864,4 +1864,27 @@ function est_gestionnaire(PDO $bdd, int $id_compte, int $id_projet): bool{
     return $stmt->fetch() !== false;
 }
 
+
+
+// ======================= CSRF =======================
+
+function csrf_token() {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function check_csrf() {
+    if (
+        !isset($_POST['csrf_token']) ||
+        !isset($_SESSION['csrf_token']) ||
+        !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
+    ) {
+        http_response_code(403);
+        die("Action non autorisée (CSRF détecté)");
+    }
+}
+
+
 ?>

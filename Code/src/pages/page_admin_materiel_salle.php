@@ -9,6 +9,11 @@ if (session_status() == PHP_SESSION_NONE) {
 
 $bdd = connectBDD();
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
+
+
 $ajouter = false;
 $message = "";  // Variable globale pour les messages
 
