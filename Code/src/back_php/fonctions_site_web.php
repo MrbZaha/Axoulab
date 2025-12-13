@@ -1677,10 +1677,10 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
 
                             <!-- Bouton Supprimer -->
                             <form action="page_admin_projets.php" method="POST" style="display:inline;" onsubmit="return confirm('Voulez-vous vraiment supprimer ce projet ?');">
+                                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                                 <input type="hidden" name="action" value="supprimer">
                                 <input type="hidden" name="id" value="<?= $id ?>">
-                                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                                <button class="btn btnRouge" type="submit">Supprimer</button>
+                                <button class="btn btnRouge" type="submit" onclick="event.stopPropagation()">Supprimer</button>
                             </form>
                         <?php endif; ?>
                     </div>

@@ -334,6 +334,7 @@ if (!empty($materiels_selectionnes)) {
         </div>
     <?php elseif ($experience && !$success): ?>
         <form action="" method="post" id="form-experience">
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
             <input type="hidden" name="experimentateurs_ids" value="<?= implode(',', $experimentateurs_selectionnes) ?>">
             <input type="hidden" name="materiels_selectionnes" value="<?= implode(',', $materiels_selectionnes) ?>">
             <input type="hidden" name="nom_salle" value="<?= htmlspecialchars($nom_salle_selectionnee) ?>">

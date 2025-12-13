@@ -285,12 +285,23 @@ $page_title="Modification experience ".$id_experience
 
 
 <div class="container">
-    <!-- Messages utilisateur supprimés (debug banners removed) -->
+    <?php if (!empty($messages)): ?>
+        <div class="notice success">
+            <?php foreach ($messages as $m) echo htmlspecialchars($m) . "<br>"; ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!empty($errors)): ?>
+        <div class="notice error">
+            <?php foreach ($errors as $e) echo htmlspecialchars($e) . "<br>"; ?>
+        </div>
+    <?php endif; ?>
 
     <div class="content-area">
         <!-- Zone de texte principale -->
         <form method="post" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="<?= generer_csrf_token() ?>">
+        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+
             <label class="form-label" for="content">Texte (tu peux inclure des balises HTML autorisées - images via placeholders)</label>
             <textarea id="content" name="content" placeholder="Écris ton texte ici..."><?= isset($initial_textarea_value) ? htmlspecialchars($initial_textarea_value, ENT_QUOTES, 'UTF-8') : (isset($_POST['content']) ? htmlspecialchars($_POST['content'], ENT_QUOTES, 'UTF-8') : '') ?></textarea>
 
@@ -461,6 +472,7 @@ $page_title="Modification experience ".$id_experience
         </ul>
     </div>
 </div>
+
 
 </body>
 </html>

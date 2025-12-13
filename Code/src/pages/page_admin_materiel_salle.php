@@ -142,7 +142,8 @@ if (isset($_GET['erreur'])) {
 
         <?php if ($ajouter) { ?>
             <div class="creer_materiel_form">
-                <form action="page_admin_materiel_salle.php" method="POST">
+                <form action="page_admin_materiel_salle.php" method="post">
+                    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                     <h3>Ajouter du matériel</h3>
                     <label>Salle :</label>
                     <input type="text" name="salle_new" required>

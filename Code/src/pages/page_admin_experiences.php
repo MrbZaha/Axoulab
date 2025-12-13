@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $id_experience = (int)$_POST['id_experience'];
 
         supprimer_experience($bdd, $id_experience);
-
+        
         // Redirection propre (PRG pattern)
         header("Location: page_admin_experiences.php?suppression=ok");
         exit;

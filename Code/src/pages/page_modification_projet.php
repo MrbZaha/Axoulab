@@ -226,6 +226,7 @@ $page_title = $projet ? "Modifier " . htmlspecialchars($projet['Nom_projet']) : 
         </div>
     <?php elseif ($projet && !$success): ?>
         <form action="" method="post" id="form-projet">
+        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
             <input type="hidden" name="id_projet" value="<?= htmlspecialchars($id_projet) ?>">
             <input type="hidden" name="gestionnaires_ids" value="<?= implode(',', $gestionnaires_selectionnes) ?>">
             <input type="hidden" name="collaborateurs_ids" value="<?= implode(',', $collaborateurs_selectionnes) ?>">

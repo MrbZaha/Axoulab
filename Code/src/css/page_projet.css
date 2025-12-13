@@ -23,12 +23,14 @@ h1 {
     margin-bottom: 30px;
 }
 
-.actions-projet form:first-child {
-    margin-right: auto; /* pousse les autres vers la droite */
+/* Par défaut, tout à droite */
+.actions-projet {
+    justify-content: flex-end;
 }
 
-.actions-projet form:not(:first-child) {
-    margin-left: 0; /* optionnel, s'assure qu'ils restent à droite */
+/* Si 3 éléments : le premier à gauche, les autres à droite */
+.actions-projet form:first-child:nth-last-child(3) {
+    margin-right: auto;
 }
 
 .actions-projet input[type="submit"] {
@@ -57,6 +59,14 @@ h1 {
     background-color: #c0392b;
 }
 
+.actions-projet form:nth-last-child(2) input[type="submit"] {
+    background-color: #3498db;
+}
+
+.actions-projet form:nth-last-child(2) input[type="submit"]:hover {
+    background-color: #2b86c6;
+}
+
 .actions-projet form:last-child input[type="submit"] {
     background-color: #2ecc71;
 }
@@ -64,6 +74,7 @@ h1 {
 .actions-projet form:last-child input[type="submit"]:hover {
     background-color: #27ae60;
 }
+
 
 /* —— CONTAINER PROJET ———————————————————————— */
 .projet-container {
