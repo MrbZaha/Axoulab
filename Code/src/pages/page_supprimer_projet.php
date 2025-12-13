@@ -5,14 +5,14 @@ $bdd = connectBDD();
 // On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
 verification_connexion($bdd);
 
-if (!isset($_POST['id_experience'])) {
+if (!isset($_POST['id_projet'])) {
     die("ID manquant.");
 }
 
-$id = intval($_POST['id_experience']);
+$id = intval($_POST['id_projet']);
 
-supprimer_experience($bdd, $id);
+supprimer_projet($bdd, $id);
 
 // redirection après suppression
-header("Location: page_mes_experiences.php?delete=success");
+header("Location: page_mes_projets.php?delete=success");
 exit;
