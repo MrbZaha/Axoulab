@@ -1655,14 +1655,14 @@ function trouver_id_par_nom_complet($bdd, $nom_complet) {
 }
 
 // =======================  FONCTION POPUP =======================
-function afficher_popup($titre, $texte, $type = "success") {
+function afficher_popup($titre, $texte, $type = "success", $page) {
     $classe = ($type === "error") ? "popup-error" : "popup-success";
     return '
     <div class="popup-overlay" id="popup">
         <div class="popup-box ' . $classe . '">
             <h3>' . htmlspecialchars($titre) . '</h3>
             <p>' . htmlspecialchars($texte) . '</p>
-            <a href="page_admin_materiel_salle.php" class="popup-close">Fermer</a>
+            <a href="'.$page.'.php" class="popup-close">Fermer</a>
         </div>
     </div>';
 }

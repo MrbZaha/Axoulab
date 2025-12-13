@@ -4,37 +4,44 @@ require_once __DIR__ . '/../fonctions_site_web.php';  // Sans "back_php/" !
 $bdd = connectBDD();
 verification_connexion($bdd);
 
-function supprimer_materiel($bdd, $id_materiel) {
+/**
+ * Permet de supprimer du matériel de la base de données
+ *
+ * @param PDO $bdd Connexion à la base de données
+ * @param int $id_materiel Identifiant du matériel associé
+ * @return void c'est une procédure qui ne retourne rien
+ */
+function supprimer_materiel(PDO $bdd, int $id_materiel) {
     $stmt = $bdd->prepare("DELETE FROM salle_materiel WHERE ID_materiel = ?");
     $stmt->execute([$id_materiel]);
 }
 
-// =======================  FONCTION POPUP =======================
-function afficher_popup($titre, $texte, $type = "success") {
-    $classe = ($type === "error") ? "popup-error" : "popup-success";
-    return '
-    <div class="popup-overlay" id="popup">
-        <div class="popup-box ' . $classe . '">
-            <h3>' . htmlspecialchars($titre) . '</h3>
-            <p>' . htmlspecialchars($texte) . '</p>
-            <a href="page_admin_materiel_salle.php" class="popup-close">Fermer</a>
-        </div>
-    </div>';
-}
-
-// =======================  INSÉRER DU NOUVEAU MATÉRIEL =======================
-function ajouter_materiel($bdd, $Nom_Salle, $Materiel) {
+/**
+ * Permet d'ajouter du nouveau matériel dans la base de données
+ *
+ * @param PDO $bdd Connexion à la base de données
+ * @param string $Nom_Salle Nom de la salle possédant l'outil
+ * @param string $Matériel Nom du matériel que l'on ajoute
+ * @return bool ou string Return vrai si l'étape s'est effectuée correctement, sinon un message d'erreur
+ */
+function ajouter_materiel(PDO $bdd, string $Nom_Salle, string $Materiel) {
     try {
         $sql = $bdd->prepare("INSERT INTO salle_materiel (Nom_Salle, Materiel) VALUES (?, ?)");
         $sql->execute([$Nom_Salle, $Materiel]);
-        return true;
+        return true;                            // True si tout se passe bien
     } catch (Exception $e) {
-        return $e->getMessage();
+        return $e->getMessage();                // Message d'erreur s'il y a un problème
     }
 }
 
-// =======================  Traitement des informations modifiées  =======================
-function modifier_materiel($bdd, $id){
+/**
+ * Permet de modifier les informations d'un ensemble de matériel + salle
+ *
+ * @param PDO $bdd Connexion à la base de données
+ * @param int $id Nom de la salle possédant l'outil
+ * @return bool ou string Return vrai si l'étape s'est effectuée correctement, sinon un message d'erreur
+ */
+function modifier_materiel(PDO $bdd, int $id){
     if (isset($_POST["salle"], $_POST["materiel"])) {
         $salle = trim($_POST["salle"]);
         $mat = trim($_POST["materiel"]);
@@ -56,8 +63,13 @@ function modifier_materiel($bdd, $id){
     return "Données manquantes";
 }
 
-// =======================  Fonction pour récupérer l'ensemble du matériel =======================
-function get_materiel($bdd) {
+/**
+ * Fonction pour récupérer l'ensemble du matériel
+ *
+ * @param PDO $bdd Connexion à la base de données
+ * @return array Rend la liste de l'ensemble du matériel
+ */
+function get_materiel(PDO $bdd) {
     $sql_materiel = "
         SELECT ID_materiel,
         Nom_salle,
@@ -69,8 +81,16 @@ function get_materiel($bdd) {
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// =======================  Fonction pour afficher l'ensemble du matériel =======================
-function afficher_materiel_pagines($materiel, $page_actuelle, $items_par_page, $bdd) {
+/**
+ * Fonction pour afficher l'ensemble du matériel
+ *
+ * @param array $materiel Liste de l'ensemble du matériel
+ * @param int $page_actuelle Précise le numéro de la page et la liste du matériel qui doit être affiché en conséquence
+ * @param int $items_par_page Donne le nombre d'élément à afficher sur chaque page
+ * @param PDO $bdd Connexion à la base de données
+ * @return void C'est une procédure qui ne retourne rien
+ */
+function afficher_materiel_pagines(array $materiel, int $page_actuelle, int $items_par_page, PDO $bdd) {
     $debut = ($page_actuelle - 1) * $items_par_page;
     $materiel_page = array_slice($materiel, $debut, $items_par_page);
     ?>

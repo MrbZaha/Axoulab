@@ -28,34 +28,21 @@ function modifier_mdp($bdd, $mdp, $user_ID) {
     ];
 }
 
-// Fonction pour vérifier que deux mots de passe sont identiques
-function mot_de_passe_identique($mdp1, $mdp2) {
-    return $mdp1 === $mdp2;
-}
-
 // Fonction pour modifier la photo de profil
 function modifier_photo_de_profil($user_ID) {
+    // Vérification qu'un fichier a été uploadé
     if (!isset($_FILES['photo']) || $_FILES['photo']['error'] !== UPLOAD_ERR_OK) {
-        return;
+        return null; // Aucun fichier ou erreur d'upload
     }
-
     $tmp = $_FILES['photo']['tmp_name'];
     $type = exif_imagetype($tmp);
 
+    // Vérification du format
     if (!in_array($type, [IMAGETYPE_JPEG, IMAGETYPE_PNG])) {
-        // Popup d'erreur
-        echo '
-        <div class="popup-overlay">
-            <div class="popup-box">
-                <h3>❌ Fichier non accepté</h3>
-                <p>Seuls les formats <strong>JPEG</strong> et <strong>PNG</strong> sont autorisés.</p>
-                <a href="#" class="popup-close">Fermer</a>
-            </div>
-        </div>';
-        return;
+        return false; // Format non accepté
     }
 
-    // Charger l'image
+    // Charger l'image selon son type
     switch ($type) {
         case IMAGETYPE_JPEG:
             $image = imagecreatefromjpeg($tmp);
@@ -64,14 +51,22 @@ function modifier_photo_de_profil($user_ID) {
             $image = imagecreatefrompng($tmp);
             break;
         default:
-            return;
+            return false;
     }
 
-    if (!$image) return;
+    // Vérification que l'image a bien été créée
+    if (!$image) {
+        return false;
+    }
 
     // Destination en PNG
     $destination = "../assets/profile_pictures/" . $user_ID . ".png";
-    imagepng($image, $destination);
+    
+    // Sauvegarde de l'image
+    $resultat = imagepng($image, $destination);
     imagedestroy($image);
+    
+    // Retourne true si la sauvegarde a réussi, false sinon
+    return $resultat ? true : false;
 }
 ?>
