@@ -3,6 +3,17 @@
 require_once __DIR__ . '/../fonctions_site_web.php';  // Sans "back_php/" !
 
 // Fonction pour modifier le mot de passe avec vérification
+/**
+ * Modifie le mot de passe d'un utilisateur.
+ *
+ * Cette fonction vérifie d'abord que le mot de passe respecte les critères de sécurité via `verifier_mdp`.
+ * Si le mot de passe est valide, il est hashé puis stocké en base de données.
+ *
+ * @param PDO $bdd Connexion à la base de données
+ * @param string $mdp Nouveau mot de passe
+ * @param int $user_ID ID de l'utilisateur
+ * @return array ['success' => bool, 'erreurs' => array] Indique si l'opération a réussi et liste les erreurs éventuelles
+ */
 function modifier_mdp($bdd, $mdp, $user_ID) {
     // Vérifier que le mot de passe respecte les critères de sécurité
     $erreurs = verifier_mdp($mdp);
@@ -28,7 +39,15 @@ function modifier_mdp($bdd, $mdp, $user_ID) {
     ];
 }
 
-// Fonction pour modifier la photo de profil
+/**
+ * Modifie la photo de profil d'un utilisateur.
+ *
+ * Cette fonction vérifie d'abord qu'un fichier a été uploadé correctement et qu'il s'agit d'une image au format JPEG ou PNG.
+ * L'image est ensuite convertie en PNG et sauvegardée dans le dossier des photos de profil.
+ *
+ * @param int $user_ID ID de l'utilisateur
+ * @return bool|null True si la modification a réussi, false si le format est invalide ou si la sauvegarde a échoué, null si aucun fichier uploadé
+ */
 function modifier_photo_de_profil($user_ID) {
     // Vérification qu'un fichier a été uploadé
     if (!isset($_FILES['photo']) || $_FILES['photo']['error'] !== UPLOAD_ERR_OK) {
@@ -69,4 +88,5 @@ function modifier_photo_de_profil($user_ID) {
     // Retourne true si la sauvegarde a réussi, false sinon
     return $resultat ? true : false;
 }
+
 ?>

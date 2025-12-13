@@ -93,6 +93,12 @@ h1 {
     color: white;
 }
 
+.badge.refuse {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
 .badge.en-attente {
     background-color: #f39c12;
     color: white;
