@@ -70,7 +70,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="fr">
     <head>
         <meta charset="utf-8"/>
-                    <link rel="stylesheet" href="../css/page_mes_experiences.css">
+        <!--permet d'uniformiser le style sur tous les navigateurs-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+        <link rel="stylesheet" href="../css/page_mes_experiences.css">
         <link rel="stylesheet" href="../css/page_admin_utilisateurs_materiel.css">
         <link rel="stylesheet" href="../css/admin.css">
         <link rel="stylesheet" href="../css/Bandeau_haut.css">
