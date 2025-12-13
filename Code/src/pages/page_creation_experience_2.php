@@ -270,6 +270,8 @@ $heures = range(8, 19);
 <head>
 <meta charset="utf-8">
 <title>Réservation de salle - Étape 2</title>
+<!--permet d'uniformiser le style sur tous les navigateurs-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="../css/page_creation_experience_2.css">
 <link rel="stylesheet" href="../css/Bandeau_haut.css">
