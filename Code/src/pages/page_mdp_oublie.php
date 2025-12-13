@@ -9,6 +9,10 @@ $bdd = connectBDD();
 $message = "";
 $type_message = "";
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
+
 // Vérifie si le formulaire a été soumis
 if (!empty($_POST["email"])) {
 

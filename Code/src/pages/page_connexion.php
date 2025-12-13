@@ -10,6 +10,10 @@ require_once __DIR__ . '/../back_php/fonction_page/fonction_page_connexion.php';
 
 $bdd = connectBDD();
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
+
 $erreur = "";
 
 // PARAMÈTRES DE SÉCURITÉ : LIMITE DE TENTATIVES 

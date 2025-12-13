@@ -166,6 +166,10 @@ function verifier_mdp(string $mdp) :array{
  */
 function afficher_Bandeau_Haut_notification(PDO $bdd, int $userID, bool $recherche = true) :void{
 
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+    }
+
     // ------------------- TRAITEMENT DES NOTIFICATIONS POST -------------------
     if ($_SERVER['REQUEST_METHOD'] === 'POST' 
         && isset($_POST['id_notif'], $_POST['action_notif'], $_POST['is_projet'])) {
@@ -491,6 +495,7 @@ function afficher_Bandeau_Haut(PDO $bdd, int $userID, $recherche = true) :void{
                                             <div class="notif-actions">
                                                 <?php foreach ($notif['actions'] as $act): ?>
                                                     <form method="post" style="display:inline;">
+                                                        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                                                         <input type="hidden" name="id_notif" value="<?= $notif['id'] ?>">
                                                         <input type="hidden" name="action_notif" value="<?= $act ?>">
                                                         <input type="hidden" name="is_projet" value="<?= $notif['is_projet'] ? 1 : 0 ?>">

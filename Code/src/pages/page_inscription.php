@@ -9,6 +9,10 @@ require_once __DIR__ . '/../back_php/fonction_page/fonction_page_inscription.php
 // Connexion à la base
 $bdd = connectBDD();
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
+
 // Variable pour afficher les messages
 $message = "";
 $messages = [];  // Tableau pour accumuler les messages d'erreur

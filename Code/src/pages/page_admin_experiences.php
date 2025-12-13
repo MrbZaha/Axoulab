@@ -5,6 +5,9 @@ session_start();
 
 $bdd = connectBDD();
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
 $page_admin = true;  // On déclare qu'on est sur une page admin pour les fonctions qui le nécessite
 
 ///////////////////////////////////////////////////////////////////////////////

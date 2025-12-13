@@ -5,6 +5,10 @@ $bdd = connectBDD();
 // On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
 verification_connexion($bdd);
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
+
 if (!isset($_POST['id_projet'])) {
     die("ID manquant.");
 }

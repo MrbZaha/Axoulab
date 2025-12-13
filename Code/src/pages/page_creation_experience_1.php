@@ -5,6 +5,10 @@ require_once __DIR__ . '/../back_php/fonctions_site_web.php';
 $bdd = connectBDD();
 verification_connexion($bdd);
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
+
 $message = "";
 $experimentateurs_selectionnes = [];
 $id_projet = null;

@@ -6,6 +6,10 @@ require_once __DIR__ . '/../back_php/fonction_page/fonction_page_modification_re
 $bdd = connectBDD();
 verification_connexion($bdd);
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
+
 $id_compte = $_SESSION['ID_compte'];
 $id_experience = isset($_GET['id_experience']) ? (int)$_GET['id_experience'] : 0;
 
@@ -284,6 +288,7 @@ $page_title="Modification experience ".$id_experience
     <div class="content-area">
         <!-- Zone de texte principale -->
         <form method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?= generer_csrf_token() ?>">
             <label class="form-label" for="content">Texte (tu peux inclure des balises HTML autorisées - images via placeholders)</label>
             <textarea id="content" name="content" placeholder="Écris ton texte ici..."><?= isset($initial_textarea_value) ? htmlspecialchars($initial_textarea_value, ENT_QUOTES, 'UTF-8') : (isset($_POST['content']) ? htmlspecialchars($_POST['content'], ENT_QUOTES, 'UTF-8') : '') ?></textarea>
 
