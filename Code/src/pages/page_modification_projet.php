@@ -196,7 +196,11 @@ if (!empty($collaborateurs_selectionnes)) {
 $projet = $id_projet > 0 && !$erreur ? get_projet_pour_modification($bdd, $id_projet) : null;
 
 // Récupération des listes pour le datalist
-$tous_ids_selectionnes = array_merge($gestionnaires_selectionnes, $collaborateurs_selectionnes);
+$tous_ids_selectionnes = array_merge(
+    $gestionnaires_selectionnes,
+    $collaborateurs_selectionnes,
+    [$_SESSION['ID_compte']]
+);
 $personnes_gestionnaires = get_personnes_disponibles($bdd, $tous_ids_selectionnes, true);
 $personnes_collaborateurs = get_personnes_disponibles($bdd, $tous_ids_selectionnes, false);
 
