@@ -352,16 +352,26 @@ if (isset($_SESSION['ID_compte']) && isset($experience['ID_experience'])) {
                         <p><strong>Date de création:</strong> <?= date('d/m/Y', strtotime($experience['Date_de_creation'])) ?></p>
                         <p><strong>Date de l'expérience:</strong> <?= date('d/m/Y', strtotime($experience['Date_reservation'])) ?></p>
                         <p><strong>Horaires :</strong> <?= substr($experience['Heure_debut'], 0, 5) ?> - <?= substr($experience['Heure_fin'], 0, 5) ?></p>
-                        
-                        <p><strong>Statut :</strong> 
-                            <span class="badge <?= $experience['Statut_experience'] ? 'badge-termine' : 'badge-en-cours' ?>">
-                                <?= $experience['Statut_experience'] ? 'Terminée' : 'En cours' ?>
-                            </span>
-                        </p>
-                        
-                        <p><strong>Validation :</strong> 
-                            <?= $experience['Validation'] ? 'Validée' : 'En attente' ?>
-                        </p>
+<p><strong>Statut :</strong> 
+    <span class="badge 
+        <?php 
+            if ($experience['Statut_experience'] === 0) echo 'badge-a-venir';
+            elseif ($experience['Statut_experience'] === 1) echo 'badge-en-cours';
+            else echo 'badge-termine';
+        ?>
+    ">
+        <?php
+            if ($experience['Statut_experience'] === 0) echo 'À venir';
+            elseif ($experience['Statut_experience'] === 1) echo 'En cours';
+            else echo 'Terminée';
+        ?>
+    </span>
+</p>
+<p><strong>Validation :</strong> 
+    <span class="badge-validation <?= $experience['Validation'] ? 'badge-valide' : 'badge-attente' ?>">
+        <?= $experience['Validation'] ? 'Validée' : 'En attente' ?>
+    </span>
+</p>
                         
                         <?php if (!empty($experience['Nom_projet'])): ?>
                             <h4>Projet lié</h4>
