@@ -307,14 +307,16 @@ global $bdd;
 $canModifyExperience = false;
 $canModifyResults = false;
 
-if (isset($_SESSION['ID_compte']) && isset($experience['ID_experience'])) {
-    $acces = verifier_acces_experience($bdd, $_SESSION['ID_compte'], $experience['ID_experience']);
+if (isset($_SESSION['ID_compte'])) {
+    $acces = verifier_acces_experience($bdd, $_SESSION['ID_compte'], $id_experience);
     $canModifyExperience = ($acces === 'modification');
     $canModifyResults = ($acces === 'modification');
 }
+
 ?>
 
-<?php if ($canModifyExperience || $canModifyResults): ?>
+<?php 
+if ($canModifyExperience || $canModifyResults): ?>
     <div class="actions-experience">
         <?php if ($canModifyExperience): ?> 
             <form action="page_supprimer_experience.php" method="post" onsubmit="return confirm('Voulez-vous vraiment supprimer cette expérience ?');">
