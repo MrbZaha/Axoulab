@@ -55,7 +55,7 @@ $total_pages=create_page($liste_mixte,$items_par_page);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
-<?php afficher_Bandeau_Haut($bdd, $id_compte,$recherche=false) ?>
+<?php afficher_Bandeau_Haut($bdd, $id_compte, $recherche=false) ?>
 
 <h1>Que recherchez-vous?</h1>
 

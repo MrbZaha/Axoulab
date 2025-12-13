@@ -431,8 +431,7 @@ function afficher_Bandeau_Haut_notification(PDO $bdd, int $userID, bool $recherc
 function afficher_Bandeau_Haut(PDO $bdd, int $userID, $recherche = true) :void{  
     $notifications = get_last_notif($bdd, $userID);
     $nb_non_traitees = count(array_filter($notifications, fn($n) => $n['valide'] == 0));
-    afficher_Bandeau_Haut_notification($bdd, $userID, $recherche=true);
-
+    afficher_Bandeau_Haut_notification($bdd, $userID, $recherche);
     ?>
     <nav class="site_nav">
         <div id="site_nav_main">
