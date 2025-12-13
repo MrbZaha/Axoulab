@@ -27,7 +27,7 @@ function connectBDD() {
         return $bdd;
     } catch (Exception $e) {
         // Si une erreur se produit lors de la connexion, affichage du message d'erreur
-        die("Erreur : " . $e->getMessage());
+        die("Erreur de connexion à la base de donnée");
     }
 }
 
@@ -49,7 +49,7 @@ function email_existe($bdd, $email) {
            - email_existe($bdd, "test@example.com") retournera true si l'email existe dans la table 'compte'.
     ============================================================================ */
     // Préparation de la requête SQL pour vérifier l'existence de l'email
-    $stmt = $bdd->prepare("SELECT * FROM compte WHERE email = ?");
+    $stmt = $bdd->prepare("SELECT 1 FROM compte WHERE email = ?");
     $stmt->execute([$email]);
     // Vérifie si le nombre de lignes renvoyées est supérieur à 0 (email trouvé)
     return $stmt->rowCount() > 0;
@@ -153,6 +153,8 @@ function verifier_mdp($mdp) {
     // Retourne le tableau : vide si OK, rempli si erreurs
     return $erreurs;
 }
+
+
 // =======================  AFFICHAGE BANDEAU DU HAUT =======================
 /* Affiche le Bandeau du haut */
 function afficher_Bandeau_Haut($bdd, $userID, $recherche = true) {
@@ -806,7 +808,6 @@ if (empty($experiences)) {
 
 // =======================   Fonction de récupération des projets =======================
 
-
 function get_all_projet(PDO $bdd, int $id_compte): array {
     // Récupère TOUS les projets
     $sql_projets = "
@@ -1133,8 +1134,9 @@ function filtrer_trier_pro_exp(PDO $bdd,
 
     $info = [];
 
+    
     // --- Filtrer les projets si "projet" est dans le tableau
-    if (in_array('projet', $types)) {
+    if (in_array('projet', $types) || empty($type)) {
         $projets = get_all_projet($bdd, $id_compte); 
         foreach ($projets as &$p) {
             $p["Type"] = "projet";
@@ -1145,7 +1147,7 @@ function filtrer_trier_pro_exp(PDO $bdd,
     }
 
     // --- Filtrer les expériences si "experience" est dans le tableau
-    if (in_array('experience', $types)) {
+    if (in_array('experience', $types)|| empty($type)) {
         $experiences = get_mes_experiences_complets($bdd);
         foreach ($experiences as &$e) {
             $e["Type"] = "experience";
@@ -1312,8 +1314,8 @@ function filtrer_experience(
         }
 
         // --- 2. Statut (plusieurs possibles)
-        if (!empty($statuts)) {
-            if (!in_array($exp["Statut_experience"], $statuts)) {
+        if (!empty($statut)) {
+            if (!in_array($exp["Statut_experience"], $statut)) {
                 continue;
             }
         }
