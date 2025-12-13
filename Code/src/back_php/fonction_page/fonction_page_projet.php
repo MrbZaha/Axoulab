@@ -265,7 +265,7 @@ function afficher_projet(array $projet, array $gestionnaires, array $collaborate
                 <?php if ($projet['Validation'] == 1): ?>
                     <span class="badge valide">Validé</span>
                 <?php elseif ($projet['Validation'] === 2): ?>
-                    <span class="badge refuse"> Refusé</span>
+                    <span class="badge refuse">Refusé</span>
                 <?php else: ?>
                     <span class="badge en-attente">En attente</span>
                 <?php endif; ?>
