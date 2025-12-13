@@ -1303,7 +1303,7 @@ function filtrer_trier_pro_exp(PDO $bdd,
 
     
     // --- Filtrer les projets si "projet" est dans le tableau
-    if (in_array('projet', $types) || empty($type)) {
+    if (in_array('projet', $types)) {
         $projets = get_all_projet($bdd, $id_compte); 
         foreach ($projets as &$p) {
             $p["Type"] = "projet";
@@ -1314,7 +1314,7 @@ function filtrer_trier_pro_exp(PDO $bdd,
     }
 
     // --- Filtrer les expériences si "experience" est dans le tableau
-    if (in_array('experience', $types)|| empty($type)) {
+    if (in_array('experience', $types)) {
         $experiences = get_mes_experiences_complets($bdd);
         foreach ($experiences as &$e) {
             $e["Type"] = "experience";
