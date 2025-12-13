@@ -109,6 +109,7 @@ if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["
 </head>
 <body>
    <form action="" method="post" autocomplete="off">
+        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
        <p> 
         <?php 
         // Affiche le message si présent
