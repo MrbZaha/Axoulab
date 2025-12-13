@@ -17,8 +17,7 @@
  *
  * @throws Exception Arrête le script si la connexion échoue.
  */
-
-function connectBDD() :PDO{
+function connectBDD() {
     try {
         // Tentative de connexion à la base de données
         $bdd = new PDO(
@@ -46,7 +45,7 @@ function connectBDD() :PDO{
  *
  * @return bool True si l’email existe, false sinon.
  */
-function email_existe(PDO $bdd, string $email) :bool{
+function email_existe($bdd, $email) {
     // Préparation de la requête SQL pour vérifier l'existence de l'email
     $stmt = $bdd->prepare("SELECT 1 FROM compte WHERE email = ?");
     $stmt->execute([$email]);
@@ -70,7 +69,7 @@ function email_existe(PDO $bdd, string $email) :bool{
  *
  * @return bool True si la connexion est valide, false sinon.
  */
-function connexion_valide(PDO $bdd, string $email, string $mdp) :bool{
+function connexion_valide($bdd, $email, $mdp) {
     return email_existe($bdd, $email) && mot_de_passe_correct($bdd, $email, $mdp);
 }
 
@@ -87,7 +86,7 @@ function connexion_valide(PDO $bdd, string $email, string $mdp) :bool{
  *
  * @return int|null Identifiant du compte si trouvé, null sinon.
  */
-function recuperer_id_compte(PDO $bdd, string $email) : ?int{
+function recuperer_id_compte($bdd, $email) {
     // Préparation de la requête SQL pour récupérer l'ID en fonction de l'email
     $stmt = $bdd->prepare("SELECT ID_compte FROM compte WHERE email = ?");
     $stmt->execute([$email]);
@@ -119,7 +118,7 @@ function recuperer_id_compte(PDO $bdd, string $email) : ?int{
  * @return array Tableau vide si le mot de passe est valide,
  *               sinon un tableau contenant les messages d’erreur.
  */
-function verifier_mdp(string $mdp) :array{
+function verifier_mdp($mdp) {
 
     // Tableau où seront ajoutées les erreurs éventuelles
     $erreurs = [];
@@ -164,11 +163,7 @@ function verifier_mdp(string $mdp) :array{
  * @param bool $recherche Affiche ou non la barre de recherche (défaut true)
  * @return void
  */
-function afficher_Bandeau_Haut_notification(PDO $bdd, int $userID, bool $recherche = true) :void{
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    check_csrf();
-    }
+function afficher_Bandeau_Haut_notification($bdd, $userID, $recherche = true) {
 
     // ------------------- TRAITEMENT DES NOTIFICATIONS POST -------------------
     if ($_SERVER['REQUEST_METHOD'] === 'POST' 
@@ -289,38 +284,53 @@ function afficher_Bandeau_Haut_notification(PDO $bdd, int $userID, bool $recherc
                 
                 if ($nouvelEtat == 1) {
                     // === VALIDATION ===
-                    if (in_array($validationActuelle, [0,2])) {
+                    
+                    if ($validationActuelle == 0) {
+                        // Projet en attente → Premier à valider → Valider le projet
+                        $up = $bdd->prepare("UPDATE projet SET Validation = 1, Date_de_modification = NOW() WHERE ID_projet = ?");
+                        $up->execute([$idProjet]);
+                    } elseif ($validationActuelle == 2) {
+                        // Projet refusé → Un gestionnaire valide quand même → RE-VALIDER le projet
                         $up = $bdd->prepare("UPDATE projet SET Validation = 1, Date_de_modification = NOW() WHERE ID_projet = ?");
                         $up->execute([$idProjet]);
                     }
-                    // On garde ce gestionnaire dans la table participants
+                    // Si déjà validé (Validation = 1), on ne change rien
+                    
+                    // Dans TOUS les cas, envoyer notification type 12 à l'étudiant
+                    $stmtNomProjet = $bdd->prepare("SELECT Nom_projet FROM projet WHERE ID_projet = ?");
+                    $stmtNomProjet->execute([$idProjet]);
+                    $nomProjet = $stmtNomProjet->fetchColumn();
+                    
+                    envoyerNotification($bdd, 12, $idUtilisateur, ['ID_projet' => $idProjet, 'Nom_projet' => $nomProjet], [$idEnvoyeurOriginal]);
+                    $typeRetour = null;
+
                 } elseif ($nouvelEtat == 2) {
                     // === REFUS ===
+                    
                     if ($validationActuelle == 0) {
-                        // Premier refus → mettre projet refusé
+                        // Projet en attente → Premier à refuser → Refuser le projet
                         $up = $bdd->prepare("UPDATE projet SET Validation = 2, Date_de_modification = NOW() WHERE ID_projet = ?");
                         $up->execute([$idProjet]);
-                    }
-                    // Retirer ce gestionnaire de la table, même si projet déjà validé
+                    } else {
+                    // Projet déjà validé → garder Validation = 1
+                    // Mais on peut retirer ce gestionnaire de la liste
                     $deleteGest = $bdd->prepare("
                         DELETE FROM projet_collaborateur_gestionnaire 
                         WHERE ID_projet = ? AND ID_compte = ?
                     ");
                     $deleteGest->execute([$idProjet, $idUtilisateur]);
                 }
-
-                // Envoyer notification à l'étudiant
-                $stmtNomProjet = $bdd->prepare("SELECT Nom_projet FROM projet WHERE ID_projet = ?");
-                $stmtNomProjet->execute([$idProjet]);
-                $nomProjet = $stmtNomProjet->fetchColumn();
-
-                envoyerNotification(
-                    $bdd,
-                    $nouvelEtat == 1 ? 12 : 13,
-                    $idUtilisateur,
-                    ['ID_projet' => $idProjet, 'Nom_projet' => $nomProjet],
-                    [$idEnvoyeurOriginal]
-                );
+                    // Si déjà validé (Validation = 1) → Le projet RESTE validé (ne pas le refuser)
+                    // Si déjà refusé (Validation = 2) → Il reste refusé
+                    
+                    // Dans TOUS les cas, envoyer notification type 13 à l'étudiant
+                    $stmtNomProjet = $bdd->prepare("SELECT Nom_projet FROM projet WHERE ID_projet = ?");
+                    $stmtNomProjet->execute([$idProjet]);
+                    $nomProjet = $stmtNomProjet->fetchColumn();
+                    
+                    envoyerNotification($bdd, 13, $idUtilisateur, ['ID_projet' => $idProjet, 'Nom_projet' => $nomProjet], [$idEnvoyeurOriginal]);
+                    $typeRetour = null;
+                }
 
                 } else {
                     // === CAS CHERCHEUR/ADMIN ===
@@ -402,33 +412,8 @@ function afficher_Bandeau_Haut_notification(PDO $bdd, int $userID, bool $recherc
     }
 }
 
-
-/**
- * Affiche le bandeau de navigation supérieur du site pour un utilisateur connecté.
- *
- * Cette fonction génère le HTML complet du bandeau, incluant :
- * - Le logo du site
- * - Une barre de recherche (optionnelle)
- * - Les liens de navigation (Dashboard si admin, Explorer, Mes expériences, Mes projets)
- * - Les notifications récentes avec indicateur du nombre de notifications non traitées
- *   et actions possibles (valider, rejeter)
- * - L'avatar de l'utilisateur avec lien vers son profil
- *
- * @param PDO $bdd Connexion PDO à la base de données
- * @param int $userID ID de l'utilisateur connecté
- * @param bool $recherche Indique si la barre de recherche doit être affichée (true par défaut)
- *
- * @return void Cette fonction n'a pas de valeur de retour, elle affiche directement le HTML.
- *
- * Comportement :
- * - Les notifications sont récupérées via `get_last_notif()` et triées en fonction de leur statut.
- * - Les actions disponibles sur chaque notification sont affichées si elle n'a pas encore été traitée.
- * - Le nombre de notifications non traitées est affiché sous forme de badge.
- * - La photo de profil de l'utilisateur est affichée, avec une image par défaut si aucun fichier n'existe.
- * - La barre de recherche est affichée uniquement si `$recherche` est true.
- */
-
-function afficher_Bandeau_Haut(PDO $bdd, int $userID, $recherche = true) :void{  
+    // ------------------- AFFICHAGE DU BANDEAU -------------------
+function afficher_Bandeau_Haut($bdd, $userID, $recherche = true) {  
     $notifications = get_last_notif($bdd, $userID);
     $nb_non_traitees = count(array_filter($notifications, fn($n) => $n['valide'] == 0));
     afficher_Bandeau_Haut_notification($bdd, $userID, $recherche=true);
@@ -495,7 +480,6 @@ function afficher_Bandeau_Haut(PDO $bdd, int $userID, $recherche = true) :void{
                                             <div class="notif-actions">
                                                 <?php foreach ($notif['actions'] as $act): ?>
                                                     <form method="post" style="display:inline;">
-                                                        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                                                         <input type="hidden" name="id_notif" value="<?= $notif['id'] ?>">
                                                         <input type="hidden" name="action_notif" value="<?= $act ?>">
                                                         <input type="hidden" name="is_projet" value="<?= $notif['is_projet'] ? 1 : 0 ?>">
@@ -547,6 +531,7 @@ function afficher_Bandeau_Haut(PDO $bdd, int $userID, $recherche = true) :void{
 }
 
 // =======================  VÉRIFIER SI ADMIN =======================
+
 /**
  * Vérifie si un compte est administrateur à partir de son adresse email.
  *
@@ -558,8 +543,7 @@ function afficher_Bandeau_Haut(PDO $bdd, int $userID, $recherche = true) :void{
  *
  * @return bool True si l’utilisateur est administrateur, false sinon.
  */
-
-function est_admin(PDO $bdd, string $email) :bool{
+function est_admin(PDO $bdd, $email) {
     // Prépare la requête pour récupérer l'état du compte
     $stmt = $bdd->prepare("SELECT etat FROM compte WHERE email = ?");
     $stmt->execute([$email]);
@@ -587,7 +571,6 @@ function est_admin(PDO $bdd, string $email) :bool{
  *
  * @return bool True si le compte est administrateur, false sinon.
  */
-
 function est_admin_par_id(PDO $bdd, int $id_compte): bool {
     // Prépare la requête SQL pour récupérer l'état du compte
     $stmt = $bdd->prepare("SELECT Etat FROM compte WHERE ID_compte = ?");
@@ -601,6 +584,7 @@ function est_admin_par_id(PDO $bdd, int $id_compte): bool {
 }
 
 // =======================  RÉCUPÉRER LES DERNIÈRES NOTIFICATIONS =======================
+
 /**
  * Récupère les dernières notifications d’un utilisateur.
  *
@@ -619,8 +603,7 @@ function est_admin_par_id(PDO $bdd, int $id_compte): bool {
  *
  * @return array Tableau contenant les notifications formatées.
  */
-
-function get_last_notif(PDO $bdd, int $IDuser, int $limit = 10) :array{
+function get_last_notif($bdd, $IDuser, $limit = 10) {
 
     // ======================= NOTIFICATIONS DE PROJETS =======================
     $notif_projet = $bdd->prepare("
@@ -762,8 +745,7 @@ function get_last_notif(PDO $bdd, int $IDuser, int $limit = 10) :array{
  *
  * @return void
  */
-
-function afficher_Bandeau_Bas() :void{
+function afficher_Bandeau_Bas() {
     ?>
     <nav class="site_footer">
         <div id="Contact">
@@ -978,7 +960,6 @@ function get_mes_experiences_complets(PDO $bdd, int $id_compte = null): array {
  *
  * @return array Tableau associatif contenant les projets
  */
-
 function get_all_projet(PDO $bdd, int $id_compte): array {
     $sql_projets = "
         SELECT 
@@ -1105,22 +1086,13 @@ function afficher_experiences_pagines(PDO $bdd, array $experiences, int $page_ac
                                 // Si on est admin ET qu'on est sur une page admin
                                 // ajoute 2 boutons : modification et suppression 
                                 ?>
-                                    <!-- Bouton Modifier (reste en GET, pas critique côté CSRF) -->
                                     <button class="btn btnViolet"  
                                         onclick="event.stopPropagation(); location.href='page_modification_experience.php?id_experience=<?= $id_experience ?>'">
-                                        Modifier
-                                    </button>
-
-                                    <!-- Formulaire suppression sécurisé en POST avec CSRF -->
-                                    <form method="post" action="page_admin_experiences.php" style="display:inline;" 
-                                        onsubmit="return confirm('Voulez-vous vraiment supprimer cette expérience ?');">
-                                        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                                        <input type="hidden" name="action" value="supprimer">
-                                        <input type="hidden" name="id_experience" value="<?= (int)$id_experience ?>">
-                                        <button type="submit" class="btn btnRouge" onclick="event.stopPropagation();">
-                                            Supprimer
-                                        </button>
-                                    </form>
+                                        Modifier</button>
+                                    <a href="page_admin_experiences.php?action=supprimer&id=<?php echo $id_experience; ?>"
+                                        class="btn btnRouge"
+                                        onclick="event.stopPropagation();">
+                                        Supprimer</a>
                             <?php } ?>
                         <?php } ?>
                     </div>
@@ -1178,7 +1150,7 @@ function afficher_pagination(int $page_actuelle, int $total_pages): void {
  *
  * @return void
  */
-function envoyerNotification(PDO $bdd, int $typeNotification, int $idEnvoyeur, array $donnees, array $destinataires) :void{
+function envoyerNotification($bdd, $typeNotification, $idEnvoyeur, $donnees, $destinataires) {
     if (empty($destinataires)) return;
     $date_envoi = date('Y-m-d H:i:s');
 
@@ -1219,7 +1191,7 @@ function envoyerNotification(PDO $bdd, int $typeNotification, int $idEnvoyeur, a
  *
  * @return void Redirige ou appelle layout_erreur() si non autorisé
  */
-function verification_connexion(PDO $bdd) :void {
+function verification_connexion($bdd) {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
@@ -1246,7 +1218,7 @@ function verification_connexion(PDO $bdd) :void {
  *
  * @return void Affiche le HTML et arrête l'exécution
  */
-function layout_erreur() :void{
+function layout_erreur() {
     ?>
     <html lang='en'>
     <head>
@@ -1271,7 +1243,7 @@ function layout_erreur() :void{
  *
  * @return string Nom du statut ou "Erreur" si non reconnu
  */
-function get_etat(int $etat) :string{
+function get_etat($etat) {
     if ($etat==1) {
         return "Étudiant";
     } elseif ($etat==2) {
@@ -1291,7 +1263,7 @@ function get_etat(int $etat) :string{
  *
  * @return void
  */
-function supprimer_experience(PDO $bdd, int $id_experience) :void{
+function supprimer_experience($bdd, $id_experience) {
     $stmt = $bdd->prepare("DELETE FROM experience WHERE ID_experience = ?");
     $stmt->execute([$id_experience]);
 }
@@ -1304,7 +1276,7 @@ function supprimer_experience(PDO $bdd, int $id_experience) :void{
  *
  * @return void
  */
-function supprimer_utilisateur(PDO $bdd, int $id_user) :void{
+function supprimer_utilisateur($bdd, $id_user) {
     $stmt = $bdd->prepare("DELETE FROM compte WHERE ID_compte = ?");
     $stmt->execute([$id_user]);
 }
@@ -1318,7 +1290,7 @@ function supprimer_utilisateur(PDO $bdd, int $id_user) :void{
  * @return void
  * @throws Exception En cas d'erreur lors de la suppression
  */
-function supprimer_projet(PDO $bdd, int $id_projet) :void{
+function supprimer_projet($bdd, $id_projet) {
     try {
         $bdd->beginTransaction();
 
@@ -1350,7 +1322,7 @@ function supprimer_projet(PDO $bdd, int $id_projet) :void{
  *
  * @return void
  */
-function accepter_utilisateur(PDO $bdd, int $id_user) :void{
+function accepter_utilisateur($bdd, $id_user) {
     $stmt = $bdd->prepare("UPDATE compte SET validation = 1 WHERE ID_compte = ?");
     $stmt->execute([$id_user]);
 }
@@ -1388,7 +1360,7 @@ function filtrer_trier_pro_exp(PDO $bdd,
     echo '</pre>';
 
     // --- Filtrer les projets si "projet" est dans le tableau
-    if (in_array('projet', $types)) {
+    if (in_array('projet', $types) || empty($type)) {
         $projets = get_all_projet($bdd, $id_compte); 
         foreach ($projets as &$p) {
             $p["Type"] = "projet";
@@ -1753,20 +1725,15 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
                         <p><strong>Date de création :</strong> <?= $date ?></p>
                         <p><strong>Rôle :</strong> <?= $role ?></p>
                         <?php if (est_admin($bdd, $_SESSION["email"]) && $page_admin): ?>
-                            <!-- Bouton Modifier -->
-                            <form action="page_modification_projet.php" method="POST" style="display:inline;">
-                                <input type="hidden" name="id_projet" value="<?= $id ?>">
-                                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                                <button class="btn btnViolet" type="submit">Modifier</button>
-                            </form>
-
-                            <!-- Bouton Supprimer -->
-                            <form action="page_admin_projets.php" method="POST" style="display:inline;" onsubmit="return confirm('Voulez-vous vraiment supprimer ce projet ?');">
-                                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
-                                <input type="hidden" name="action" value="supprimer">
-                                <input type="hidden" name="id" value="<?= $id ?>">
-                                <button class="btn btnRouge" type="submit" onclick="event.stopPropagation()">Supprimer</button>
-                            </form>
+                            <button class="btn btnViolet"  
+                                onclick="event.stopPropagation(); location.href='page_modification_projet.php?id_projet=<?= $id ?>'">
+                                Modifier
+                            </button>
+                            <a href="page_admin_projets.php?action=supprimer&id=<?= $id; ?>"
+                                class="btn btnRouge"
+                                onclick="event.stopPropagation();">
+                                Supprimer
+                            </a>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -1809,7 +1776,7 @@ function get_experimentateurs_ids(PDO $bdd, int $id_experience): array {
  * @param int $id_experience L'identifiant de l'expérience, utilisé pour localiser les fichiers
  * @return string HTML sécurisé avec les images insérées à la place des placeholders
  */
-function afficher_resultats(string $text, int $id_experience) :string{
+function afficher_resultats($text, $id_experience) {
 
     $uploadDir = "../assets/resultats/" . $id_experience . "/";
     $webUploadDir = "../assets/resultats/" . $id_experience . "/"; // chemin relatif pour <img src=>
@@ -1852,7 +1819,7 @@ function afficher_resultats(string $text, int $id_experience) :string{
  * @return array
  */
 function get_personnes_disponibles(PDO $bdd, array $ids_exclus = [], bool $seulement_non_etudiants = false): array {
-    $sql = "SELECT ID_compte, Nom, Prenom, Etat, Email FROM compte WHERE validation = 1";
+    $sql = "SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE validation = 1";
 
     if ($seulement_non_etudiants) {
         $sql .= " AND Etat > 1";
@@ -1871,39 +1838,23 @@ function get_personnes_disponibles(PDO $bdd, array $ids_exclus = [], bool $seule
 }
 
 /**
- * Trouve l'ID d'un compte à partir d'une chaîne contenant un email
- * Format attendu : "Prénom Nom (Rôle) — email@domaine"
+ * Recherche l'ID d'un compte à partir d'un nom complet "Prénom Nom"
  *
- * @param PDO $bdd
- * @param string $email
- * @return int|null
+ * @param PDO $bdd Connexion PDO à la base de données
+ * @param string $nom_complet Nom complet au format "Prénom Nom" (ex: "Jean Dupont")
+ * @return int|null ID du compte trouvé ou null si non trouvé ou format invalide
  */
-function trouver_id_par_email(PDO $bdd, string $email): ?int {
+function trouver_id_par_nom_complet($bdd, $nom_complet) {
+    $parts = explode(' ', trim($nom_complet), 2);
+    if (count($parts) < 2) return null;
 
-    // Extraction de l'email
-    if (!preg_match(
-        '/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,})/i',
-        $email,
-        $match
-    )) {
-        return null;
-    }
+    $prenom = trim($parts[0]);
+    $nom = trim($parts[1]);
 
-    $mail = strtolower($match[1]);
-
-    $stmt = $bdd->prepare("
-        SELECT ID_compte
-        FROM compte
-        WHERE Email = ?
-          AND validation = 1
-        LIMIT 1
-    ");
-    $stmt->execute([$mail]);
-
-    $id = $stmt->fetchColumn();
-    return $id ? (int)$id : null;
+    $stmt = $bdd->prepare("SELECT ID_compte FROM compte WHERE Prenom = ? AND Nom = ? AND validation = 1");
+    $stmt->execute([$prenom, $nom]);
+    return $stmt->fetchColumn();
 }
-
 
 // =======================  FONCTION POPUP =======================
 /**
@@ -1915,7 +1866,7 @@ function trouver_id_par_email(PDO $bdd, string $email): ?int {
  * @param string $page Page de redirection lors de la fermeture de la popup (nom sans .php)
  * @return string HTML complet de la popup
  */
-function afficher_popup(string $titre, string $texte, string $type = "success", string $page) :string{
+function afficher_popup($titre, $texte, $type = "success", $page) {
     $classe = ($type === "error") ? "popup-error" : "popup-success";
     return '
     <div class="popup-overlay" id="popup">
@@ -1934,7 +1885,7 @@ function afficher_popup(string $titre, string $texte, string $type = "success", 
  * @param string $mdp2 Le mot de passe de confirmation
  * @return bool Retourne true si les mots de passe sont identiques, false sinon
  */
-function mot_de_passe_identique(string $mdp1, string $mdp2) :bool{
+function mot_de_passe_identique($mdp1, $mdp2) {
     return $mdp1 === $mdp2;
 }
 
@@ -1945,7 +1896,7 @@ function mot_de_passe_identique(string $mdp1, string $mdp2) :bool{
  * @param int $id_experience Id de l'expérience
  * @return bool Renvoie true si l'experience est confidentiel
  */
-function experience_confidentiel(PDO $bdd, int $id_experience) :bool{
+function experience_confidentiel(PDO $bdd, int $id_experience) {
     $stmt = $bdd->prepare("
     SELECT Confidentiel FROM experience INNER JOIN projet_experience
 	    ON experience.ID_experience = projet_experience.ID_experience
@@ -1975,54 +1926,12 @@ function experience_confidentiel(PDO $bdd, int $id_experience) :bool{
  * @return bool
  */
 
-function est_gestionnaire(PDO $bdd, int $id_compte, int $id_projet): bool{
+function est_gestionnaire(PDO $bdd, int $id_compte, int $id_projet): bool {
     $sql = "SELECT Statut FROM projet_collaborateur_gestionnaire 
             WHERE ID_projet = :id_projet AND ID_compte = :id_compte AND Statut = 1";
     $stmt = $bdd->prepare($sql);
     $stmt->execute(['id_projet' => $id_projet, 'id_compte' => $id_compte]);
     return $stmt->fetch() !== false;
-}
-
-
-
-// ======================= CSRF =======================
-
-/**
- * Génère ou récupère un token CSRF unique pour la session.
- *
- * Fonctionnement :
- *  - Vérifie si un token CSRF est déjà stocké dans la session.
- *  - Si aucun token n'existe, en crée un nouveau via `random_bytes` et le stocke.
- *  - Retourne le token actuel pour l'inclure dans les formulaires.
- *
- * @return string Token CSRF de 64 caractères hexadécimaux
- */
-function csrf_token() {
-    if (empty($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    }
-    return $_SESSION['csrf_token'];
-}
-
-/**
- * Vérifie la validité d'un token CSRF envoyé via POST.
- *
- * Fonctionnement :
- *  - Vérifie que le token CSRF est présent dans $_POST et dans la session.
- *  - Compare les deux tokens avec `hash_equals` pour éviter les attaques par timing.
- *  - Si la vérification échoue, renvoie une erreur 403 et stoppe l'exécution.
- *
- * @throws 403 si le token CSRF est absent ou invalide
- */
-function check_csrf() {
-    if (
-        !isset($_POST['csrf_token']) ||
-        !isset($_SESSION['csrf_token']) ||
-        !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
-    ) {
-        http_response_code(403);
-        die("Action non autorisée (CSRF détecté)");
-    }
 }
 
 ?>
