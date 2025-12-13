@@ -327,7 +327,7 @@ function afficher_projet(array $projet, array $gestionnaires, array $collaborate
                     switch ((int)$exp['Statut_experience']) {
                         case 0:
                             $statut_class = 'en-attente';
-                            $statut_text = 'En attente';
+                            $statut_text = 'À venir';
                             break;
                         case 1:
                             $statut_class = 'en-cours';

@@ -1,12 +1,11 @@
 <?php
 session_start();
+require_once __DIR__ . '/fonctions_site_web.php';
 
-// Supprime toutes les variables de session
-$_SESSION = [];
+check_csrf();
 
-// Détruit la session
 session_destroy();
+header("Location: ../Main_page.php");
+exit;
 
-// Redirige vers la page de connexion
-header("Location: ../pages/page_connexion.php");
 exit();
