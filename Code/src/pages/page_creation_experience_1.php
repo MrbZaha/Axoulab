@@ -30,16 +30,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
-            case 'ajouter_experimentateur':
-                if (!empty($_POST['nom_experimentateur'])) {
-                    // On retire "(Rôle)" pour retrouver le nom dans la base
-                    $nom_nettoye = trim(preg_replace('/\s*\(.*?\)$/', '', $_POST['nom_experimentateur']));
-                    $id = trouver_id_par_nom_complet($bdd, $nom_nettoye);
-                    if ($id && !in_array($id, $experimentateurs_selectionnes)) {
-                        $experimentateurs_selectionnes[] = $id;
-                    }
-                }
-                break;
+case 'ajouter_experimentateur':
+    if (!empty($_POST['nom_experimentateur'])) {
+
+        $id = trouver_id_par_email($bdd, $_POST['nom_experimentateur']);
+
+        if ($id && !in_array($id, $experimentateurs_selectionnes, true)) {
+            $experimentateurs_selectionnes[] = $id;
+        }
+    }
+    break;
                 
             case 'retirer_experimentateur':
                 if (isset($_POST['id_retirer']) && !empty($_POST['id_retirer'])) {
@@ -115,8 +115,7 @@ if ($creator_id && !in_array($creator_id, $experimentateurs_selectionnes)) {
 // Récupérer les personnes disponibles (exclut les IDs déjà sélectionnés)
 // Exclure aussi le créateur des suggestions
 $tous_ids_a_exclure = array_merge($experimentateurs_selectionnes, [$_SESSION['ID_compte']]);
-$experimentateurs_disponibles = get_personnes_disponibles($bdd, $tous_ids_a_exclure);
-
+$experimentateurs_disponibles = get_personnes_disponibles($bdd, $tous_ids_a_exclure, false);
 
 
 // s'assurer que le créateur est dans la sélection (et recharger les infos)
@@ -187,16 +186,26 @@ if (!empty($experimentateurs_selectionnes)) {
                            autocomplete="off">
                     <button type="submit" name="action" value="ajouter_experimentateur" class="btn-ajouter">Ajouter</button>
                 </div>
-                <datalist id="liste-experimentateurs-disponibles">
-                    <?php foreach ($experimentateurs_disponibles as $personne): ?>
-                        <?php
-                            $nom = htmlspecialchars($personne['Prenom'] . ' ' . $personne['Nom']);
-                            $role = $personne['Etat'] == 1 ? 'Étudiant' : ($personne['Etat'] == 2 ? 'Chercheur' : 'Administrateur');
-                            $affichage = $nom . ' (' . $role . ')';
-                        ?>
-                        <option value="<?= $affichage ?>"><?= $affichage ?></option>
-                    <?php endforeach; ?>
-                </datalist>
+<datalist id="liste-experimentateurs-disponibles">
+    <?php foreach ($experimentateurs_disponibles as $personne): ?>
+        <?php
+            $nom = htmlspecialchars($personne['Prenom'] . ' ' . $personne['Nom']);
+            $email = htmlspecialchars($personne['Email']);
+
+            if ($personne['Etat'] == 3) {
+                $role = 'ADMIN';
+            } elseif ($personne['Etat'] == 2) {
+                $role = 'Chercheur';
+            } else {
+                $role = 'Etudiant';
+            }
+
+            // Valeur envoyée au POST
+            $valeur = "$nom ($role) — $email";
+        ?>
+        <option value="<?= $valeur ?>"></option>
+    <?php endforeach; ?>
+</datalist>
                 
                 <div class="liste-selectionnes">
                     <?php if (empty($experimentateurs_info)): ?>

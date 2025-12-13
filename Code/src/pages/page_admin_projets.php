@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     if (isset($_POST['id'])) {
         $id_projet = intval($_POST['id']);
         supprimer_projet($bdd, $id_projet);
-
+        $_SESSION['popup_message'] = afficher_popup("Suppression réussie", "Le projet a été supprimé avec succès.", "success","page_admin_projets");
         // On recharge la page proprement (pour empêcher de supprimer deux fois)
         header("Location: page_admin_projets.php?suppression=ok");
         exit;
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         <link rel="stylesheet" href="../css/Bandeau_haut.css">
         <link rel="stylesheet" href="../css/Bandeau_bas.css">
         <link rel="stylesheet" href="../css/boutons.css">
-
+        <link rel="stylesheet" href="../css/popup.css">
         <!-- Permet d'afficher la loupe pour le bandeau de recherche -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <title> Projets </title>
@@ -73,6 +73,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     </head>
     <body>
 
+    <?php 
+    if (isset($_SESSION['popup_message'])) {
+        echo $_SESSION['popup_message'];
+        unset($_SESSION['popup_message']); // Pour ne pas l’afficher à chaque reload
+    }
+    ?>
     <!-- import du header de la page -->
     <?php
     afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]);

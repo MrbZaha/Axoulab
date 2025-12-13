@@ -33,28 +33,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         switch ($_POST['action']) {
 
             /* --- Ajouter gestionnaire --- */
-            case 'ajouter_gestionnaire':
-                if (!empty($_POST['nom_gestionnaire'])) {
+case 'ajouter_gestionnaire':
+    if (!empty($_POST['nom_gestionnaire'])) {
 
-                    // Nettoyage direct : suppression de "(Rôle)"
-                    $nom_nettoye = trim(preg_replace('/\s*\(.*?\)$/', '', $_POST['nom_gestionnaire']));
+        // On passe DIRECTEMENT la valeur du datalist (avec nom + rôle + email)
+        $id = trouver_id_par_email($bdd, $_POST['nom_gestionnaire']);
 
-                    $id = trouver_id_par_nom_complet($bdd, $nom_nettoye);
+        if (
+            $id &&
+            !in_array($id, $gestionnaires_selectionnes, true) &&
+            !in_array($id, $collaborateurs_selectionnes, true)
+        ) {
+            $stmt = $bdd->prepare("SELECT Etat FROM compte WHERE ID_compte = ?");
+            $stmt->execute([$id]);
+            $etat = (int) $stmt->fetchColumn();
 
-                    if ($id && !in_array($id, $gestionnaires_selectionnes) && !in_array($id, $collaborateurs_selectionnes)) {
+            if ($etat > 1) {
+                $gestionnaires_selectionnes[] = $id;
+            } else {
+                $message = "<p style='color:orange;'>Un étudiant ne peut pas être gestionnaire.</p>";
+            }
+        }
+    }
+    break;
 
-                        $etat = $bdd->prepare("SELECT Etat FROM compte WHERE ID_compte = ?");
-                        $etat->execute([$id]);
-                        $etat = $etat->fetchColumn();
-
-                        if ($etat > 1) {
-                            $gestionnaires_selectionnes[] = $id;
-                        } else {
-                            $message = "<p style='color:orange;'>Un étudiant ne peut pas être gestionnaire.</p>";
-                        }
-                    }
-                }
-                break;
 
             /* --- Retirer gestionnaire --- */
             case 'retirer_gestionnaire':
@@ -64,19 +66,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
 
             /* --- Ajouter collaborateur --- */
-            case 'ajouter_collaborateur':
-                if (!empty($_POST['nom_collaborateur'])) {
+case 'ajouter_collaborateur':
+    if (!empty($_POST['nom_collaborateur'])) {
 
-                    // Nettoyage direct
-                    $nom_nettoye = trim(preg_replace('/\s*\(.*?\)$/', '', $_POST['nom_collaborateur']));
+        // On passe directement la valeur du datalist (nom + rôle + email)
+        $id = trouver_id_par_email($bdd, $_POST['nom_collaborateur']);
 
-                    $id = trouver_id_par_nom_complet($bdd, $nom_nettoye);
-
-                    if ($id && !in_array($id, $collaborateurs_selectionnes) && !in_array($id, $gestionnaires_selectionnes)) {
-                        $collaborateurs_selectionnes[] = $id;
-                    }
-                }
-                break;
+        if (
+            $id &&
+            !in_array($id, $collaborateurs_selectionnes, true) &&
+            !in_array($id, $gestionnaires_selectionnes, true)
+        ) {
+            $collaborateurs_selectionnes[] = $id;
+        }
+    }
+    break;
 
             /* --- Retirer collaborateur --- */
             case 'retirer_collaborateur':
@@ -258,16 +262,21 @@ if (!empty($collaborateurs_selectionnes)) {
                 <button type="submit" name="action" value="ajouter_gestionnaire" class="btn-ajouter">Ajouter</button>
             </div>
 
-            <datalist id="liste-gestionnaires">
-                <?php foreach ($personnes_gestionnaires as $p): ?>
-                    <?php
-                        $nom = htmlspecialchars($p['Prenom'] . ' ' . $p['Nom']);
-                        $role = $p['Etat'] == 3 ? 'Admin' : 'Chercheur';
-                        $affichage = $nom . ' (' . $role . ')';
-                    ?>
-                    <option value="<?= $affichage ?>"><?= $affichage ?></option>
-                <?php endforeach; ?>
-            </datalist>
+<datalist id="liste-gestionnaires">
+    <?php foreach ($personnes_gestionnaires as $personne): ?>
+        <?php
+            $nom = htmlspecialchars($personne['Prenom'] . ' ' . $personne['Nom']);
+            $email = htmlspecialchars($personne['Email']);
+
+            $role = ($personne['Etat'] == 3) ? 'ADMIN' : 'Chercheur';
+
+            // Valeur envoyée en POST
+            $valeur = "$nom ($role) — $email";
+        ?>
+        <option value="<?= $valeur ?>"></option>
+    <?php endforeach; ?>
+</datalist>
+
 
             <div class="liste-selectionnes">
                 <?php if (empty($gestionnaires_info)): ?>
@@ -300,16 +309,25 @@ if (!empty($collaborateurs_selectionnes)) {
                 <button type="submit" name="action" value="ajouter_collaborateur" class="btn-ajouter">Ajouter</button>
             </div>
 
-            <datalist id="liste-collaborateurs">
-                <?php foreach ($personnes_collaborateurs as $p): ?>
-                    <?php
-                        $nom = htmlspecialchars($p['Prenom'] . ' ' . $p['Nom']);
-                        $role = $p['Etat'] == 1 ? 'Étudiant' : ($p['Etat'] == 2 ? 'Chercheur' : 'Admin');
-                        $affichage = $nom . ' (' . $role . ')';
-                    ?>
-                    <option value="<?= $affichage ?>"><?= $affichage ?></option>
-                <?php endforeach; ?>
-            </datalist>
+<datalist id="liste-collaborateurs">
+    <?php foreach ($personnes_collaborateurs as $personne): ?>
+        <?php
+            $nom = htmlspecialchars($personne['Prenom'] . ' ' . $personne['Nom']);
+            $email = htmlspecialchars($personne['Email']);
+
+            $role = match ($personne['Etat']) {
+                1 => 'Étudiant',
+                2 => 'Chercheur',
+                default => 'ADMIN',
+            };
+
+            // Ce que l'utilisateur voit ET ce qui est envoyé en POST
+            $valeur = "$nom ($role) — $email";
+        ?>
+        <option value="<?= $valeur ?>"></option>
+    <?php endforeach; ?>
+</datalist>
+
 
             <div class="liste-selectionnes">
                 <?php if (empty($collaborateurs_info)): ?>

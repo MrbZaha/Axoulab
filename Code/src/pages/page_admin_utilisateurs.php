@@ -45,20 +45,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $resultat = modifier_utilisateur($bdd, $id_utilisateur);
                 if ($resultat === true) {
                     header("Location: page_admin_utilisateurs.php?modification=ok");
+                    $_SESSION['popup_message'] = afficher_popup("Modification réussie", "Les informations de l'utilisateur ont été mises à jour.", "success","page_admin_utilisateurs");
+
                 } else {
                     header("Location: page_admin_utilisateurs.php?erreur=" . urlencode($resultat));
+                    $_SESSION['popup_message'] = afficher_popup("Erreur", "Une erreur est survenue : " . htmlspecialchars($_GET['erreur']), "error","page_admin_utilisateurs");
+
                 }
                 exit;
 
             case 'supprimer':
                 if ($_SESSION['ID_compte'] !== $id_utilisateur) {
                     supprimer_utilisateur($bdd, $id_utilisateur);
+                    $_SESSION['popup_message'] = afficher_popup("Suppression réussie", "L'utilisateur a été supprimé avec succès.", "success","page_admin_utilisateurs");
                     header("Location: page_admin_utilisateurs.php?suppression=ok");
                 }
                 exit;
 
             case 'accepter':
                 accepter_utilisateur($bdd, $id_utilisateur);
+                $_SESSION['popup_message'] = afficher_popup("Validation réussie", "Le compte utilisateur a été validé.", "success","page_admin_utilisateurs");
                 header("Location: page_admin_utilisateurs.php?accept=ok");
                 exit;
         }
@@ -85,9 +91,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <body>
     
     <?php 
-    // Affiche la popup si elle existe
-    echo $message;
+    if (isset($_SESSION['popup_message'])) {
+        echo $_SESSION['popup_message'];
+        unset($_SESSION['popup_message']); // Pour ne pas l’afficher à chaque reload
+    }
     ?>
+
 
     <?php afficher_Bandeau_Haut($bdd,$_SESSION["ID_compte"]); ?>
 

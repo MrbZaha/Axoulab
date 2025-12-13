@@ -46,13 +46,14 @@ $page_title = $projet ? htmlspecialchars($projet['Nom_projet']) : "Projet";
     
     <?php if (!$erreur): ?>
         <div class="actions-projet">
-            
+            <?php
+            if (est_gestionnaire($bdd,$_SESSION['ID_compte'],$id_projet) || est_admin_par_id($bdd,$_SESSION['ID_compte'])){ ?>
             <form action="page_supprimer_projet.php" method="post" onsubmit="return confirm('Voulez-vous vraiment supprimer ce projet ?');">
                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <input type="hidden" name="id_projet" value="<?= $id_projet ?>">
                 <input type="submit" value="Supprimer le projet" />
             </form>
-
+            <?php }?>
             <form action="page_creation_experience_1.php?id_projet=<?= $id_projet ?>" method="post">
                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <input type="submit" value="Ajouter une expérience" />
