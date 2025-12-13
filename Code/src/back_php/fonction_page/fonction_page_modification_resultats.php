@@ -237,12 +237,35 @@ $icons = [
     return $icons[$ext] ?? 'fa-file';
 }
 
-// Fonction pour formater la taille des fichiers
+
+/**
+ * Formate une taille de fichier donnée en octets pour un affichage lisible.
+ *
+ * @param int $bytes Taille du fichier en octets
+ * 
+ * @return string Taille formatée avec unité appropriée (B, KB, MB, GB)
+ */
 function format_file_size(int $bytes): string {
     if ($bytes < 1024) return $bytes . ' B';
     if ($bytes < 1048576) return round($bytes / 1024, 2) . ' KB';
     if ($bytes < 1073741824) return round($bytes / 1048576, 2) . ' MB';
     return round($bytes / 1073741824, 2) . ' GB';
+}
+
+/**
+ * Liste les fichiers image présents dans un répertoire donné.
+ *
+ * @param string $dir Chemin du répertoire à parcourir
+ * 
+ * @return string[] Tableau contenant les noms de fichiers image (jpg, jpeg, png, gif, webp)
+ *                  triés par ordre alphabétique. Retourne un tableau vide si le répertoire n'existe pas
+ *                  ou s'il n'y a aucune image.
+ */
+function list_images_for_experience(string $dir): array {
+    if (!is_dir($dir)) return [];
+    $files = glob($dir . "*.{jpg,jpeg,png,gif,webp,JPG,JPEG,PNG,GIF,WEBP}", GLOB_BRACE);
+    sort($files);
+    return array_map('basename', $files);
 }
 
 
@@ -263,13 +286,7 @@ $errors = [];
 $messages = [];
 $successHtml = null;
 
-// Liste des fichiers existants (images)
-function list_images_for_experience(string $dir): array {
-    if (!is_dir($dir)) return [];
-    $files = glob($dir . "*.{jpg,jpeg,png,gif,webp,JPG,JPEG,PNG,GIF,WEBP}", GLOB_BRACE);
-    sort($files);
-    return array_map('basename', $files);
-}
+
 
 $existingFiles = list_images_for_experience($uploadDir);
 $existingOtherFiles = list_files_for_experience($uploadDir); // ← Ajoute ça
