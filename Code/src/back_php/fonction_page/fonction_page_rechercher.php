@@ -58,6 +58,7 @@ function afficher_projets_experiences_pagines(array $items, int $page_actuelle =
                     $date = htmlspecialchars($item['Date_de_creation']);
                     $role = $item['Statut'];
                     $progress = (int)($item['Progression'] ?? 0);
+                    $confidentiel = $item['Confidentiel'];
                     ?>
     
                     <a class='projet-card' href='page_projet.php?id_projet=<?= $id ?>'>

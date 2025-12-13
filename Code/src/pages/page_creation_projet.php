@@ -203,11 +203,11 @@ if (!empty($collaborateurs_selectionnes)) {
 <head>
     <meta charset="UTF-8">
     <title>Créer un projet</title>
-     <!--permet d'uniformiser le style sur tous les navigateurs-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
-    <link rel="stylesheet" href="../css/page_creation_projet.css">
+         <link rel="stylesheet" href="../css/page_creation_projet.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
+    <!-- Permet d'afficher la loupe pour le bandeau de recherche -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
