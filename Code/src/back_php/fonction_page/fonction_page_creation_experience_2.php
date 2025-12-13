@@ -265,7 +265,6 @@ function organiser_reservations_par_creneau($reservations, $dates_semaine, $heur
     return $planning;
 }
 
-
 /**
  * Crée une nouvelle expérience dans la base de données.
  *

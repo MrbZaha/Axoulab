@@ -1,11 +1,13 @@
 <?php
 session_start();
 require_once __DIR__ . '/../fonctions_site_web.php';  // Sans "back_php/" !
-$bdd = connectBDD();
-$bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Vérifier connexion
-verification_connexion($bdd);
+// En mode test, ne pas se connecter à la BDD ni vérifier la connexion
+if (!defined('TEST_MODE')) {
+    $bdd = connectBDD();
+    $bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    verification_connexion($bdd);
+}
 
 /**
  * Vérifie la validité des champs du formulaire de création/modification de projet
