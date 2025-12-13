@@ -78,6 +78,7 @@ function connexion_valide($bdd, $email, $mdp) {
 }
 
 // =======================  RÉCUPÉRER ID COMPTE =======================
+/* Retourne ID du compte si trouvé, null sinon */
 function recuperer_id_compte($bdd, $email) {
     /* ============================================================================
        FONCTION : recuperer_id_compte()
@@ -972,7 +973,7 @@ function afficher_pagination(int $page_actuelle, int $total_pages): void {
  * $idEnvoyeur ID de l'utilisateur qui envoie
  * $donnees Données dynamiques (Nom_experience, Nom_projet, etc.)
  * $destinataires ID ou tableau d'IDs des destinataires (optionnel)
- * True si succès, false si échec
+
  */
 function envoyerNotification($bdd, $typeNotification, $idEnvoyeur, $donnees, $destinataires) {
     if (empty($destinataires)) return;
@@ -1597,4 +1598,82 @@ function afficher_resultats($text,$id_experience) {
     return $successHtml;
 
 }
+
+/**
+ * Récupère la liste des personnes disponibles pour être ajoutées à un projet.
+ *
+ * Fonctionnement :
+ *  - Sélectionne tous les comptes validés
+ *  - Peut exclure certains IDs (gestionnaires ou collaborateurs déjà présents)
+ *  - Peut filtrer pour n’inclure que les non-étudiants (Etat > 1)
+ *  - Trie par nom puis prénom
+ *
+ * Retourne :
+ *   - Un tableau de comptes disponibles sous forme associative
+ *
+ * @param PDO   $bdd Connexion PDO
+ * @param array $ids_exclus Liste d’IDs à exclure du résultat
+ * @param bool  $seulement_non_etudiants Si true → filtre Etat > 1
+ * @return array
+ */
+function get_personnes_disponibles(PDO $bdd, array $ids_exclus = [], bool $seulement_non_etudiants = false): array {
+    $sql = "SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE validation = 1";
+
+    if ($seulement_non_etudiants) {
+        $sql .= " AND Etat > 1";
+    }
+
+    if (!empty($ids_exclus)) {
+        $placeholders = implode(',', array_fill(0, count($ids_exclus), '?'));
+        $sql .= " AND ID_compte NOT IN ($placeholders)";
+    }
+
+    $sql .= " ORDER BY Nom, Prenom";
+
+    $stmt = $bdd->prepare($sql);
+    $stmt->execute($ids_exclus);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+/**
+ * Recherche l'ID d'un compte à partir d'un nom complet "Prénom Nom"
+ *
+ * @param PDO $bdd Connexion PDO à la base de données
+ * @param string $nom_complet Nom complet au format "Prénom Nom" (ex: "Jean Dupont")
+ * @return int|null ID du compte trouvé ou null si non trouvé ou format invalide
+ */
+function trouver_id_par_nom_complet($bdd, $nom_complet) {
+    $parts = explode(' ', trim($nom_complet), 2);
+    if (count($parts) < 2) return null;
+
+    $prenom = trim($parts[0]);
+    $nom = trim($parts[1]);
+
+    $stmt = $bdd->prepare("SELECT ID_compte FROM compte WHERE Prenom = ? AND Nom = ? AND validation = 1");
+    $stmt->execute([$prenom, $nom]);
+    return $stmt->fetchColumn();
+}
+
+// =======================  FONCTION POPUP =======================
+function afficher_popup($titre, $texte, $type = "success", $page) {
+    $classe = ($type === "error") ? "popup-error" : "popup-success";
+    return '
+    <div class="popup-overlay" id="popup">
+        <div class="popup-box ' . $classe . '">
+            <h3>' . htmlspecialchars($titre) . '</h3>
+            <p>' . htmlspecialchars($texte) . '</p>
+            <a href="'.$page.'.php" class="popup-close">Fermer</a>
+        </div>
+    </div>';
+}
+
+function mot_de_passe_identique($mdp1, $mdp2) {
+    // ============================================================================
+    //  FONCTION : mot_de_passe_identique()
+    //  Compare le mot de passe saisi et sa confirmation.
+    //  Retourne true si identiques, false sinon.
+    // ============================================================================
+    return $mdp1 === $mdp2;
+}
+
 ?>

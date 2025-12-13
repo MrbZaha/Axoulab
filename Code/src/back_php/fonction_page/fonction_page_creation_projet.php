@@ -31,38 +31,6 @@ function verifier_champs_projet($nom_projet, $description) {
 }
 
 /**
- * Récupère toutes les personnes disponibles pour être collaborateur ou gestionnaire
- *
- * @param PDO $bdd Connexion PDO à la base de données
- * @param array $ids_exclus Tableau des identifiants (ID_compte) à exclure des résultats (par défaut vide)
- * @param bool $seulement_non_etudiants Si true, exclut les étudiants (Etat = 0) des résultats (par défaut false)
- * @return array Tableau de tableaux associatifs, chaque élément contenant :
- *               - 'ID_compte' (int) : L'identifiant du compte
- *               - 'Nom' (string) : Le nom de la personne
- *               - 'Prenom' (string) : Le prénom de la personne
- *               - 'Etat' (int) : Le statut du compte (0=étudiant, 1=gestionnaire salle, 2=admin)
- */
-function get_personnes_disponibles($bdd, $ids_exclus = [], $seulement_non_etudiants = false) {
-    $sql = "SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE validation = 1";
-
-    if ($seulement_non_etudiants) {
-        $sql .= " AND Etat > 1";
-    }
-
-    if (!empty($ids_exclus)) {
-        $placeholders = implode(',', array_fill(0, count($ids_exclus), '?'));
-        $sql .= " AND ID_compte NOT IN ($placeholders)";
-    }
-
-    $sql .= " ORDER BY Nom, Prenom";
-
-    $stmt = $bdd->prepare($sql);
-    $stmt->execute($ids_exclus);
-
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
-
-/**
  * Crée un nouveau projet dans la base de données
  *
  * @param PDO $bdd Connexion PDO à la base de données
@@ -107,25 +75,6 @@ function ajouter_participants($bdd, $id_projet, $gestionnaires, $collaborateurs)
     foreach ($collaborateurs as $id_compte) {
         $sql->execute([$id_projet, $id_compte, 0]); // 0 = collaborateur
     }
-}
-
-/**
- * Recherche l'ID d'un compte à partir d'un nom complet "Prénom Nom"
- *
- * @param PDO $bdd Connexion PDO à la base de données
- * @param string $nom_complet Nom complet au format "Prénom Nom" (ex: "Jean Dupont")
- * @return int|null ID du compte trouvé ou null si non trouvé ou format invalide
- */
-function trouver_id_par_nom_complet($bdd, $nom_complet) {
-    $parts = explode(' ', trim($nom_complet), 2);
-    if (count($parts) < 2) return null;
-
-    $prenom = trim($parts[0]);
-    $nom = trim($parts[1]);
-
-    $stmt = $bdd->prepare("SELECT ID_compte FROM compte WHERE Prenom = ? AND Nom = ? AND validation = 1");
-    $stmt->execute([$prenom, $nom]);
-    return $stmt->fetchColumn();
 }
 
 ?>

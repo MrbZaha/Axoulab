@@ -1,7 +1,6 @@
 <?php
 session_start();
 require_once __DIR__ . '/../back_php/fonctions_site_web.php';
-require_once __DIR__ . '/../back_php/fonction_page/fonction_page_creation_experience_1.php';
 
 $bdd = connectBDD();
 verification_connexion($bdd);

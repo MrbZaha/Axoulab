@@ -6,8 +6,6 @@ $bdd = connectBDD();
 verification_connexion($bdd);
 $id_compte = $_SESSION['ID_compte'];
 
-
-
 function afficher_projets_experiences_pagines(array $items, int $page_actuelle = 1, int $items_par_page = 6): void {
     // Calcul de la tranche à afficher
     $debut = ($page_actuelle - 1) * $items_par_page;
