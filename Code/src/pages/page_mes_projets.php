@@ -40,7 +40,7 @@ if ($page > $total_pages) $page = $total_pages;
     </div>
     <div class="projets">
         <section class="section-projets">
-            <h2>Expériences (<?= count($projets) ?>)</h2>
+            <h2>Projets (<?= count($projets) ?>)</h2>
             <?php afficher_projets_pagines($bdd, $projets, $page, $items_par_page, false); ?>
             <?php afficher_pagination($page, $total_pages); ?>
         </section>
