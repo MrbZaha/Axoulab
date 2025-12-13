@@ -439,7 +439,7 @@ function afficher_Bandeau_Haut($bdd, $userID, $recherche = true) {
 
         <div id="site_nav_links">
             <ul class="liste_links">
-                <?php if (est_admin($bdd, $_SESSION["email"])): ?>
+                <?php if (est_admin_par_id($bdd, $_SESSION["ID_compte"])): ?>
                     <li class="main_links"><a href="page_admin.php" class="Links">Dashboard</a></li>
                 <?php endif; ?>
                 <li class="main_links"><a href="page_rechercher.php?&afficher_confidentiels=on&tri=A-Z&ordre=asc" class="Links">Explorer</a></li>
@@ -982,21 +982,29 @@ function afficher_experiences_pagines(PDO $bdd, array $experiences, int $page_ac
                     <div class="experience-header">
                         <h3><?= $nom ?></h3>
                         <span class="projet-badge"><?= $nom_projet ?></span>
+                        <?php if (experience_confidentiel($bdd, $id_experience)) :?>
+                            <span class="conf-badge"></span>
+                        <?php endif; ?>
                     </div>
                     <p class="description"><?= $desc ?></p>
                     <div class="experience-details">
                         <p><strong>Date :</strong> <?= $date_reservation ?></p>
                         <p><strong>Horaires :</strong> <?= $heure_debut ?> - <?= $heure_fin ?></p>
                         <p><strong>Salle :</strong> <?= $salle ?></p>
-                        <?php if (est_admin($bdd, $_SESSION["email"]) && $page_admin): ?>
-                            <button class="btn btnViolet"  
-                                onclick="event.stopPropagation(); location.href='page_modification_experience.php?id_experience=<?= $id_experience ?>'">
-                                Modifier</button>
-                            <a href="page_admin_experiences.php?action=supprimer&id=<?= $id_experience ?>"
-                                class="btn btnRouge"
-                                onclick="event.stopPropagation();">
-                                Supprimer</a>
-                        <?php endif; ?>
+                        <?php if (est_admin_par_id($bdd, $_SESSION["ID_compte"])) {
+                            if ($page_admin == true) {
+                                // Si on est admin ET qu'on est sur une page admin
+                                // ajoute 2 boutons : modification et suppression 
+                                ?>
+                                    <button class="btn btnViolet"  
+                                        onclick="event.stopPropagation(); location.href='page_modification_experience.php?id_experience=<?= $id_experience ?>'">
+                                        Modifier</button>
+                                    <a href="page_admin_experiences.php?action=supprimer&id=<?php echo $id_experience; ?>"
+                                        class="btn btnRouge"
+                                        onclick="event.stopPropagation();">
+                                        Supprimer</a>
+                            <?php } ?>
+                        <?php } ?>
                     </div>
                 </div>
             <?php endforeach; 
@@ -1609,13 +1617,17 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
                     : htmlspecialchars($description);
                 $date = htmlspecialchars($p['Date_de_creation']);
                 $role = $p['Statut'];
-                ?>
+                $confidentiel = $p['Confidentiel']; ?>
                 
-                <div class='projet-card' onclick="location.href='page_projet.php?id_projet=<?= $id ?>'">
-                    <h3><?= $nom ?></h3>
-                    <p><?= $desc ?></p>
-                    
-                    <?php echo afficher_barre_progression($progression['finies'], $progression['total']); ?>
+
+                    <div class='projet-card' onclick="location.href='page_projet.php?id_projet=<?= $id ?>'">
+                        <h3><?= $nom ?></h3>
+                        <p><?= $desc ?></p>
+                    <?php if ($confidentiel) :?>
+                        <span class="conf-badge"></span>
+                    <?php endif; ?>
+                        
+                        <?php echo afficher_barre_progression($progression['finies'], $progression['total']); ?>
                     <div class="projet-details">
                         <p><strong>Date de création :</strong> <?= $date ?></p>
                         <p><strong>Rôle :</strong> <?= $role ?></p>
@@ -1784,5 +1796,49 @@ function mot_de_passe_identique($mdp1, $mdp2) {
     return $mdp1 === $mdp2;
 }
 
+/**
+ * Cette fonction permet de vérifier si une expérience est confidentielle
+ *
+ * @param PDO $bdd permet d'établir la connexion avec la base de données
+ * @param int $id_experience Id de l'expérience
+ * @return bool Renvoie true si l'experience est confidentiel
+ */
+function experience_confidentiel(PDO $bdd, int $id_experience) {
+    $stmt = $bdd->prepare("
+    SELECT Confidentiel FROM experience INNER JOIN projet_experience
+	    ON experience.ID_experience = projet_experience.ID_experience
+        INNER JOIN projet 
+        ON projet_experience.ID_projet = projet.ID_projet
+        WHERE experience.ID_experience= ?");
+    $stmt->execute([$id_experience]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $result && (bool)$result['Confidentiel'];
+}
+
+/**
+ * Vérifie si un compte est gestionnaire d’un projet.
+ *
+ * Effectue la vérification suivante :
+ *  - Recherche dans la table projet_collaborateur_gestionnaire si l'utilisateur
+ *    possède le statut 1 (gestionnaire) pour le projet donné.
+ *
+ * Retourne :
+ *   - true  : si l'utilisateur est gestionnaire
+ *   - false : sinon
+ *
+ * @param PDO $bdd Connexion PDO à la base de données
+ * @param int $id_compte ID du compte à vérifier
+ * @param int $id_projet ID du projet concerné
+ * @return bool
+ */
+
+function est_gestionnaire(PDO $bdd, int $id_compte, int $id_projet): bool {
+    $sql = "SELECT Statut FROM projet_collaborateur_gestionnaire 
+            WHERE ID_projet = :id_projet AND ID_compte = :id_compte AND Statut = 1";
+    $stmt = $bdd->prepare($sql);
+    $stmt->execute(['id_projet' => $id_projet, 'id_compte' => $id_compte]);
+    return $stmt->fetch() !== false;
+}
 
 ?>

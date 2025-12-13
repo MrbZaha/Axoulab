@@ -1,7 +1,6 @@
 <?php
 // Inclure le fichier de fonctions
 include_once '../back_php/fonctions_site_web.php';
-session_start();
 
 $bdd = connectBDD();
 
@@ -9,7 +8,7 @@ $bdd = connectBDD();
 verification_connexion($bdd);
 
 // On vérifie si l'utilisateur a les droits pour accéder à cette page
-if (est_admin($bdd, $_SESSION["email"])){
+if (est_admin_par_id($bdd, $_SESSION["ID_compte"])){
     // Le code peut poursuivre
 }
 else {

@@ -2,6 +2,10 @@
 require_once __DIR__ . '/../back_php/fonctions_site_web.php';
 require_once __DIR__ . '/../back_php/fonction_page/fonction_page_creation_experience_2.php';
 
+$bdd = connectBDD();
+// On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
+verification_connexion($bdd);
+
 $message = "";
 $nom_experience = "";
 $description = "";
@@ -143,6 +147,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 try {
                     $date_creation = (new DateTime())->format('Y-m-d');
+
+                    // Récupérer l'info de si le compte est gestionnaire
+                    if (est_gestionnaire($bdd, $_SESSION["ID_compte"], $id_projet)) {
+                        $validation = 1;
+                    }
+                    else {
+                        $validation = 0;
+                    }
                     
                     // Créer l'expérience
                     $id_experience = creer_experience($bdd, $validation, $nom_experience, $description, $date_reservation, $date_creation, $heure_debut, $heure_fin, $nom_salle);

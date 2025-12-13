@@ -294,10 +294,10 @@ function creer_experience($bdd, $validation, $nom_experience, $description, $dat
 
     $sql = $bdd->prepare("
         INSERT INTO experience (Nom, Description, Date_reservation, Date_de_creation, Heure_debut, Heure_fin, Statut_experience, Validation)
-        VALUES (?, ?, ?,?, ?, ?, 'En attente', 0)
+        VALUES (?, ?, ?,?, ?, ?, 0, ?)
     ");
 
-    if ($sql->execute([$nom_experience, $description, $date_reservation, $date_creation, $heure_debut, $heure_fin])) {
+    if ($sql->execute([$nom_experience, $description, $date_reservation, $date_creation, $heure_debut, $heure_fin, $validation])) {
         return $bdd->lastInsertId();
     }
     return false;
