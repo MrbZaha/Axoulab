@@ -1,11 +1,14 @@
 <?php
 require_once __DIR__ . '/../back_php/fonctions_site_web.php';
 
-$bdd = connectBDD();
-// On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
-verification_connexion($bdd);
+
 require_once __DIR__ . '/../back_php/fonction_page/fonction_page_rechercher.php';
 
+$bdd = connectBDD();
+
+$id_compte = $_SESSION['ID_compte'];
+// On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
+verification_connexion($bdd);
 
 $page_actuelle = $_GET['page'] ?? 1;
 $projet_exp   = $_GET['type'] ?? [];          // 'projet' et/ou 'experience'
@@ -22,13 +25,13 @@ $statut_proj = isset($_GET['afficher_projets_finis']) ? 1 : null;
 // Statut expérience : tableau de valeurs 'fini', 'encours', 'pascommence'
 $statut_exp = [];
 if (isset($_GET['statut_exp_fini'])) {
-    $statut_exp[] = 'fini';
+    $statut_exp[] = '2';
 }
 if (isset($_GET['statut_exp_encours'])) {
-    $statut_exp[] = 'encours';
+    $statut_exp[] = '1';
 }
 if (isset($_GET['statut_exp_pascommence'])) {
-    $statut_exp[] = 'pascommence';
+    $statut_exp[] = '0';
 }
 
 $items_par_page=10;
@@ -102,6 +105,31 @@ $total_pages=create_page($liste_mixte,$items_par_page);
                     Afficher projets finis
                 </label>
             </div>
+
+            <!-- Options Experience -->
+            <div class="adv-row adv-options projet-options">
+                <span class="adv-label">Experience :</span>
+                
+                <!-- Case pour afficher les experiences finies -->
+                <label>
+                    <input type="checkbox" name="statut_exp_fini" <?= isset($_GET['statut_exp_fini']) ? 'checked' : '' ?>>
+                    Afficher experiences finies
+                </label>
+
+                <!-- Case pour afficher les experience en cours -->
+                <label>
+                    <input type="checkbox" name="statut_exp_encours" <?= isset($_GET['statut_exp_encours']) ? 'checked' : '' ?>>
+                    Afficher experiences en cours
+                </label>
+
+                <!-- Case pour afficher les experience pas commencées -->
+                <label>
+                    <input type="checkbox" name="statut_exp_pascommence" <?= isset($_GET['statut_exp_pascommence']) ? 'checked' : '' ?>>
+                    Afficher experiences à venir
+                </label>
+            </div>
+
+
 
 
             <!-- --------------------------- -->

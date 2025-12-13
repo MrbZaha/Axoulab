@@ -11,6 +11,15 @@ html,body {
 
 .container { max-width: 1200px; margin: 0 auto; padding: 0 12px; }
 
+table,
+thead,
+tbody,
+tr,
+td {
+    overflow: visible !important;
+}
+
+
 /* Titres */
 h1 { text-align:center; color:#333; margin: 12px 0; font-size: 1.4rem; }
 h2 { text-align:center; color:#444; margin: 8px 0; font-size: 1.1rem; }
@@ -56,7 +65,7 @@ thead th {
     color:#fff;
     cursor: default;
     transition: transform .12s ease, box-shadow .12s ease;
-    overflow: hidden;
+    overflow: visible;
     display:flex;
     flex-direction:column;
     gap:4px;
@@ -80,7 +89,7 @@ thead th {
     pointer-events: none;
     font-size: 0.9rem;
 }
-.reservation-continue:hover .reservation-overlay { display:block; pointer-events:auto; }
+.reservation-continue:hover .reservation-overlay { display:block ; pointer-events:auto;}
 
 /* Couleurs cycliques pour réservations */
 .couleur-1{ background: linear-gradient(135deg,#667eea,#764ba2); }
@@ -89,8 +98,8 @@ thead th {
 .couleur-4{ background: linear-gradient(135deg,#43e97b,#38f9d7); }
 
 /* Styles internes reservation */
-.experimentateur { font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.projet { font-size:0.95rem; opacity:0.92; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.experimentateur { font-weight:700; white-space:nowrap; overflow:visible; text-overflow:ellipsis; }
+.projet { font-size:0.95rem; opacity:0.92; white-space:nowrap; overflow:visible; text-overflow:ellipsis; }
 
 /* Materiels, liste et tags */
 .materiels-salle { background:#fff; border:1px solid #e6e6e6; border-radius:8px; padding:12px; margin:12px 0; }

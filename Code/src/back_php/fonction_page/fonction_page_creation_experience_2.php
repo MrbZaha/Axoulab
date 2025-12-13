@@ -10,7 +10,7 @@ verification_connexion($bdd);
  * @param PDO $bdd Connexion à la base de données
  * @return array Tableau contenant les noms des salles 
  */
-function recup_salles(PDO $bdd) {
+function recup_salles(PDO $bdd) :array{
     $sql = "SELECT DISTINCT Nom_salle FROM salle_materiel ORDER BY Nom_salle";
     $stmt = $bdd->prepare($sql);
     $stmt->execute();
@@ -23,7 +23,7 @@ function recup_salles(PDO $bdd) {
  * @param string $nom_salle nom de la salle
  * @return array Tableau contenant les matériels présent dans les salles
 */ 
-function recuperer_materiels_salle(PDO $bdd, string $nom_salle) {
+function recuperer_materiels_salle(PDO $bdd, string $nom_salle) :array{
     $sql = "
         SELECT ID_materiel, Materiel
         FROM salle_materiel
@@ -42,7 +42,7 @@ function recuperer_materiels_salle(PDO $bdd, string $nom_salle) {
  * @param string $nom_salle nom de la salle
  * @return int l'identifiant du matériel, null si le matériel n'existe pas
  */
-function recuperer_id_materiel_par_nom(PDO $bdd, string $nom_materiel, string $nom_salle) {
+function recuperer_id_materiel_par_nom(PDO $bdd, string $nom_materiel, string $nom_salle) :int {
     $sql = "
         SELECT ID_materiel
         FROM salle_materiel
@@ -80,7 +80,7 @@ function recuperer_id_materiel_par_nom(PDO $bdd, string $nom_materiel, string $n
  *               - 'materiels_utilises' (string) : Liste des matériels utilisés (concaténés)
  *               - 'experimentateurs' (string) : Liste des expérimentateurs impliqués (concaténés)
  */
-function recuperer_reservations_semaine(PDO $bdd, string $nom_salle,string $date_debut,string $date_fin) {
+function recuperer_reservations_semaine(PDO $bdd, string $nom_salle,string $date_debut,string $date_fin) :array{
     $sql = "
         SELECT 
             e.ID_experience,
@@ -132,7 +132,7 @@ function recuperer_reservations_semaine(PDO $bdd, string $nom_salle,string $date
  *               - 'numero_jour' (int) : Position du jour dans la semaine (1 à 7)
  *               - 'date_formatee' (string) : Date formatée en 'd/m/Y'
  */
-function get_dates_semaine($date_reference = null) {
+function get_dates_semaine(string $date_reference = null) :array{
     if ($date_reference === null) { $date_reference = date('Y-m-d'); }
     $date = new DateTime($date_reference);
     $jour_semaine = (int)$date->format('N');
@@ -169,7 +169,7 @@ function get_dates_semaine($date_reference = null) {
  * @return array Tableau des réservations qui occupent ce créneau.
  *               Retourne un tableau vide si aucune réservation ne couvre cette heure.
  */
-function creneau_est_occupe($reservations, $jour, $heure) {
+function creneau_est_occupe(array $reservations,array $jour, int $heure) :array{
     $creneaux = [];
     foreach ($reservations as $reservation) {
         $res_date = $reservation['Date_reservation'];
@@ -194,7 +194,7 @@ function creneau_est_occupe($reservations, $jour, $heure) {
  * @param string $heure_fin Heure de fin (format H:i)
  * @return array Tableau contenant 'disponible' (bool) et 'conflit' (string) avec le nom de l'expérience en conflit
  */
-function verifier_disponibilite_materiel($bdd, $id_materiel, $date, $heure_debut, $heure_fin) {
+function verifier_disponibilite_materiel(PDO $bdd, int $id_materiel,string $date, string $heure_debut, string $heure_fin) :array {
     $sql = "
         SELECT 
             e.Nom AS nom_experience,
@@ -237,7 +237,7 @@ function verifier_disponibilite_materiel($bdd, $id_materiel, $date, $heure_debut
  *
  * @return array Tableau indexé par date puis par heure, contenant les réservations correspondantes
  */
-function organiser_reservations_par_creneau($reservations, $dates_semaine, $heures) {
+function organiser_reservations_par_creneau(array $reservations, array $dates_semaine, array $heures) :array{
     $planning = [];
     
     // Initialiser le planning
@@ -265,7 +265,6 @@ function organiser_reservations_par_creneau($reservations, $dates_semaine, $heur
     return $planning;
 }
 
-
 /**
  * Crée une nouvelle expérience dans la base de données.
  *
@@ -280,6 +279,19 @@ function organiser_reservations_par_creneau($reservations, $dates_semaine, $heur
  * @return int|false ID de l'expérience créée ou false en cas d'échec
  */
 function creer_experience($bdd, $validation, $nom_experience, $description, $date_reservation, $date_creation, $heure_debut, $heure_fin, $nom_salle) {
+    if ($heure_debut < "08:00") {
+        $heure_debut = "08:00";
+    }
+
+    if ($heure_fin > "19:00") {
+        $heure_fin = "19:00";
+    }
+
+    // Vérification logique
+    if ($heure_debut >= $heure_fin) {
+        return false; // ou throw Exception
+    }
+
     $sql = $bdd->prepare("
         INSERT INTO experience (Nom, Description, Date_reservation, Date_de_creation, Heure_debut, Heure_fin, Statut_experience, Validation)
         VALUES (?, ?, ?,?, ?, ?, 0, ?)
@@ -291,6 +303,7 @@ function creer_experience($bdd, $validation, $nom_experience, $description, $dat
     return false;
 }
 
+
 /**
  * Associe une expérience à un projet.
  *
@@ -300,7 +313,7 @@ function creer_experience($bdd, $validation, $nom_experience, $description, $dat
  *
  * @return bool True si l'insertion réussit
  */
-function associer_experience_projet($bdd, $id_projet, $id_experience) {
+function associer_experience_projet(PDO $bdd,int $id_projet, int $id_experience) :bool{
     $sql = $bdd->prepare("
         INSERT INTO projet_experience (ID_projet, ID_experience)
         VALUES (?, ?)
@@ -314,8 +327,10 @@ function associer_experience_projet($bdd, $id_projet, $id_experience) {
  * @param PDO   $bdd Connexion PDO
  * @param int   $id_experience ID de l'expérience
  * @param array $experimentateurs Liste des ID_compte à associer
+ * 
+ * @return void
  */
-function ajouter_experimentateurs($bdd, $id_experience, $experimentateurs) {
+function ajouter_experimentateurs(PDO $bdd, int $id_experience, int $experimentateurs) :void{
     $sql = $bdd->prepare("
         INSERT INTO experience_experimentateur (ID_experience, ID_compte)
         VALUES (?, ?)
@@ -332,8 +347,10 @@ function ajouter_experimentateurs($bdd, $id_experience, $experimentateurs) {
  * @param PDO   $bdd Connexion PDO
  * @param int   $id_experience ID de l'expérience
  * @param array $materiels_ids Liste des ID_materiel à associer
+ * 
+ * @return void
  */
-function associer_materiel_experience($bdd, $id_experience, $materiels_ids) {
+function associer_materiel_experience(PDO $bdd, int $id_experience, array $materiels_ids) :void{
     $sql_insert = $bdd->prepare("
         INSERT INTO materiel_experience (ID_experience, ID_materiel)
         VALUES (?, ?)
@@ -352,7 +369,7 @@ function associer_materiel_experience($bdd, $id_experience, $materiels_ids) {
  *
  * @return string|null Nom du projet ou null s'il n'existe pas
  */
-function get_nom_projet($bdd, $id_projet) :string{
+function get_nom_projet(PDO $bdd, int $id_projet) :string{
     $sql = "
         SELECT 
             p.Nom_projet

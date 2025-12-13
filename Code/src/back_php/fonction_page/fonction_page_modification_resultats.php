@@ -97,7 +97,14 @@ function verifier_acces_experience(PDO $bdd, int $id_compte, int $id_experience)
     }
 }   
 
-
+/**
+ * Récupère les résultats d'une experience
+ *
+ * @param PDO $bdd Connexion PDO à la base de données
+ * @param int $id_experience ID de l'expérience
+ * 
+ * @return string|null Texte des résultats ou null sis aucun résultat
+ */
 function get_resultats_experience(PDO $bdd, int $id_experience): ?string {
     $sql = "
         SELECT e.Resultat
@@ -114,7 +121,13 @@ function get_resultats_experience(PDO $bdd, int $id_experience): ?string {
 
 
 /**
- * Met à jour le champ Resulat de l'expérience.
+ * Met à jour le champ résultat dans la BDD
+ *
+ * @param PDO $bdd Connexion PDO à la base de données
+ * @param int $id_experience ID de l'expérience
+ * @param string $html Texte du résultat
+ * 
+ * @return bool True si l'insertion est un succès, sinon false
  */
 function update_resultats_experience(PDO $bdd, int $id_experience, string $html): bool {
     $sql = "UPDATE experience SET Resultat = :res, Date_de_modification = :date_modif WHERE ID_experience = :id_experience";

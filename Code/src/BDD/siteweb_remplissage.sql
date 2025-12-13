@@ -400,29 +400,3 @@ INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 INSERT INTO materiel_experience (ID_experience, ID_materiel) VALUES
 (23, 11), (23, 13);
 
--- ========================================
--- INSERTION DES NOTIFICATIONS
--- ========================================
--- Notifications pour expériences
-INSERT INTO notification_experience (ID_compte_envoyeur, ID_compte_receveur, ID_experience, Type_notif, Date_envoi, Valider) VALUES
-(1, 2, 1, 1, '2024-11-20 09:15:00', 0),
-(2, 3, 1, 2, '2024-11-20 14:30:00', 1),
-(5, 6, 4, 1, '2024-11-21 10:00:00', 1),
-(9, 10, 6, 3, '2024-11-22 11:45:00', 0),
-(12, 13, 9, 1, '2024-11-23 08:30:00', 1),
-(16, 17, 11, 2, '2024-11-23 15:20:00', 1),
-(3, 4, 16, 1, '2024-11-24 09:00:00', 1),
-(7, 8, 18, 3, '2024-11-24 13:45:00', 1);
-
--- Notifications pour projets
-INSERT INTO notification_projet (ID_compte_envoyeur, ID_compte_receveur, ID_projet, Type_notif, Date_envoi, Valider) VALUES
-(1, 2, 1, 1, '2024-11-15 10:30:00', 1),
-(1, 3, 1, 1, '2024-11-15 10:31:00', 0),
-(5, 6, 2, 2, '2024-11-16 14:00:00', 1),
-(9, 10, 3, 1, '2024-11-17 09:15:00', 0),
-(12, 13, 4, 3, '2024-11-18 11:30:00', 0),
-(16, 17, 5, 1, '2024-11-19 08:45:00', 1),
-(19, 20, 6, 2, '2024-11-20 15:00:00', 1),
-(3, 4, 7, 1, '2024-11-21 10:20:00', 0),
-(10, 11, 9, 3, '2024-11-22 13:00:00', 1),
-(14, 15, 10, 1, '2024-11-23 09:30:00', 0);

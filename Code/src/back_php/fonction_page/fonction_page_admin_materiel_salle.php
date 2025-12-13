@@ -11,7 +11,7 @@ verification_connexion($bdd);
  * @param int $id_materiel Identifiant du matériel associé
  * @return void c'est une procédure qui ne retourne rien
  */
-function supprimer_materiel(PDO $bdd, int $id_materiel) {
+function supprimer_materiel(PDO $bdd, int $id_materiel) :void{
     $stmt = $bdd->prepare("DELETE FROM salle_materiel WHERE ID_materiel = ?");
     $stmt->execute([$id_materiel]);
 }
@@ -41,7 +41,7 @@ function ajouter_materiel(PDO $bdd, string $Nom_Salle, string $Materiel) {
  * @param int $id Nom de la salle possédant l'outil
  * @return bool ou string Return vrai si l'étape s'est effectuée correctement, sinon un message d'erreur
  */
-function modifier_materiel(PDO $bdd, int $id){
+function modifier_materiel(PDO $bdd, int $id) {
     if (isset($_POST["salle"], $_POST["materiel"])) {
         $salle = trim($_POST["salle"]);
         $mat = trim($_POST["materiel"]);
@@ -69,7 +69,7 @@ function modifier_materiel(PDO $bdd, int $id){
  * @param PDO $bdd Connexion à la base de données
  * @return array Rend la liste de l'ensemble du matériel
  */
-function get_materiel(PDO $bdd) {
+function get_materiel(PDO $bdd) :array{
     $sql_materiel = "
         SELECT ID_materiel,
         Nom_salle,
@@ -90,7 +90,7 @@ function get_materiel(PDO $bdd) {
  * @param PDO $bdd Connexion à la base de données
  * @return void C'est une procédure qui ne retourne rien
  */
-function afficher_materiel_pagines(array $materiel, int $page_actuelle, int $items_par_page, PDO $bdd) {
+function afficher_materiel_pagines(array $materiel, int $page_actuelle, int $items_par_page, PDO $bdd) :void{
     $debut = ($page_actuelle - 1) * $items_par_page;
     $materiel_page = array_slice($materiel, $debut, $items_par_page);
     ?>
