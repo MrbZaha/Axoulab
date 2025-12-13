@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $tous_collaborateurs = array_unique(array_merge($collaborateurs_selectionnes, [$_SESSION["ID_compte"]]));
                     
-                    ajouter_participants($bdd, $id_projet, $gestionnaires_selectionnes, $tous_collaborateurs;
+                    ajouter_participants($bdd, $id_projet, $gestionnaires_selectionnes, $tous_collaborateurs);
 
                     $donnees = ['ID_projet' => $id_projet, 'Nom_projet' => $nom_projet];
 

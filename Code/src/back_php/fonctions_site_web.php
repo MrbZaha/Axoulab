@@ -284,45 +284,38 @@ function afficher_Bandeau_Haut_notification($bdd, $userID, $recherche = true) {
                 
                 if ($nouvelEtat == 1) {
                     // === VALIDATION ===
-                    
-                    if ($validationActuelle == 0) {
-                        // Projet en attente → Premier à valider → Valider le projet
-                        $up = $bdd->prepare("UPDATE projet SET Validation = 1, Date_de_modification = NOW() WHERE ID_projet = ?");
-                        $up->execute([$idProjet]);
-                    } elseif ($validationActuelle == 2) {
-                        // Projet refusé → Un gestionnaire valide quand même → RE-VALIDER le projet
+                    if (in_array($validationActuelle, [0,2])) {
                         $up = $bdd->prepare("UPDATE projet SET Validation = 1, Date_de_modification = NOW() WHERE ID_projet = ?");
                         $up->execute([$idProjet]);
                     }
-                    // Si déjà validé (Validation = 1), on ne change rien
-                    
-                    // Dans TOUS les cas, envoyer notification type 12 à l'étudiant
-                    $stmtNomProjet = $bdd->prepare("SELECT Nom_projet FROM projet WHERE ID_projet = ?");
-                    $stmtNomProjet->execute([$idProjet]);
-                    $nomProjet = $stmtNomProjet->fetchColumn();
-                    
-                    envoyerNotification($bdd, 12, $idUtilisateur, ['ID_projet' => $idProjet, 'Nom_projet' => $nomProjet], [$idEnvoyeurOriginal]);
-                    $typeRetour = null;
-
+                    // On garde ce gestionnaire dans la table participants
                 } elseif ($nouvelEtat == 2) {
                     // === REFUS ===
-                    
                     if ($validationActuelle == 0) {
-                        // Projet en attente → Premier à refuser → Refuser le projet
+                        // Premier refus → mettre projet refusé
                         $up = $bdd->prepare("UPDATE projet SET Validation = 2, Date_de_modification = NOW() WHERE ID_projet = ?");
                         $up->execute([$idProjet]);
                     }
-                    // Si déjà validé (Validation = 1) → Le projet RESTE validé (ne pas le refuser)
-                    // Si déjà refusé (Validation = 2) → Il reste refusé
-                    
-                    // Dans TOUS les cas, envoyer notification type 13 à l'étudiant
-                    $stmtNomProjet = $bdd->prepare("SELECT Nom_projet FROM projet WHERE ID_projet = ?");
-                    $stmtNomProjet->execute([$idProjet]);
-                    $nomProjet = $stmtNomProjet->fetchColumn();
-                    
-                    envoyerNotification($bdd, 13, $idUtilisateur, ['ID_projet' => $idProjet, 'Nom_projet' => $nomProjet], [$idEnvoyeurOriginal]);
-                    $typeRetour = null;
+                    // Retirer ce gestionnaire de la table, même si projet déjà validé
+                    $deleteGest = $bdd->prepare("
+                        DELETE FROM projet_collaborateur_gestionnaire 
+                        WHERE ID_projet = ? AND ID_compte = ?
+                    ");
+                    $deleteGest->execute([$idProjet, $idUtilisateur]);
                 }
+
+                // Envoyer notification à l'étudiant
+                $stmtNomProjet = $bdd->prepare("SELECT Nom_projet FROM projet WHERE ID_projet = ?");
+                $stmtNomProjet->execute([$idProjet]);
+                $nomProjet = $stmtNomProjet->fetchColumn();
+
+                envoyerNotification(
+                    $bdd,
+                    $nouvelEtat == 1 ? 12 : 13,
+                    $idUtilisateur,
+                    ['ID_projet' => $idProjet, 'Nom_projet' => $nomProjet],
+                    [$idEnvoyeurOriginal]
+                );
 
                 } else {
                     // === CAS CHERCHEUR/ADMIN ===
