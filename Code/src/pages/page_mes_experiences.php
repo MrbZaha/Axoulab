@@ -31,7 +31,7 @@ if ($page > $total_pages) $page = $total_pages;
     <meta charset="UTF-8">
     <title>Mes expériences</title>
     <!--permet d'uniformiser le style sur tous les navigateurs-->
-    link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <link rel="stylesheet" href="../css/page_mes_experiences.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">

@@ -225,7 +225,8 @@ if (!empty($collaborateurs_selectionnes)) {
     <?= $message ?>
 
     <form action="" method="post">
-
+        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+        
         <input type="hidden" name="gestionnaires_ids" value="<?= implode(',', $gestionnaires_selectionnes) ?>">
         <input type="hidden" name="collaborateurs_ids" value="<?= implode(',', $collaborateurs_selectionnes) ?>">
 

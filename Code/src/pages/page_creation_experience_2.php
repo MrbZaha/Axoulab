@@ -470,6 +470,7 @@ $heures = range(8, 19);
             <div class="reservation-form">
                 <h3>Créer la réservation</h3>
                 <form method="post" id="form-reservation">
+                    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                     <input type="hidden" name="id_projet" value="<?= $id_projet ?>">
                     <input type="hidden" name="nom_experience" value="<?= htmlspecialchars($nom_experience) ?>">
                     <input type="hidden" name="description" value="<?= htmlspecialchars($description) ?>">

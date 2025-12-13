@@ -10,6 +10,8 @@ require_once __DIR__ . '/../back_php/fonction_page/fonction_page_connexion.php';
 
 $bdd = connectBDD();
 
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     check_csrf();
 }
@@ -108,6 +110,7 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
 <body>
 
     <form action ="" method="post"> <!-- Envoie vers la page (qui est juste au-dessus) qui permet de récuperer les informations du l'utilisateur-->
+    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
 
     <div class ="login-box"> <!-- permet d'avoir le petit cadrant blanc autours-->
 

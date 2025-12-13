@@ -162,6 +162,7 @@ if (!file_exists($path)) {
       <?php if (!$showForm): ?>
         <form action="" method="post">
           <input type="submit" name="changer_mdp" value="Changer de mot de passe" class="btn-mdp">
+          <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
         </form>
       <?php else: ?>
         <form action="" method="post" class="mdp-form">

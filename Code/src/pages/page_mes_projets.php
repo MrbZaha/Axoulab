@@ -40,6 +40,7 @@ if ($page > $total_pages) $page = $total_pages;
     <h1>Mes projets</h1>
     <div class="create-projet">
     <form action= "page_creation_projet.php" method= "post">
+        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
         <input type= "submit" value= "Créer un projet" />
     </div>
     <div class="projets">

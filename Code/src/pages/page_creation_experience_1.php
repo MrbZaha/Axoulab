@@ -164,6 +164,7 @@ if (!empty($experimentateurs_selectionnes)) {
         <?php else: ?>
 
         <form method="post" id="form-experience">
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
             <input type="hidden" name="id_projet" value="<?= $id_projet ?>">
             <input type="hidden" name="experimentateurs_ids" value="<?= implode(',', $experimentateurs_selectionnes) ?>">
             <input type="hidden" id="id_retirer" name="id_retirer" value="">
