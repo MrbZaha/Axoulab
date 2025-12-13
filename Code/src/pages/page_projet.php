@@ -31,7 +31,9 @@ $page_title = $projet ? htmlspecialchars($projet['Nom_projet']) : "Projet";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?></title>
-        <link rel="stylesheet" href="../css/page_projet.css">
+    <!--permet d'uniformiser le style sur tous les navigateurs-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="../css/page_projet.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -46,15 +48,17 @@ $page_title = $projet ? htmlspecialchars($projet['Nom_projet']) : "Projet";
         <div class="actions-projet">
             
             <form action="page_supprimer_projet.php" method="post" onsubmit="return confirm('Voulez-vous vraiment supprimer ce projet ?');">
-                
+                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <input type="hidden" name="id_projet" value="<?= $id_projet ?>">
                 <input type="submit" value="Supprimer le projet" />
             </form>
 
             <form action="page_creation_experience_1.php?id_projet=<?= $id_projet ?>" method="post">
+                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <input type="submit" value="Ajouter une expérience" />
             </form>
             <form action="page_modification_projet.php?id_projet=<?= $id_projet ?>" method="post">
+                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <input type="submit" value="Modifier le projet" />
             </form>
         </div>

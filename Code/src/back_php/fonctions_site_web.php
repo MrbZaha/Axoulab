@@ -166,6 +166,10 @@ function verifier_mdp(string $mdp) :array{
  */
 function afficher_Bandeau_Haut_notification(PDO $bdd, int $userID, bool $recherche = true) :void{
 
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+    }
+
     // ------------------- TRAITEMENT DES NOTIFICATIONS POST -------------------
     if ($_SERVER['REQUEST_METHOD'] === 'POST' 
         && isset($_POST['id_notif'], $_POST['action_notif'], $_POST['is_projet'])) {
@@ -491,6 +495,7 @@ function afficher_Bandeau_Haut(PDO $bdd, int $userID, $recherche = true) :void{
                                             <div class="notif-actions">
                                                 <?php foreach ($notif['actions'] as $act): ?>
                                                     <form method="post" style="display:inline;">
+                                                        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                                                         <input type="hidden" name="id_notif" value="<?= $notif['id'] ?>">
                                                         <input type="hidden" name="action_notif" value="<?= $act ?>">
                                                         <input type="hidden" name="is_projet" value="<?= $notif['is_projet'] ? 1 : 0 ?>">
@@ -1018,13 +1023,22 @@ function afficher_experiences_pagines(PDO $bdd, array $experiences, int $page_ac
                                 // Si on est admin ET qu'on est sur une page admin
                                 // ajoute 2 boutons : modification et suppression 
                                 ?>
+                                    <!-- Bouton Modifier (reste en GET, pas critique côté CSRF) -->
                                     <button class="btn btnViolet"  
                                         onclick="event.stopPropagation(); location.href='page_modification_experience.php?id_experience=<?= $id_experience ?>'">
-                                        Modifier</button>
-                                    <a href="page_admin_experiences.php?action=supprimer&id=<?php echo $id_experience; ?>"
-                                        class="btn btnRouge"
-                                        onclick="event.stopPropagation();">
-                                        Supprimer</a>
+                                        Modifier
+                                    </button>
+
+                                    <!-- Formulaire suppression sécurisé en POST avec CSRF -->
+                                    <form method="post" action="page_admin_experiences.php" style="display:inline;" 
+                                        onsubmit="return confirm('Voulez-vous vraiment supprimer cette expérience ?');">
+                                        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                                        <input type="hidden" name="action" value="supprimer">
+                                        <input type="hidden" name="id_experience" value="<?= (int)$id_experience ?>">
+                                        <button type="submit" class="btn btnRouge" onclick="event.stopPropagation();">
+                                            Supprimer
+                                        </button>
+                                    </form>
                             <?php } ?>
                         <?php } ?>
                     </div>
@@ -1654,15 +1668,20 @@ function afficher_projets_pagines(PDO $bdd, array $projets, int $page_actuelle =
                         <p><strong>Date de création :</strong> <?= $date ?></p>
                         <p><strong>Rôle :</strong> <?= $role ?></p>
                         <?php if (est_admin($bdd, $_SESSION["email"]) && $page_admin): ?>
-                            <button class="btn btnViolet"  
-                                onclick="event.stopPropagation(); location.href='page_modification_projet.php?id_projet=<?= $id ?>'">
-                                Modifier
-                            </button>
-                            <a href="page_admin_projets.php?action=supprimer&id=<?= $id; ?>"
-                                class="btn btnRouge"
-                                onclick="event.stopPropagation();">
-                                Supprimer
-                            </a>
+                            <!-- Bouton Modifier -->
+                            <form action="page_modification_projet.php" method="POST" style="display:inline;">
+                                <input type="hidden" name="id_projet" value="<?= $id ?>">
+                                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                                <button class="btn btnViolet" type="submit">Modifier</button>
+                            </form>
+
+                            <!-- Bouton Supprimer -->
+                            <form action="page_admin_projets.php" method="POST" style="display:inline;" onsubmit="return confirm('Voulez-vous vraiment supprimer ce projet ?');">
+                                <input type="hidden" name="action" value="supprimer">
+                                <input type="hidden" name="id" value="<?= $id ?>">
+                                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                                <button class="btn btnRouge" type="submit">Supprimer</button>
+                            </form>
                         <?php endif; ?>
                     </div>
                 </div>

@@ -1,11 +1,12 @@
 <?php
-session_start();
 require_once __DIR__ . '/fonctions_site_web.php';
 
+$bdd = connectBDD();
+verification_connexion($bdd);
 check_csrf();
 
+$_SESSION = [];
 session_destroy();
-header("Location: ../Main_page.php");
-exit;
 
-exit();
+header("Location: ../pages/page_connexion.php");
+exit;

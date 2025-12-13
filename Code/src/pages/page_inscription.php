@@ -9,6 +9,10 @@ require_once __DIR__ . '/../back_php/fonction_page/fonction_page_inscription.php
 // Connexion à la base
 $bdd = connectBDD();
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
+
 // Variable pour afficher les messages
 $message = "";
 $messages = [];  // Tableau pour accumuler les messages d'erreur
@@ -100,10 +104,12 @@ if (isset($_POST["Nom"], $_POST["Prenom"], $_POST["date_de_naissance"], $_POST["
     <meta charset="UTF-8">
     <title>Page d'inscription</title>
     <!-- Permet d'uniformiser le style sur tous les navigateurs -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <link rel="stylesheet" href="../css/page_d'inscription.css">
 </head>
 <body>
    <form action="" method="post" autocomplete="off">
+        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
        <p> 
         <?php 
         // Affiche le message si présent

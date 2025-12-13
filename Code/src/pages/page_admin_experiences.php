@@ -5,6 +5,7 @@ session_start();
 
 $bdd = connectBDD();
 
+
 $page_admin = true;  // On déclare qu'on est sur une page admin pour les fonctions qui le nécessite
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -37,13 +38,24 @@ if ($page > $total_pages) $page = $total_pages;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Dans le cas où l'on cherche à supprimer une expérience
-// Si une action GET est reçue
-if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
-    if (isset($_GET['id'])) {
-        $id_experience = intval($_GET['id']);
+// Si une action POST est reçue
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+
+    check_csrf();
+
+    if ($_POST['action'] === 'supprimer' && isset($_POST['id_experience'])) {
+
+        // Vérification admin (double sécurité)
+        if (!est_admin_par_id($bdd, $_SESSION['ID_compte'])) {
+            http_response_code(403);
+            exit('Accès interdit');
+        }
+
+        $id_experience = (int)$_POST['id_experience'];
+
         supprimer_experience($bdd, $id_experience);
 
-        // On recharge la page proprement (cela empêche de supprimer deux fois)
+        // Redirection propre (PRG pattern)
         header("Location: page_admin_experiences.php?suppression=ok");
         exit;
     }

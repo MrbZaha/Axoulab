@@ -12,12 +12,9 @@ $message = "";  // Variable globale pour les messages
 verification_connexion($bdd);
 
 // On vérifie si l'utilisateur a les droits pour accéder à cette page
-if (est_admin_par_id($bdd, $_SESSION["ID_compte"])){
-    // Le code peut poursuivre
-}
-else {
-    // On change le layout de la page et on invite l'utilisateur à revenir sur la page précédente
+if (!est_admin_par_id($bdd, $_SESSION["ID_compte"])) {
     layout_erreur();
+    exit;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,51 +30,38 @@ $total_pages = create_page($utilisateurs, $items_par_page);
 if ($page > $total_pages) $page = $total_pages;
 
 ///////////////////////////////////////////////////////////////////////////////
-// Affichage des messages de confirmation selon les paramètres GET
-if (isset($_GET['suppression']) && $_GET['suppression'] === 'ok') {
-    $message = afficher_popup("Suppression réussie", "L'utilisateur a été supprimé avec succès.", "success", "page_admin_utilisateurs");
-}
-if (isset($_GET['modification']) && $_GET['modification'] === 'ok') {
-    $message = afficher_popup("Modification réussie", "Les informations de l'utilisateur ont été mises à jour.", "success", "page_admin_utilisateurs");
-}
-if (isset($_GET['accept']) && $_GET['accept'] === 'ok') {
-    $message = afficher_popup("Validation réussie", "Le compte utilisateur a été validé.", "success", "page_admin_utilisateurs");
-}
-if (isset($_GET['erreur'])) {
-    $message = afficher_popup("Erreur", "Une erreur est survenue : " . htmlspecialchars($_GET['erreur']), "error", "page_admin_utilisateurs");
-}
+// TRAITEMENT DES ACTIONS (POST UNIQUEMENT + CSRF)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-///////////////////////////////////////////////////////////////////////////////
-// Dans le cas où l'on cherche à supprimer un utilisateur
-if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
-    if (isset($_GET['id'])) {
-        $id_utilisateur = intval($_GET['id']);
-        supprimer_utilisateur($bdd, $id_utilisateur);
-        header("Location: page_admin_utilisateurs.php?suppression=ok");
-        exit;
-    }
-}
+    check_csrf();
 
-///////////////////////////////////////////////////////////////////////////////
-// Dans le cas où l'on cherche à modifier les informations d'un utilisateur
-if (isset($_POST['action']) && $_POST['action'] === 'modifier') {
-    $resultat = modifier_utilisateur($bdd, intval($_POST['id']));
-    if ($resultat === true) {
-        header("Location: page_admin_utilisateurs.php?modification=ok");
-    } else {
-        header("Location: page_admin_utilisateurs.php?erreur=" . urlencode($resultat));
-    }
-    exit;
-}
+    if (isset($_POST['action'], $_POST['id'])) {
 
-///////////////////////////////////////////////////////////////////////////////
-// Dans le cas où l'on cherche à accepter la création d'un compte
-if (isset($_GET['action']) && $_GET['action'] === 'accepter') {
-    if (isset($_GET['id'])) {
-        $id_utilisateur = intval($_GET['id']);
-        accepter_utilisateur($bdd, $id_utilisateur);
-        header("Location: page_admin_utilisateurs.php?accept=ok");
-        exit;
+        $id_utilisateur = (int)$_POST['id'];
+
+        switch ($_POST['action']) {
+
+            case 'modifier':
+                $resultat = modifier_utilisateur($bdd, $id_utilisateur);
+                if ($resultat === true) {
+                    header("Location: page_admin_utilisateurs.php?modification=ok");
+                } else {
+                    header("Location: page_admin_utilisateurs.php?erreur=" . urlencode($resultat));
+                }
+                exit;
+
+            case 'supprimer':
+                if ($_SESSION['ID_compte'] !== $id_utilisateur) {
+                    supprimer_utilisateur($bdd, $id_utilisateur);
+                    header("Location: page_admin_utilisateurs.php?suppression=ok");
+                }
+                exit;
+
+            case 'accepter':
+                accepter_utilisateur($bdd, $id_utilisateur);
+                header("Location: page_admin_utilisateurs.php?accept=ok");
+                exit;
+        }
     }
 }
 ?>
@@ -86,7 +70,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'accepter') {
 <html lang="fr">
     <head>
         <meta charset="utf-8"/>
-                    <link rel="stylesheet" href="../css/page_mes_experiences.css">
+        <!--permet d'uniformiser le style sur tous les navigateurs-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+        <link rel="stylesheet" href="../css/page_mes_experiences.css">
         <link rel="stylesheet" href="../css/page_admin_utilisateurs_materiel.css">
         <link rel="stylesheet" href="../css/admin.css">
         <link rel="stylesheet" href="../css/Bandeau_haut.css">

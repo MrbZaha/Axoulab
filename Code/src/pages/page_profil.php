@@ -113,7 +113,9 @@ if (!file_exists($path)) {
 <head>
     <meta charset="UTF-8">
     <title>Profil utilisateur</title>
-        <link rel="stylesheet" href="../css/page_profil.css">
+    <!--permet d'uniformiser le style sur tous les navigateurs-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="../css/page_profil.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
     <link rel="stylesheet" href="../css/popup.css">
@@ -160,6 +162,7 @@ if (!file_exists($path)) {
       <?php if (!$showForm): ?>
         <form action="" method="post">
           <input type="submit" name="changer_mdp" value="Changer de mot de passe" class="btn-mdp">
+          <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
         </form>
       <?php else: ?>
         <form action="" method="post" class="mdp-form">

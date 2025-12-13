@@ -9,6 +9,10 @@ $bdd = connectBDD();
 $message = "";
 $type_message = "";
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
+
 // Vérifie si le formulaire a été soumis
 if (!empty($_POST["email"])) {
 
@@ -33,6 +37,8 @@ if (!empty($_POST["email"])) {
     <!-- Création de la page de connexion-->
     <meta charset="UTF-8">
     <title>Réinitialisation du mot de passe </title>
+    <!--permet d'uniformiser le style sur tous les navigateurs-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
         <link rel="stylesheet" href="../css/page_mdp_oublie.css">
 
 </head>

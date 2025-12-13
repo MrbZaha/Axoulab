@@ -71,9 +71,9 @@ function afficher_utilisateurs_pagines(array $utilisateurs, int $page_actuelle, 
     $debut = ($page_actuelle - 1) * $items_par_page;
     $utilisateur_page = array_slice($utilisateurs, $debut, $items_par_page);
     ?>
-        <?php if (empty($utilisateur_page)): ?>
-            <p class="no-experiences">Aucun utilisateur à afficher</p>
-        <?php else: ?>
+<?php if (empty($utilisateur_page)): ?>
+    <p class="no-experiences">Aucun utilisateur à afficher</p>
+<?php else: ?>
 
     <table class="whole_table">
         <thead class="tablehead">
@@ -88,68 +88,97 @@ function afficher_utilisateurs_pagines(array $utilisateurs, int $page_actuelle, 
             </tr>
         </thead>
         <tbody>
+
     <?php
-        foreach ($utilisateur_page as $user):
-            $id  = htmlspecialchars($user['ID_compte']);
-            $nom = htmlspecialchars($user['Nom']);
-            $prenom = htmlspecialchars($user['Prenom']);
-            $dateN = htmlspecialchars($user['Date_de_naissance']);
-            $email = htmlspecialchars($user['Email']);
-            $etat = htmlspecialchars($user['Etat']);
-            $validation = htmlspecialchars($user['validation']);
+    foreach ($utilisateur_page as $user):
+
+        $id         = htmlspecialchars($user['ID_compte'], ENT_QUOTES, 'UTF-8');
+        $nom        = htmlspecialchars($user['Nom'], ENT_QUOTES, 'UTF-8');
+        $prenom     = htmlspecialchars($user['Prenom'], ENT_QUOTES, 'UTF-8');
+        $dateN      = htmlspecialchars($user['Date_de_naissance'], ENT_QUOTES, 'UTF-8');
+        $email      = htmlspecialchars($user['Email'], ENT_QUOTES, 'UTF-8');
+        $etat       = (int)$user['Etat'];
+        $validation = (int)$user['validation'];
     ?>
-        <tr>
-            <form action="page_admin_utilisateurs.php" method="POST">
-                <td>
-                    <input type="text" name="nom_<?= $id ?>" value="<?= $nom ?>" class="input-user">
-                </td>
-                <td>
-                    <input type="text" name="prenom_<?= $id ?>" value="<?= $prenom ?>" class="input-user">
-                </td>
-                <td>
-                    <input type="date" name="date_<?= $id ?>" value="<?= $dateN ?>" class="input-user">
-                </td>
-                <td>
-                    <input type="email" name="email_<?= $id ?>" value="<?= $email ?>" class="input-user">
-                </td>
-                <td>
-                    <select name="etat_<?= $id ?>" class="select-user">
-                        <option value="1" <?= $etat == 1 ? "selected" : "" ?>>Étudiant</option>
-                        <option value="2" <?= $etat == 2 ? "selected" : "" ?>>Chercheur</option>
-                        <option value="3" <?= $etat == 3 ? "selected" : "" ?>>Administrateur</option>
-                    </select>
-                </td>
-                <td>
-                    <?php if ($validation != 1): ?>
-                        <a class="btn btnVert"
-                            href="page_admin_utilisateurs.php?action=accepter&id=<?= $id ?>">
-                            Valider
-                        </a>
-                    <?php else: ?>
-                        <span class="badge-valide">Validé(e)</span>
-                    <?php endif; ?>
-                </td>
-                <td>
-                    <div class="actions-cell">
-                        <input type="hidden" name="action" value="modifier">
+
+    <tr>
+
+        <form action="page_admin_utilisateurs.php" method="POST">
+
+            <td>
+                <input type="text" name="nom_<?= $id ?>" value="<?= $nom ?>" class="input-user" required>
+            </td>
+
+            <td>
+                <input type="text" name="prenom_<?= $id ?>" value="<?= $prenom ?>" class="input-user" required>
+            </td>
+
+            <td>
+                <input type="date" name="date_<?= $id ?>" value="<?= $dateN ?>" class="input-user" required>
+            </td>
+
+            <td>
+                <input type="email" name="email_<?= $id ?>" value="<?= $email ?>" class="input-user" required>
+            </td>
+
+            <td>
+                <select name="etat_<?= $id ?>" class="select-user">
+                    <option value="1" <?= $etat === 1 ? "selected" : "" ?>>Étudiant</option>
+                    <option value="2" <?= $etat === 2 ? "selected" : "" ?>>Chercheur</option>
+                    <option value="3" <?= $etat === 3 ? "selected" : "" ?>>Administrateur</option>
+                </select>
+            </td>
+
+            <!-- VALIDATION : POST + CSRF (PAS DE GET) -->
+            <td>
+                <?php if ($validation !== 1): ?>
+                    <form action="page_admin_utilisateurs.php" method="POST" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                        <input type="hidden" name="action" value="accepter">
                         <input type="hidden" name="id" value="<?= $id ?>">
-                        <button class="btn btnViolet" type="submit">Modifier</button>
-                        <?php if ($_SESSION['ID_compte'] != $id): ?>
-                            <a class="btn btnRouge"
-                                href="page_admin_utilisateurs.php?action=supprimer&id=<?= $id ?>">
-                                Supprimer
-                            </a>
-                        <?php else: ?>
-                            <span class="btn btnGris">Supprimer</span>
-                        <?php endif; ?>
-                    </div>
-                </td>
-            </form>
-        </tr>
+                        <button class="btn btnVert" type="submit">Valider</button>
+                    </form>
+                <?php else: ?>
+                    <span class="badge-valide">Validé(e)</span>
+                <?php endif; ?>
+            </td>
+
+            <td>
+                <div class="actions-cell">
+                    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                    <input type="hidden" name="action" value="modifier">
+                    <input type="hidden" name="id" value="<?= $id ?>">
+                    <button class="btn btnViolet" type="submit">Modifier</button>
+                </div>
+            </td>
+
+        </form>
+
+        <!-- FORMULAIRE DE SUPPRESSION (POST + CSRF) -->
+        <td>
+            <?php if ($_SESSION['ID_compte'] != $id): ?>
+                <form action="page_admin_utilisateurs.php" method="POST" style="display:inline;">
+                    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+                    <input type="hidden" name="action" value="supprimer">
+                    <input type="hidden" name="id" value="<?= $id ?>">
+                    <button class="btn btnRouge" type="submit">
+                        Supprimer
+                    </button>
+                </form>
+            <?php else: ?>
+                <span class="btn btnGris">Supprimer</span>
+            <?php endif; ?>
+        </td>
+
+    </tr>
+
     <?php endforeach; ?>
+
         </tbody>
     </table>
-        <?php endif; ?>
+
+    <?php endif; ?>
+
     <?php
 }
 

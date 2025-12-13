@@ -16,7 +16,9 @@ $derniers_projets=filtrer_trier_pro_exp($bdd, $id_compte, $types=['projet'],$tri
 <html lang="fr">
     <head>
         <meta charset= "utf-8"/>
-            <link rel="stylesheet" href="../css/Main_page_connected.css">
+        <!--permet d'uniformiser le style sur tous les navigateurs-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+        <link rel="stylesheet" href="../css/Main_page_connected.css">
         <link rel="stylesheet" href="../css/page_mes_projets.css">
         <link rel="stylesheet" href="../css/Bandeau_haut.css">
         <link rel="stylesheet" href="../css/Bandeau_bas.css">

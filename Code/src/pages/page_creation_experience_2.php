@@ -5,6 +5,10 @@ require_once __DIR__ . '/../back_php/fonction_page/fonction_page_creation_experi
 $bdd = connectBDD();
 verification_connexion($bdd);
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
+
 $message = "";
 $nom_experience = "";
 $description = "";
@@ -266,6 +270,8 @@ $heures = range(8, 19);
 <head>
 <meta charset="utf-8">
 <title>Réservation de salle - Étape 2</title>
+<!--permet d'uniformiser le style sur tous les navigateurs-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
 <link rel="stylesheet" href="../css/page_creation_experience_2.css">
@@ -464,6 +470,7 @@ $heures = range(8, 19);
             <div class="reservation-form">
                 <h3>Créer la réservation</h3>
                 <form method="post" id="form-reservation">
+                    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                     <input type="hidden" name="id_projet" value="<?= $id_projet ?>">
                     <input type="hidden" name="nom_experience" value="<?= htmlspecialchars($nom_experience) ?>">
                     <input type="hidden" name="description" value="<?= htmlspecialchars($description) ?>">

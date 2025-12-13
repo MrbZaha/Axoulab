@@ -10,6 +10,12 @@ require_once __DIR__ . '/../back_php/fonction_page/fonction_page_connexion.php';
 
 $bdd = connectBDD();
 
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
+
 $erreur = "";
 
 // PARAMÈTRES DE SÉCURITÉ : LIMITE DE TENTATIVES 
@@ -95,6 +101,8 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
     <!-- Création de la page de connexion-->
     <meta charset="UTF-8">
     <title>Page de connexion</title>
+    <!--permet d'uniformiser le style sur tous les navigateurs-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
         <link rel="stylesheet" href="../css/page_connexion.css">
     <link rel="stylesheet" href="../css/popup.css">
 
@@ -102,6 +110,7 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
 <body>
 
     <form action ="" method="post"> <!-- Envoie vers la page (qui est juste au-dessus) qui permet de récuperer les informations du l'utilisateur-->
+    <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
 
     <div class ="login-box"> <!-- permet d'avoir le petit cadrant blanc autours-->
 

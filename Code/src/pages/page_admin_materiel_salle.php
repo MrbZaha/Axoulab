@@ -43,7 +43,51 @@ $total_pages = create_page($materiel, $items_par_page);
 if ($page > $total_pages) $page = $total_pages;
 
 ///////////////////////////////////////////////////////////////////////////////
-// Affichage des messages de confirmation selon les paramètres GET
+// Gestion des actions POST (CSRF check)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+
+    // Supprimer un matériel
+    if (isset($_POST['action']) && $_POST['action'] === 'supprimer' && isset($_POST['id'])) {
+        $id_materiel = intval($_POST['id']);
+        supprimer_materiel($bdd, $id_materiel);
+        header("Location: page_admin_materiel_salle.php?suppression=ok");
+        exit;
+    }
+
+    // Modifier un matériel
+    if (isset($_POST['action']) && $_POST['action'] === 'modifier' && isset($_POST['id'])) {
+        $resultat = modifier_materiel($bdd, intval($_POST['id']));
+        if ($resultat === true) {
+            header("Location: page_admin_materiel_salle.php?modification=ok");
+        } else {
+            header("Location: page_admin_materiel_salle.php?erreur=" . urlencode($resultat));
+        }
+        exit;
+    }
+
+    // Ajouter un matériel
+    if (isset($_POST['action']) && $_POST['action'] === 'valider') {
+        if (!empty($_POST['salle_new']) && !empty($_POST['materiel_new'])) {
+            $resultat = ajouter_materiel($bdd, $_POST['salle_new'], $_POST['materiel_new']);
+            if ($resultat === true) {
+                header("Location: page_admin_materiel_salle.php?ajout=ok");
+            } else {
+                header("Location: page_admin_materiel_salle.php?erreur=" . urlencode($resultat));
+            }
+            exit;
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Gestion des GET uniquement pour l'affichage ou passage en mode ajout
+if (isset($_GET['action']) && $_GET['action'] === 'ajouter') {
+    $ajouter = true;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Affichage des messages de confirmation
 if (isset($_GET['suppression']) && $_GET['suppression'] === 'ok') {
     $message = afficher_popup("Suppression réussie", "Le matériel a été supprimé avec succès.", "success", "page_admin_materiel_salle");
 }
@@ -57,58 +101,15 @@ if (isset($_GET['erreur'])) {
     $message = afficher_popup("Erreur", "Une erreur est survenue : " . htmlspecialchars($_GET['erreur']), "error", "page_admin_materiel_salle");
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// Dans le cas où l'on cherche à supprimer un outil
-if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
-    if (isset($_GET['id'])) {
-        $id_materiel = intval($_GET['id']);
-        supprimer_materiel($bdd, $id_materiel);
-        header("Location: page_admin_materiel_salle.php?suppression=ok");
-        exit;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Dans le cas où l'on cherche à modifier les informations d'un outil
-if (isset($_POST['action']) && $_POST['action'] === 'modifier') {
-    if (isset($_POST['id'])) {
-        $resultat = modifier_materiel($bdd, intval($_POST['id']));
-        if ($resultat === true) {
-            header("Location: page_admin_materiel_salle.php?modification=ok");
-        } else {
-            header("Location: page_admin_materiel_salle.php?erreur=" . urlencode($resultat));
-        }
-        exit;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Dans le cas où l'on cherche à ajouter un outil
-if (isset($_GET['action']) && $_GET['action'] === 'ajouter') {
-    $ajouter = true;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// Après confirmation de l'ajout d'un outil
-if (isset($_POST['action']) && $_POST['action'] === 'valider') {
-    if (!empty($_POST['salle_new']) && !empty($_POST['materiel_new'])) {
-        $resultat = ajouter_materiel($bdd, $_POST['salle_new'], $_POST['materiel_new']);
-        if ($resultat === true) {
-            header("Location: page_admin_materiel_salle.php?ajout=ok");
-        } else {
-            header("Location: page_admin_materiel_salle.php?erreur=" . urlencode($resultat));
-        }
-        exit;
-    }
-}
-
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
     <head>
         <meta charset="utf-8"/>
-            <link rel="stylesheet" href="../css/page_mes_experiences.css">   <!-- Utilisé pour les titres -->
+        <!--permet d'uniformiser le style sur tous les navigateurs-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+        <link rel="stylesheet" href="../css/page_mes_experiences.css">   <!-- Utilisé pour les titres -->
         <link rel="stylesheet" href="../css/page_admin_utilisateurs_materiel.css">
         <link rel="stylesheet" href="../css/admin.css">
         <link rel="stylesheet" href="../css/Bandeau_haut.css">

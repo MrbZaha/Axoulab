@@ -37,10 +37,12 @@ if ($page > $total_pages) $page = $total_pages;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Dans le cas où l'on cherche à supprimer un projet
-// Si une action GET est reçue
-if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
-    if (isset($_GET['id'])) {
-        $id_projet = intval($_GET['id']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'supprimer') {
+    // Vérification CSRF
+    check_csrf();
+
+    if (isset($_POST['id'])) {
+        $id_projet = intval($_POST['id']);
         supprimer_projet($bdd, $id_projet);
 
         // On recharge la page proprement (pour empêcher de supprimer deux fois)
@@ -56,7 +58,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
 <html lang="en">
     <head>
         <meta charset= "utf-8"/>
-                    <link rel="stylesheet" href="../css/page_mes_projets.css"> <!-- Utilisé pour l'affichage des projets-->
+        <!--permet d'uniformiser le style sur tous les navigateurs-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+        <link rel="stylesheet" href="../css/page_mes_projets.css"> <!-- Utilisé pour l'affichage des projets-->
         <link rel="stylesheet" href="../css/admin.css">
         <link rel="stylesheet" href="../css/Bandeau_haut.css">
         <link rel="stylesheet" href="../css/Bandeau_bas.css">

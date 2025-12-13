@@ -5,6 +5,10 @@ require_once __DIR__ . '/../back_php/fonctions_site_web.php';
 $bdd = connectBDD();
 verification_connexion($bdd);
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
+
 $message = "";
 $experimentateurs_selectionnes = [];
 $id_projet = null;
@@ -136,7 +140,9 @@ if (!empty($experimentateurs_selectionnes)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Création d'expérience - Étape 1</title>
-        <link rel="stylesheet" href="../css/page_creation_experience_1.css">
+    <!--permet d'uniformiser le style sur tous les navigateurs-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="../css/page_creation_experience_1.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
     <!-- Permet d'afficher la loupe pour le bandeau de recherche -->
@@ -157,6 +163,7 @@ if (!empty($experimentateurs_selectionnes)) {
         <?php else: ?>
 
         <form method="post" id="form-experience">
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
             <input type="hidden" name="id_projet" value="<?= $id_projet ?>">
             <input type="hidden" name="experimentateurs_ids" value="<?= implode(',', $experimentateurs_selectionnes) ?>">
             <input type="hidden" id="id_retirer" name="id_retirer" value="">

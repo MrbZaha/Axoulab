@@ -6,6 +6,10 @@ $bdd = connectBDD();
 // On vérifie si l'utilisateur est bien connecté avant d'accéder à la page
 verification_connexion($bdd);
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
+
 // Variables pour les sélections
 $gestionnaires_selectionnes = [];
 $collaborateurs_selectionnes = [];
@@ -205,7 +209,9 @@ $page_title = $projet ? "Modifier " . htmlspecialchars($projet['Nom_projet']) : 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?></title>
-        <link rel="stylesheet" href="../css/page_modification_projet.css">
+    <!--permet d'uniformiser le style sur tous les navigateurs-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="../css/page_modification_projet.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">

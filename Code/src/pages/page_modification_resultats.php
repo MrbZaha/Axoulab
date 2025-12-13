@@ -6,6 +6,10 @@ require_once __DIR__ . '/../back_php/fonction_page/fonction_page_modification_re
 $bdd = connectBDD();
 verification_connexion($bdd);
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    check_csrf();
+}
+
 $id_compte = $_SESSION['ID_compte'];
 $id_experience = isset($_GET['id_experience']) ? (int)$_GET['id_experience'] : 0;
 
@@ -252,7 +256,9 @@ $page_title="Modification experience ".$id_experience
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $page_title ?></title>
-        <link rel="stylesheet" href="../css/page_modification_resultats.css">
+    <!--permet d'uniformiser le style sur tous les navigateurs-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="../css/page_modification_resultats.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -284,6 +290,7 @@ $page_title="Modification experience ".$id_experience
     <div class="content-area">
         <!-- Zone de texte principale -->
         <form method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?= generer_csrf_token() ?>">
             <label class="form-label" for="content">Texte (tu peux inclure des balises HTML autorisées - images via placeholders)</label>
             <textarea id="content" name="content" placeholder="Écris ton texte ici..."><?= isset($initial_textarea_value) ? htmlspecialchars($initial_textarea_value, ENT_QUOTES, 'UTF-8') : (isset($_POST['content']) ? htmlspecialchars($_POST['content'], ENT_QUOTES, 'UTF-8') : '') ?></textarea>
 

@@ -318,7 +318,8 @@ if (isset($_SESSION['ID_compte']) && isset($experience['ID_experience'])) {
     <div class="actions-experience">
         <?php if ($canModifyExperience): ?> 
             <form action="page_supprimer_experience.php" method="post" onsubmit="return confirm('Voulez-vous vraiment supprimer cette expérience ?');">
-                <input type="hidden" name="id_experience" value="<?= $id_experience ?>">
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
+            <input type="hidden" name="id_experience" value="<?= $id_experience ?>">
                 <input type="submit" value="Supprimer l'expérience" />
             </form>
         <?php endif; ?>
@@ -326,12 +327,14 @@ if (isset($_SESSION['ID_compte']) && isset($experience['ID_experience'])) {
         <div class="actions-experience-wrapper">
         <?php if ($canModifyExperience): ?>
             <form action="page_modification_experience.php?id_experience=<?= $experience['ID_experience'] ?>" method="post">
+                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <input type="submit" value="Modifier l'expérience" />
             </form>
         <?php endif; ?>
 
         <?php if ($canModifyResults): ?>
             <form action="page_modification_resultats.php?id_experience=<?= $experience['ID_experience'] ?>" method="post">
+                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <input type="submit" value="Modifier les résultats" />
             </form>
         <?php endif; ?>

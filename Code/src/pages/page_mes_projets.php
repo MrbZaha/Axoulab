@@ -28,7 +28,9 @@ if ($page > $total_pages) $page = $total_pages;
 <head>
     <meta charset="UTF-8">
     <title>Mes projets</title>
-        <link rel="stylesheet" href="../css/page_mes_projets.css">
+    <!--permet d'uniformiser le style sur tous les navigateurs-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="../css/page_mes_projets.css">
     <link rel="stylesheet" href="../css/Bandeau_haut.css">
     <link rel="stylesheet" href="../css/Bandeau_bas.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -38,6 +40,7 @@ if ($page > $total_pages) $page = $total_pages;
     <h1>Mes projets</h1>
     <div class="create-projet">
     <form action= "page_creation_projet.php" method= "post">
+        <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
         <input type= "submit" value= "Créer un projet" />
     </div>
     <div class="projets">
