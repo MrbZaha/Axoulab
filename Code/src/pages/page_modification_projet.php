@@ -41,36 +41,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$erreur && (isset($_POST['modifier
     // Gestion des actions d'ajout/retrait
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
-            case 'ajouter_gestionnaire':
-                if (!empty($_POST['nom_gestionnaire'])) {
-                    $id = trouver_id_par_nom_complet($bdd, $_POST['nom_gestionnaire']);
-                    if ($id && !in_array($id, $gestionnaires_selectionnes) && !in_array($id, $collaborateurs_selectionnes)) {
-                        $stmt = $bdd->prepare("SELECT Etat FROM compte WHERE ID_compte = ?");
-                        $stmt->execute([$id]);
-                        $etat = $stmt->fetchColumn();
-                        if ($etat > 1) {
-                            $gestionnaires_selectionnes[] = $id;
-                        } else {
-                            $erreur = "Un étudiant ne peut pas être gestionnaire.";
-                        }
-                    }
-                }
-                break;
+case 'ajouter_gestionnaire':
+    if (!empty($_POST['nom_gestionnaire'])) {
 
+        // On passe DIRECTEMENT la valeur du datalist (avec nom + rôle + email)
+        $id = trouver_id_par_email($bdd, $_POST['nom_gestionnaire']);
+
+        if (
+            $id &&
+            !in_array($id, $gestionnaires_selectionnes, true) &&
+            !in_array($id, $collaborateurs_selectionnes, true)
+        ) {
+            $stmt = $bdd->prepare("SELECT Etat FROM compte WHERE ID_compte = ?");
+            $stmt->execute([$id]);
+            $etat = (int) $stmt->fetchColumn();
+
+            if ($etat > 1) {
+                $gestionnaires_selectionnes[] = $id;
+            } else {
+                $message = "<p style='color:orange;'>Un étudiant ne peut pas être gestionnaire.</p>";
+            }
+        }
+    }
+    break;
             case 'retirer_gestionnaire':
                 if (!empty($_POST['id_retirer'])) {
                     $gestionnaires_selectionnes = array_values(array_diff($gestionnaires_selectionnes, [intval($_POST['id_retirer'])]));
                 }
                 break;
 
-            case 'ajouter_collaborateur':
-                if (!empty($_POST['nom_collaborateur'])) {
-                    $id = trouver_id_par_nom_complet($bdd, $_POST['nom_collaborateur']);
-                    if ($id && !in_array($id, $collaborateurs_selectionnes) && !in_array($id, $gestionnaires_selectionnes)) {
-                        $collaborateurs_selectionnes[] = $id;
-                    }
-                }
-                break;
+case 'ajouter_collaborateur':
+    if (!empty($_POST['nom_collaborateur'])) {
+
+        // On passe directement la valeur du datalist (nom + rôle + email)
+        $id = trouver_id_par_email($bdd, $_POST['nom_collaborateur']);
+
+        if (
+            $id &&
+            !in_array($id, $collaborateurs_selectionnes, true) &&
+            !in_array($id, $gestionnaires_selectionnes, true)
+        ) {
+            $collaborateurs_selectionnes[] = $id;
+        }
+    }
+    break;
 
             case 'retirer_collaborateur':
                 if (!empty($_POST['id_retirer'])) {
@@ -272,13 +286,21 @@ $page_title = $projet ? "Modifier " . htmlspecialchars($projet['Nom_projet']) : 
                            autocomplete="off">
                     <button type="submit" name="action" value="ajouter_gestionnaire" class="btn-ajouter">Ajouter</button>
                 </div>
-                <datalist id="liste-gestionnaires-disponibles">
-                    <?php foreach ($personnes_gestionnaires as $personne): ?>
-                        <option value="<?= htmlspecialchars($personne['Prenom'] . ' ' . $personne['Nom']) ?>">
-                            <?= $personne['Etat'] == 3 ? 'ADMIN' : 'Chercheur' ?>
-                        </option>
-                    <?php endforeach; ?>
-                </datalist>
+<datalist id="liste-gestionnaires-disponibles">
+    <?php foreach ($personnes_gestionnaires as $personne): ?>
+        <?php
+            $nom = htmlspecialchars($personne['Prenom'] . ' ' . $personne['Nom']);
+            $email = htmlspecialchars($personne['Email']);
+
+            $role = ($personne['Etat'] == 3) ? 'ADMIN' : 'Chercheur';
+
+            // Valeur envoyée en POST
+            $valeur = "$nom ($role) — $email";
+        ?>
+        <option value="<?= $valeur ?>"></option>
+    <?php endforeach; ?>
+</datalist>
+
                 <div class="liste-selectionnes">
                     <?php if (empty($gestionnaires_info)): ?>
                         <div class="liste-vide">Aucun gestionnaire ajouté</div>
@@ -306,13 +328,24 @@ $page_title = $projet ? "Modifier " . htmlspecialchars($projet['Nom_projet']) : 
                            autocomplete="off">
                     <button type="submit" name="action" value="ajouter_collaborateur" class="btn-ajouter">Ajouter</button>
                 </div>
-                <datalist id="liste-collaborateurs-disponibles">
-                    <?php foreach ($personnes_collaborateurs as $personne): ?>
-                        <option value="<?= htmlspecialchars($personne['Prenom'] . ' ' . $personne['Nom']) ?>">
-                            <?php if ($personne['Etat'] == 1) echo 'Étudiant'; elseif ($personne['Etat'] == 2) echo 'Chercheur'; else echo 'ADMIN'; ?>
-                        </option>
-                    <?php endforeach; ?>
-                </datalist>
+<datalist id="liste-collaborateurs-disponibles">
+    <?php foreach ($personnes_collaborateurs as $personne): ?>
+        <?php
+            $nom = htmlspecialchars($personne['Prenom'] . ' ' . $personne['Nom']);
+            $email = htmlspecialchars($personne['Email']);
+
+            $role = match ($personne['Etat']) {
+                1 => 'Étudiant',
+                2 => 'Chercheur',
+                default => 'ADMIN',
+            };
+
+            // Ce que l'utilisateur voit ET ce qui est envoyé en POST
+            $valeur = "$nom ($role) — $email";
+        ?>
+        <option value="<?= $valeur ?>"></option>
+    <?php endforeach; ?>
+</datalist>
                 <div class="liste-selectionnes">
                     <?php if (empty($collaborateurs_info)): ?>
                         <div class="liste-vide">Aucun collaborateur ajouté</div>

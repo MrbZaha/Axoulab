@@ -65,14 +65,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$erreur) {
     // Gestion des actions
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
-            case 'ajouter_experimentateur':
-                if (!empty($_POST['nom_experimentateur'])) {
-                    $id = trouver_id_par_nom_complet($bdd, $_POST['nom_experimentateur']);
-                    if ($id && !in_array($id, $experimentateurs_selectionnes)) {
-                        $experimentateurs_selectionnes[] = $id;
-                    }
-                }
-                break;
+case 'ajouter_experimentateur':
+    if (!empty($_POST['nom_experimentateur'])) {
+
+        // Valeur complète du datalist : "Prénom Nom (Rôle) — email@domaine"
+        $id = trouver_id_par_email($bdd, $_POST['nom_experimentateur']);
+
+        if (
+            $id &&
+            !in_array($id, $experimentateurs_selectionnes, true)
+        ) {
+            $experimentateurs_selectionnes[] = $id;
+        }
+    }
+    break;
+
 
             case 'retirer_experimentateur':
                 if (!empty($_POST['id_retirer'])) {
@@ -462,22 +469,26 @@ if (!empty($materiels_selectionnes)) {
                            autocomplete="off">
                     <button type="submit" name="action" value="ajouter_experimentateur" class="btn-ajouter">Ajouter</button>
                 </div>
-                <datalist id="liste-experimentateur-disponibles">
-                    <?php foreach ($personnes_experimentateur as $personne): ?>
-                        <?php
-                            if ($personne['Etat'] == 3) {
-                                $etat = 'ADMIN';
-                            } elseif ($personne['Etat'] == 2) {
-                                $etat = 'Chercheur';
-                            } else {
-                                $etat = 'Etudiant';
-                            }
-                        ?>
-                        <option value="<?= htmlspecialchars($personne['Prenom'] . ' ' . $personne['Nom']); ?>">
-                            <?= $etat ?>
-                        </option>
-                    <?php endforeach; ?>
-                </datalist>
+<datalist id="liste-experimentateur-disponibles">
+    <?php foreach ($personnes_experimentateur as $personne): ?>
+        <?php
+            $nom = htmlspecialchars($personne['Prenom'] . ' ' . $personne['Nom']);
+            $email = htmlspecialchars($personne['Email']);
+
+            if ($personne['Etat'] == 3) {
+                $role = 'ADMIN';
+            } elseif ($personne['Etat'] == 2) {
+                $role = 'Chercheur';
+            } else {
+                $role = 'Etudiant';
+            }
+
+            // Valeur envoyée au POST
+            $valeur = "$nom ($role) — $email";
+        ?>
+        <option value="<?= $valeur ?>"></option>
+    <?php endforeach; ?>
+</datalist>
 
                 <div class="liste-selectionnes">
                     <?php if (empty($experimentateurs_info)): ?>

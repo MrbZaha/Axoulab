@@ -1767,7 +1767,7 @@ function afficher_resultats(string $text, int $id_experience) :string{
  * @return array
  */
 function get_personnes_disponibles(PDO $bdd, array $ids_exclus = [], bool $seulement_non_etudiants = false): array {
-    $sql = "SELECT ID_compte, Nom, Prenom, Etat FROM compte WHERE validation = 1";
+    $sql = "SELECT ID_compte, Nom, Prenom, Etat, Email FROM compte WHERE validation = 1";
 
     if ($seulement_non_etudiants) {
         $sql .= " AND Etat > 1";
@@ -1786,22 +1786,37 @@ function get_personnes_disponibles(PDO $bdd, array $ids_exclus = [], bool $seule
 }
 
 /**
- * Recherche l'ID d'un compte à partir d'un nom complet "Prénom Nom"
+ * Trouve l'ID d'un compte à partir d'une chaîne contenant un email
+ * Format attendu : "Prénom Nom (Rôle) — email@domaine"
  *
- * @param PDO $bdd Connexion PDO à la base de données
- * @param string $nom_complet Nom complet au format "Prénom Nom" (ex: "Jean Dupont")
- * @return int|null ID du compte trouvé ou null si non trouvé ou format invalide
+ * @param PDO $bdd
+ * @param string $email
+ * @return int|null
  */
-function trouver_id_par_nom_complet(PDO $bdd, string $nom_complet) :?int{
-    $parts = explode(' ', trim($nom_complet), 2);
-    if (count($parts) < 2) return null;
+function trouver_id_par_email(PDO $bdd, string $email): ?int {
 
-    $prenom = trim($parts[0]);
-    $nom = trim($parts[1]);
+    // Extraction de l'email
+    if (!preg_match(
+        '/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,})/i',
+        $email,
+        $match
+    )) {
+        return null;
+    }
 
-    $stmt = $bdd->prepare("SELECT ID_compte FROM compte WHERE Prenom = ? AND Nom = ? AND validation = 1");
-    $stmt->execute([$prenom, $nom]);
-    return $stmt->fetchColumn();
+    $mail = strtolower($match[1]);
+
+    $stmt = $bdd->prepare("
+        SELECT ID_compte
+        FROM compte
+        WHERE Email = ?
+          AND validation = 1
+        LIMIT 1
+    ");
+    $stmt->execute([$mail]);
+
+    $id = $stmt->fetchColumn();
+    return $id ? (int)$id : null;
 }
 
 
@@ -1887,6 +1902,16 @@ function est_gestionnaire(PDO $bdd, int $id_compte, int $id_projet): bool{
 
 // ======================= CSRF =======================
 
+/**
+ * Génère ou récupère un token CSRF unique pour la session.
+ *
+ * Fonctionnement :
+ *  - Vérifie si un token CSRF est déjà stocké dans la session.
+ *  - Si aucun token n'existe, en crée un nouveau via `random_bytes` et le stocke.
+ *  - Retourne le token actuel pour l'inclure dans les formulaires.
+ *
+ * @return string Token CSRF de 64 caractères hexadécimaux
+ */
 function csrf_token() {
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -1894,6 +1919,16 @@ function csrf_token() {
     return $_SESSION['csrf_token'];
 }
 
+/**
+ * Vérifie la validité d'un token CSRF envoyé via POST.
+ *
+ * Fonctionnement :
+ *  - Vérifie que le token CSRF est présent dans $_POST et dans la session.
+ *  - Compare les deux tokens avec `hash_equals` pour éviter les attaques par timing.
+ *  - Si la vérification échoue, renvoie une erreur 403 et stoppe l'exécution.
+ *
+ * @throws 403 si le token CSRF est absent ou invalide
+ */
 function check_csrf() {
     if (
         !isset($_POST['csrf_token']) ||
@@ -1904,6 +1939,5 @@ function check_csrf() {
         die("Action non autorisée (CSRF détecté)");
     }
 }
-
 
 ?>
