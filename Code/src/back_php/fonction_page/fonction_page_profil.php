@@ -28,10 +28,6 @@ function modifier_mdp($bdd, $mdp, $user_ID) {
     ];
 }
 
-// Fonction pour vérifier que deux mots de passe sont identiques
-function mot_de_passe_identique($mdp1, $mdp2) {
-    return $mdp1 === $mdp2;
-}
 
 // Fonction pour modifier la photo de profil
 function modifier_photo_de_profil($user_ID) {
