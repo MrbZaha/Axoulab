@@ -120,6 +120,7 @@ foreach ($materiel_page as $user):
 
     <tr>
         <form action="page_admin_materiel_salle.php" method="POST">
+            <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
             <td>
                 <input type="text" name="salle" value="<?= $salle ?>" required>
             </td>
@@ -127,7 +128,6 @@ foreach ($materiel_page as $user):
                 <input type="text" name="materiel" value="<?= $mat ?>" required>
             </td>
             <td>
-                <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <input type="hidden" name="action" value="modifier">
                 <input type="hidden" name="id" value="<?= $id ?>">
                 <button class="btn btnViolet" type="submit">Modifier</button>
@@ -135,15 +135,16 @@ foreach ($materiel_page as $user):
         </form>
 
         <td>
-            <form action="page_admin_materiel_salle.php" method="POST" style="display:inline;">
+            <form method="POST" action="page_admin_materiel_salle.php" style="display:inline;">
                 <input type="hidden" name="csrf_token" value="<?= csrf_token() ?>">
                 <input type="hidden" name="action" value="supprimer">
-                <input type="hidden" name="id" value="<?= $id ?>">
-                <button class="btn btnRouge" type="submit"
-                        onclick="return confirm('Confirmer la suppression ?');">
-                    Supprimer
-                </button>
-            </form>
+                <input type="hidden" name="id" value="<?= (int)$id_materiel ?>">
+                <button type="submit" class="btn btnRouge"
+            onclick="event.stopPropagation(); return confirm('Confirmer la suppression ?');">
+            Supprimer
+    </button>
+</form>
+
         </td>
     </tr>
 

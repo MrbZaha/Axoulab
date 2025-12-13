@@ -37,10 +37,12 @@ if ($page > $total_pages) $page = $total_pages;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Dans le cas où l'on cherche à supprimer un projet
-// Si une action GET est reçue
-if (isset($_GET['action']) && $_GET['action'] === 'supprimer') {
-    if (isset($_GET['id'])) {
-        $id_projet = intval($_GET['id']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'supprimer') {
+    // Vérification CSRF
+    check_csrf();
+
+    if (isset($_POST['id'])) {
+        $id_projet = intval($_POST['id']);
         supprimer_projet($bdd, $id_projet);
 
         // On recharge la page proprement (pour empêcher de supprimer deux fois)
