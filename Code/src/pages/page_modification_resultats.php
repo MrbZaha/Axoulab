@@ -245,6 +245,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['suppress_other'])) {
     $initial_textarea_value = $text;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['export_docx'])) {
+    export_resultats_docx($text, $uploadDir, "Experience_" . $id_experience . ".docx");
+}
+
 $page_title="Modification experience ".$id_experience
 ?>
 
@@ -423,6 +427,12 @@ $page_title="Modification experience ".$id_experience
             <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #eee; text-align: center;">
                 <button type="submit" name="save" class="button" style="font-size: 16px; padding: 12px 24px;">
                     💾 Enregistrer
+                </button>
+                <button type="submit" name="export_docx" class="button" style="font-size: 16px; padding: 12px 24px;">
+                    Exporter en Word (.docx)
+                </button>
+                <button type="submit" name="export_odt" class="button" style="font-size: 16px; padding: 12px 24px;">
+                    Exporter en odt (.odt)
                 </button>
             </div>
         </form>
