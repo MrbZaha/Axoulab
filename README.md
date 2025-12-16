@@ -22,6 +22,8 @@ d’accès selon les rôles (gestionnaire, collaborateur, expérimentateur).
  - Créer la BDD avec le script siteweb.sql
  - Remplir la BDD avec site_web_remplissage.sql
  - Se rendre sur la page Main_page.php
+ - Tous les comptes ont comme mot de passe: Password123!
+ - Le compte admin de base s'appelle: julien.girard@axoulab.fr
 
 ## Strucure du projet
 
