@@ -45,11 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $resultat = modifier_utilisateur($bdd, $id_utilisateur);
                 if ($resultat === true) {
                     header("Location: page_admin_utilisateurs.php?modification=ok");
-                    $_SESSION['popup_message'] = afficher_popup("Modification réussie", "Les informations de l'utilisateur ont été mises à jour.", "success","page_admin_utilisateurs");
+                    $_SESSION['popup_message'] = afficher_popup("Modification réussie", "Les informations de l'utilisateur ont été mises à jour.","page_admin_utilisateurs", "success");
 
                 } else {
                     header("Location: page_admin_utilisateurs.php?erreur=" . urlencode($resultat));
-                    $_SESSION['popup_message'] = afficher_popup("Erreur", "Une erreur est survenue : " . htmlspecialchars($_GET['erreur']), "error","page_admin_utilisateurs");
+                    $_SESSION['popup_message'] = afficher_popup("Erreur", "Une erreur est survenue : " . htmlspecialchars($_GET['erreur']),"page_admin_utilisateurs", "error");
 
                 }
                 exit;
@@ -57,14 +57,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             case 'supprimer':
                 if ($_SESSION['ID_compte'] !== $id_utilisateur) {
                     supprimer_utilisateur($bdd, $id_utilisateur);
-                    $_SESSION['popup_message'] = afficher_popup("Suppression réussie", "L'utilisateur a été supprimé avec succès.", "success","page_admin_utilisateurs");
+                    $_SESSION['popup_message'] = afficher_popup("Suppression réussie", "L'utilisateur a été supprimé avec succès.","page_admin_utilisateurs", "success");
                     header("Location: page_admin_utilisateurs.php?suppression=ok");
                 }
                 exit;
 
             case 'accepter':
                 accepter_utilisateur($bdd, $id_utilisateur);
-                $_SESSION['popup_message'] = afficher_popup("Validation réussie", "Le compte utilisateur a été validé.", "success","page_admin_utilisateurs");
+                $_SESSION['popup_message'] = afficher_popup("Validation réussie", "Le compte utilisateur a été validé.","page_admin_utilisateurs", "success");
                 header("Location: page_admin_utilisateurs.php?accept=ok");
                 exit;
         }

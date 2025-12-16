@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         supprimer_experience($bdd, $id_experience);
 
-        $_SESSION['popup_message'] = afficher_popup("Suppression réussie", "L'expérience a été supprimée avec succès.", "success","page_admin_experiences");
+        $_SESSION['popup_message'] = afficher_popup("Suppression réussie", "L'expérience a été supprimée avec succès.", "page_admin_experiences","success");
         // Redirection propre (PRG pattern)
         header("Location: page_admin_experiences.php?suppression=ok");
         exit;

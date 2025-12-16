@@ -90,16 +90,16 @@ if (isset($_GET['action']) && $_GET['action'] === 'ajouter') {
 ///////////////////////////////////////////////////////////////////////////////
 // Affichage des messages de confirmation
 if (isset($_GET['suppression']) && $_GET['suppression'] === 'ok') {
-    $message = afficher_popup("Suppression réussie", "Le matériel a été supprimé avec succès.", "success", "page_admin_materiel_salle");
+    $message = afficher_popup("Suppression réussie", "Le matériel a été supprimé avec succès.", "page_admin_materiel_salle", "success");
 }
 if (isset($_GET['modification']) && $_GET['modification'] === 'ok') {
-    $message = afficher_popup("Modification réussie", "Les informations ont été mises à jour.", "success", "page_admin_materiel_salle");
+    $message = afficher_popup("Modification réussie", "Les informations ont été mises à jour.", "page_admin_materiel_salle", "success");
 }
 if (isset($_GET['ajout']) && $_GET['ajout'] === 'ok') {
-    $message = afficher_popup("Ajout réussi", "Le nouveau matériel a été ajouté.", "success", "page_admin_materiel_salle");
+    $message = afficher_popup("Ajout réussi", "Le nouveau matériel a été ajouté.", "page_admin_materiel_salle", "success");
 }
 if (isset($_GET['erreur'])) {
-    $message = afficher_popup("Erreur", "Une erreur est survenue : " . htmlspecialchars($_GET['erreur']), "error", "page_admin_materiel_salle");
+    $message = afficher_popup("Erreur", "Une erreur est survenue : " . htmlspecialchars($_GET['erreur']), "page_admin_materiel_salle", "error");
 }
 
 ?>

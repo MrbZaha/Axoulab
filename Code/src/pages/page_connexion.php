@@ -41,7 +41,7 @@ if ($_SESSION['tentatives_connexion'] >= $tentatives_max) {
         $temps_restant_secondes = $delai_blocage - $temps_ecoule;
         $temps_restant_minutes = ceil($temps_restant_secondes / 60);
 
-        $erreur = afficher_popup("Trop de tentatives échouées.", "Veuillez réessayer dans $temps_restant_minutes minute(s).", "error", "page_connexion");
+        $erreur = afficher_popup("Trop de tentatives échouées.", "Veuillez réessayer dans $temps_restant_minutes minute(s).", "page_connexion", "error");
     } else {
         // Le délai est écoulé, réinitialiser
         $_SESSION['tentatives_connexion'] = 0;
@@ -82,14 +82,14 @@ if (isset($_POST["email"], $_POST["mdp"]) && !$compte_bloque) {
             $_SESSION['tentatives_connexion']++;
             $_SESSION['dernier_essai'] = time();
             $tentatives_restantes = $tentatives_max - $_SESSION['tentatives_connexion'];
-            $erreur = afficher_popup("Email ou mot de passe incorrect", "Il vous reste $tentatives_restantes tentative(s).", "error", "page_connexion");
+            $erreur = afficher_popup("Email ou mot de passe incorrect", "Il vous reste $tentatives_restantes tentative(s).", "page_connexion", "error");
          }
     } else {
         // Email inexistant
         $_SESSION['tentatives_connexion']++;
         $_SESSION['dernier_essai'] = time();
         $tentatives_restantes = $tentatives_max - $_SESSION['tentatives_connexion'];
-        $erreur = afficher_popup("Email ou mot de passe incorrect", "Il vous reste $tentatives_restantes tentative(s).", "error", "page_connexion");
+        $erreur = afficher_popup("Email ou mot de passe incorrect", "Il vous reste $tentatives_restantes tentative(s).", "page_connexion", "error");
     }
 }
 ?>

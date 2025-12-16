@@ -36,10 +36,10 @@ $message = "";
 
 // Messages de confirmation basés sur les paramètres GET
 if (isset($_GET['photo']) && $_GET['photo'] === 'ok') {
-    $message = afficher_popup("Photo mise à jour", "Votre photo de profil a été changée avec succès !", "success", "page_profil");
+    $message = afficher_popup("Photo mise à jour", "Votre photo de profil a été changée avec succès !", "page_profil", "success");
 }
 if (isset($_GET['photo']) && $_GET['photo'] === 'erreur') {
-    $message = afficher_popup("Fichier non accepté", "Seuls les formats JPEG et PNG sont autorisés.", "error", "page_profil");
+    $message = afficher_popup("Fichier non accepté", "Seuls les formats JPEG et PNG sont autorisés.", "page_profil", "error");
 }
 
 // ======================= GESTION DU CHANGEMENT DE MOT DE PASSE =======================
@@ -58,12 +58,12 @@ if (isset($_POST['valider_mdp'])) {
 
     // Vérification de l'ancien mot de passe
     if (!password_verify($ancien_mdp, $user['Mdp'])) {
-        $message = afficher_popup("Erreur", "L'ancien mot de passe est incorrect.", "error", "page_profil");
+        $message = afficher_popup("Erreur", "L'ancien mot de passe est incorrect.", "page_profil", "error");
         $showForm = true; // Garder le formulaire affiché
     }
     // Vérification que les nouveaux mots de passe sont identiques
     else if (!mot_de_passe_identique($nouveau_mdp, $confirmer_mdp)) {
-        $message = afficher_popup("Erreur", "Les nouveaux mots de passe ne correspondent pas.", "error", "page_profil");
+        $message = afficher_popup("Erreur", "Les nouveaux mots de passe ne correspondent pas.", "page_profil", "error");
         $showForm = true; // Garder le formulaire affiché
     }
     // Si tout est OK jusqu'ici, on tente la modification
@@ -76,14 +76,14 @@ if (isset($_POST['valider_mdp'])) {
         } else {
             // Afficher les erreurs de validation du mot de passe
             $erreurs_text = implode(", ", $resultat['erreurs']);
-            $message = afficher_popup("Erreur", "Le mot de passe doit contenir : " . $erreurs_text, "error", "page_profil");
+            $message = afficher_popup("Erreur", "Le mot de passe doit contenir : " . $erreurs_text, "page_profil", "error");
             $showForm = true; // Garder le formulaire affiché
         }
     }
 }
 
 if (isset($_GET['mdp']) && $_GET['mdp'] === 'ok') {
-    $message = afficher_popup("Succès", "Mot de passe changé avec succès !", "success", "page_profil");
+    $message = afficher_popup("Succès", "Mot de passe changé avec succès !", "page_profil", "success");
 }
 
 // ======================= GESTION DE LA PHOTO DE PROFIL =======================

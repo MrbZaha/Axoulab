@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     if (isset($_POST['id'])) {
         $id_projet = intval($_POST['id']);
         supprimer_projet($bdd, $id_projet);
-        $_SESSION['popup_message'] = afficher_popup("Suppression réussie", "Le projet a été supprimé avec succès.", "success","page_admin_projets");
+        $_SESSION['popup_message'] = afficher_popup("Suppression réussie", "Le projet a été supprimé avec succès.","page_admin_projets", "success");
         // On recharge la page proprement (pour empêcher de supprimer deux fois)
         header("Location: page_admin_projets.php?suppression=ok");
         exit;
