@@ -129,7 +129,7 @@ foreach ($materiel_page as $mat):
             </td>
             <td>
                 <input type="hidden" name="action" value="modifier">
-                <input type="hidden" name="id" value="<?= $id ?>">
+                <input type="hidden" name="id" value="<?= (int)$id_materiel ?>">
                 <button class="btn btnViolet" type="submit">Modifier</button>
             </td>
         </form>

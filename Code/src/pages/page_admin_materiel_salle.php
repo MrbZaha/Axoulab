@@ -47,8 +47,6 @@ if ($page > $total_pages) $page = $total_pages;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     check_csrf();
-    echo ("1");
-    echo gettype($_POST['id']);
     // Supprimer un matériel
     if (isset($_POST['action']) && $_POST['action'] === 'supprimer' && isset($_POST['id'])) {
         $id_materiel = intval($_POST['id']);
