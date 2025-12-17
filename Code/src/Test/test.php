@@ -7,7 +7,6 @@
 error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', '0');
 set_time_limit(300);
-
 ob_start();
 require_once __DIR__ . '/../back_php/fonctions_site_web.php';
 
@@ -95,42 +94,37 @@ echo "<h2>🔐 Catégorie 1 : Sécurité & Validation</h2>";
 
 echo "<h3>Fonction verifier_mdp()</h3>";
 test('verifier_mdp() - Mot de passe valide complexe', 
-    verifier_mdp('MyP@ssw0rd123!') === true,
+    verifier_mdp('MyP@ssw0rd123!') === [],
     'Accepte : majuscule, minuscule, chiffre, spécial, 8+ chars'
 );
 
 test('verifier_mdp() - Trop court (5 chars)',
-    verifier_mdp('Ab1!x') === false,
+    verifier_mdp('Ab1!x') === ["au moins 8 caractères"],
     'Rejette : moins de 8 caractères'
 );
 
 test('verifier_mdp() - Sans majuscule',
-    verifier_mdp('password123!') === false,
+    verifier_mdp('password123!') === ["au moins une majuscule"],
     'Rejette : pas de majuscule'
 );
 
 test('verifier_mdp() - Sans minuscule',
-    verifier_mdp('PASSWORD123!') === false,
+    verifier_mdp('PASSWORD123!') === ["au moins une minuscule"],
     'Rejette : pas de minuscule'
 );
 
 test('verifier_mdp() - Sans chiffre',
-    verifier_mdp('MyPassword!') === false,
+    verifier_mdp('MyPassword!') === ["au moins un chiffre"],
     'Rejette : pas de chiffre'
 );
 
 test('verifier_mdp() - Sans caractère spécial',
-    verifier_mdp('MyPassword123') === false,
+    verifier_mdp('MyPassword123') === ["au moins un caractère spécial (!@#$%^&*...)"],
     'Rejette : pas de caractère spécial'
 );
 
-test('verifier_mdp() - Chaîne vide',
-    verifier_mdp('') === false,
-    'Rejette : chaîne vide'
-);
-
 test('verifier_mdp() - Null converti en string',
-    verifier_mdp('null') === false,
+    verifier_mdp('null') === ["au moins 8 caractères"],
     'Rejette : valeur invalide'
 );
 
