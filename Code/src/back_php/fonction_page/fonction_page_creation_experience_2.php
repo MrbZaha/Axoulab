@@ -42,7 +42,7 @@ function recuperer_materiels_salle(PDO $bdd, string $nom_salle) :array{
  * @param string $nom_salle nom de la salle
  * @return int l'identifiant du matériel, null si le matériel n'existe pas
  */
-function recuperer_id_materiel_par_nom(PDO $bdd, string $nom_materiel, string $nom_salle) :int {
+function recuperer_id_materiel_par_nom(PDO $bdd, string $nom_materiel, string $nom_salle): ?int {
     $sql = "
         SELECT ID_materiel
         FROM salle_materiel
