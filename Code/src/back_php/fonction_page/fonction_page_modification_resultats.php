@@ -268,4 +268,21 @@ function list_images_for_experience(string $dir): array {
     return array_map('basename', $files);
 }
 
+
+
+// Répertoire de stockage
+$uploadDir = "../assets/resultats/" . $id_experience . "/";
+$webUploadDir = "../assets/resultats/" . $id_experience . "/";
+
+if (!is_dir($uploadDir)) {
+    mkdir($uploadDir, 0755, true);
+}
+
+
+$errors = [];
+$messages = [];
+$successHtml = null;
+
+$existingFiles = list_images_for_experience($uploadDir);
+$existingOtherFiles = list_files_for_experience($uploadDir);
 ?>
