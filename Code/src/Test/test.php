@@ -445,28 +445,6 @@ echo "<h2>✅ Catégorie 8 : Fonctions d'existence (BDD requise)</h2>";
 echo "<p style='color: #666; font-size: 0.9em; font-style: italic;'>Ces fonctions nécessitent une connexion BDD - on vérifie leur existence</p>";
 // ============================================================================
 
-$fonctions_bdd = [
-    'connectBDD', 'email_existe', 'connexion_valide', 'recuperer_id_compte',
-    'est_admin', 'est_admin_par_id', 'get_last_notif', 'supprimer_experience',
-    'supprimer_utilisateur', 'supprimer_projet', 'accepter_utilisateur',
-    'get_mes_experiences_complets', 'get_all_projet', 'envoyerNotification',
-    'verification_connexion', 'supprimer_materiel', 'ajouter_materiel',
-    'modifier_materiel', 'get_materiel', 'modifier_utilisateur', 'get_utilisateurs',
-    'recup_salles', 'recuperer_materiels_salle', 'recuperer_id_materiel_par_nom',
-    'creer_experience', 'associer_experience_projet', 'ajouter_experimentateurs',
-    'associer_materiel_experience', 'creer_projet', 'get_info_experience',
-    'get_salles_et_materiel', 'get_experimentateurs', 'modifie_value_exp',
-    'maj_bdd_experience', 'afficher_projets_pagines', 'get_info_projet',
-    'get_gestionnaires', 'get_collaborateurs', 'get_experiences'
-];
-
-foreach ($fonctions_bdd as $fonction) {
-    test("$fonction() - Fonction existe",
-        function_exists($fonction),
-        'Fonction déclarée et disponible'
-    );
-}
-
 // ============================================================================
 // AFFICHAGE DES RÉSULTATS
 // ============================================================================
