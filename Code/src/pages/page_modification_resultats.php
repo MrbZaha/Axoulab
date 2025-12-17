@@ -426,13 +426,7 @@ $page_title="Modification experience ".$id_experience
             <!-- Bouton enregistrer en base à la fin -->
             <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #eee; text-align: center;">
                 <button type="submit" name="save" class="button" style="font-size: 16px; padding: 12px 24px;">
-                    💾 Enregistrer
-                </button>
-                <button type="submit" name="export_docx" class="button" style="font-size: 16px; padding: 12px 24px;">
-                    Exporter en Word (.docx)
-                </button>
-                <button type="submit" name="export_odt" class="button" style="font-size: 16px; padding: 12px 24px;">
-                    Exporter en odt (.odt)
+                    Enregistrer
                 </button>
             </div>
         </form>
