@@ -269,55 +269,6 @@ function list_images_for_experience(string $dir): array {
 }
 
 
-use PhpOffice\PhpWord\PhpWord;
-use PhpOffice\PhpWord\IOFactory;
-
-/**
- * Génère un document Word (.docx) à partir du texte d'une expérience et de ses images
- *
- * @param string $text Contenu de l'expérience avec placeholders [[file:nom_image.ext]]
- * @param string $uploadDir Chemin serveur où sont stockées les images
- * @param string $outputName Nom du fichier Word généré
- */
-function export_resultats_docx(string $text, string $uploadDir, string $outputName = "resultats.docx") {
-    require_once __DIR__ . '/vendor/autoload.php';
-
-    $phpWord = new PhpWord();
-    $section = $phpWord->addSection();
-
-    // Découper le texte par ligne
-    $lines = explode("\n", $text);
-
-    foreach ($lines as $line) {
-        // Vérifier si la ligne contient un placeholder image [[file:xxx]]
-        if (preg_match_all('/\[\[file:([^\]]+)\]\]/', $line, $matches)) {
-            $parts = preg_split('/\[\[file:[^\]]+\]\]/', $line);
-            foreach ($parts as $i => $part) {
-                if ($part !== '') $section->addText($part);
-                if (isset($matches[1][$i])) {
-                    $filename = basename($matches[1][$i]);
-                    $filePath = $uploadDir . $filename;
-                    if (is_file($filePath)) {
-                        $section->addImage($filePath, ['width' => 400, 'height' => 300, 'marginTop' => 10, 'marginBottom' => 10]);
-                    }
-                }
-            }
-        } else {
-            $section->addText($line);
-        }
-    }
-
-    // Proposer le téléchargement
-    header("Content-Description: File Transfer");
-    header("Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-    header("Content-Disposition: attachment; filename=".$outputName);
-    header("Cache-Control: max-age=0");
-
-    $writer = IOFactory::createWriter($phpWord, 'Word2007');
-    $writer->save("php://output");
-    exit;
-}
-
 
 // Répertoire de stockage
 $uploadDir = "../assets/resultats/" . $id_experience . "/";
