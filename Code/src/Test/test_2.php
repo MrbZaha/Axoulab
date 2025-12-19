@@ -1,6 +1,6 @@
 <?php
 /**
- * 🧪 TESTS UNITAIRES SIMPLES
+ * TESTS UNITAIRES SIMPLES
  * Lance ce fichier dans ton navigateur : http://localhost/tests_simples.php
  */
 
@@ -41,7 +41,7 @@ try {
     );
     $bdd->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (Exception $e) {
-    die("❌ Erreur de connexion à la BDD de test: " . $e->getMessage());
+    die("Erreur de connexion à la BDD de test: " . $e->getMessage());
 }
 
 // Variables pour les statistiques
@@ -140,13 +140,13 @@ test("email_existe() retourne false pour un email inexistant", function($bdd) {
 
 // Tests pour recuperer_id_compte()
 test("recuperer_id_compte() retourne l'ID pour un email existant", function($bdd) {
-    $id = creer_utilisateur_test($bdd, 'recup@test.com');
-    $resultat = recuperer_id_compte($bdd, 'recup@test.com');
+    $id = creer_utilisateur_test($bdd, 'lol.recup@axoulab.fr');
+    $resultat = recuperer_id_compte($bdd, 'lol.recup@axoulab.fr');
     return $resultat === $id;
 });
 
 test("recuperer_id_compte() retourne null pour un email inexistant", function($bdd) {
-    $resultat = recuperer_id_compte($bdd, 'nexistepas@test.com');
+    $resultat = recuperer_id_compte($bdd, 'nexistepas@axoulab.fr');
     return $resultat === null;
 });
 
@@ -244,7 +244,7 @@ test("recuperer_id_materiel_par_nom() retourne l'ID du matériel", function($bdd
 });
 
 test("recuperer_id_materiel_par_nom() retourne null si non trouvé", function($bdd) {
-    $resultat = recuperer_id_materiel_par_nom($bdd, 'Inexistant', 'Salle Z');
+    $resultat = recuperer_id_materiel_par_nom($bdd, 'Inexistant', 'Salle Delta');
     return $resultat === null;
 });
 
@@ -410,7 +410,7 @@ $errors = ob_get_clean();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧪 Résultats des Tests</title>
+    <title>Résultats des Tests</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -531,12 +531,12 @@ $errors = ob_get_clean();
 <body>
     <div class="container">
         <div class="header-info">
-            <h1>🧪 Tests Unitaires</h1>
-            <p class="db-info">Base de données: <strong>projet_site_web_test</strong></p>
+            <h1>Tests Unitaires</h1>
+            <p class="db-info">Base de données: <strong>projet_site_web</strong></p>
             <p class="db-info">Date: <strong><?= date('d/m/Y H:i:s') ?></strong></p>
         </div>
 
-        <h2>📋 Résultats des Tests</h2>
+        <h2>Résultats des Tests</h2>
         <?php
         foreach ($test_results as $result) {
             $icon = $result['status'] === 'pass' ? '✓' : '✗';
@@ -551,7 +551,7 @@ $errors = ob_get_clean();
         ?>
 
         <div class="summary">
-            <h3>📈 Statistiques Globales</h3>
+            <h3>Statistiques Globales</h3>
 
             <?php
             $percentage = $tests_total > 0 ? round(($tests_passed / $tests_total) * 100, 1) : 0;
@@ -578,7 +578,7 @@ $errors = ob_get_clean();
 
         <?php if ($tests_failed === 0 && $tests_total > 0): ?>
             <div style="text-align: center; margin-top: 30px; padding: 30px; background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border: 2px solid #28a745; border-radius: 10px;">
-                <h2 style="color: #28a745; margin: 0;">🎉 Parfait ! Tous les tests passent !</h2>
+                <h2 style="color: #28a745; margin: 0;">Parfait ! Tous les tests passent !</h2>
                 <p style="color: #155724; margin: 10px 0 0 0;"><?= $tests_total ?> tests fonctionnels validés avec succès</p>
             </div>
         <?php endif; ?>

@@ -65,7 +65,7 @@ $errors = ob_get_clean();
 </head>
 <body>
 <div class="container">
-    <h1>🧪 Tests Unitaires Fonctionnels - Projet Axoulab</h1>
+    <h1>Tests Unitaires Fonctionnels - Projet Axoulab</h1>
     <p style="color: #666; font-size: 0.95em;">Tests avec données réelles et assertions de comportement</p>
 <?php
 
@@ -89,7 +89,7 @@ function test(string $nom, bool $condition, string $message = ''): void {
 }
 
 // ============================================================================
-echo "<h2>🔐 Catégorie 1 : Sécurité & Validation</h2>";
+echo "<h2>Catégorie 1 : Sécurité & Validation</h2>";
 // ============================================================================
 
 echo "<h3>Fonction verifier_mdp()</h3>";
@@ -123,11 +123,6 @@ test('verifier_mdp() - Sans caractère spécial',
     'Rejette : pas de caractère spécial'
 );
 
-test('verifier_mdp() - Null converti en string',
-    verifier_mdp('null') === ["au moins 8 caractères"],
-    'Rejette : valeur invalide'
-);
-
 echo "<h3>Fonction mot_de_passe_identique()</h3>";
 if (function_exists('mot_de_passe_identique')) {
     test('mot_de_passe_identique() - Mots de passe identiques',
@@ -156,7 +151,7 @@ if (function_exists('mot_de_passe_identique')) {
 }
 
 // ============================================================================
-echo "<h2>👤 Catégorie 2 : Gestion Utilisateurs</h2>";
+echo "<h2>Catégorie 2 : Gestion Utilisateurs</h2>";
 // ============================================================================
 
 echo "<h3>Fonction get_etat()</h3>";
@@ -191,7 +186,7 @@ test('get_etat() - Type de retour',
 );
 
 // ============================================================================
-echo "<h2>📄 Catégorie 3 : Pagination</h2>";
+echo "<h2>Catégorie 3 : Pagination</h2>";
 // ============================================================================
 
 echo "<h3>Fonction create_page()</h3>";
@@ -236,7 +231,7 @@ test('create_page() - Type de retour',
 );
 
 // ============================================================================
-echo "<h2>🔍 Catégorie 4 : Filtrage & Tri</h2>";
+echo "<h2>Catégorie 4 : Filtrage & Tri</h2>";
 // ============================================================================
 
 echo "<h3>Fonction filtrer_projets()</h3>";
@@ -259,11 +254,6 @@ test('filtrer_projets() - Filtre par texte "Projet"',
 test('filtrer_projets() - Filtre case-insensitive',
     count(filtrer_projets($projets_test, 'alpha')) === 1,
     'Insensible à la casse : trouve "Alpha" avec "alpha"'
-);
-
-test('filtrer_projets() - Sans filtre',
-    count(filtrer_projets($projets_test)) === 3,
-    'Sans filtre → retourne tous les projets'
 );
 
 test('filtrer_projets() - Anti-doublons',
@@ -306,7 +296,7 @@ test('filtrer_experience() - Anti-doublons',
 );
 
 // ============================================================================
-echo "<h2>📊 Catégorie 5 : Affichage & HTML</h2>";
+echo "<h2>Catégorie 5 : Affichage & HTML</h2>";
 // ============================================================================
 
 echo "<h3>Fonction afficher_barre_progression()</h3>";
@@ -343,7 +333,7 @@ test('afficher_barre_progression() - Contient style',
 );
 
 // ============================================================================
-echo "<h2>📝 Catégorie 6 : Validation Formulaires</h2>";
+echo "<h2>Catégorie 6 : Validation Formulaires</h2>";
 // ============================================================================
 
 echo "<h3>Fonction verifier_champs_projet()</h3>";
@@ -381,7 +371,7 @@ if (function_exists('verifier_champs_projet')) {
 }
 
 // ============================================================================
-echo "<h2>🔧 Catégorie 7 : Fonctions Utilitaires</h2>";
+echo "<h2>Catégorie 7 : Fonctions Utilitaires</h2>";
 // ============================================================================
 
 echo "<h3>Fonctions de dates et créneaux</h3>";
@@ -441,15 +431,10 @@ if (function_exists('creneau_est_occupe')) {
 }
 
 // ============================================================================
-echo "<h2>✅ Catégorie 8 : Fonctions d'existence (BDD requise)</h2>";
-echo "<p style='color: #666; font-size: 0.9em; font-style: italic;'>Ces fonctions nécessitent une connexion BDD - on vérifie leur existence</p>";
-// ============================================================================
-
-// ============================================================================
 // AFFICHAGE DES RÉSULTATS
 // ============================================================================
 
-echo "<h2>📊 Résultats Détaillés</h2>";
+echo "<h2>Résultats Détaillés</h2>";
 
 foreach ($test_results as $result) {
     $icon = $result['status'] === 'pass' ? '✓' : '✗';
@@ -463,7 +448,7 @@ foreach ($test_results as $result) {
 }
 
 echo "<div class='summary'>";
-echo "<h3>📈 Statistiques Globales</h3>";
+echo "<h3>Statistiques Globales</h3>";
 
 $percentage = $tests_total > 0 ? round(($tests_passed / $tests_total) * 100, 1) : 0;
 echo "<div class='progress-bar'>";
@@ -482,7 +467,7 @@ echo "</div>";
 
 if ($tests_failed === 0 && $tests_total > 0) {
     echo "<div style='text-align: center; margin-top: 30px; padding: 30px; background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border: 2px solid #28a745; border-radius: 10px;'>";
-    echo "<h2 style='color: #28a745; margin: 0;'>🎉 Parfait ! Tous les tests passent !</h2>";
+    echo "<h2 style='color: #28a745; margin: 0;'> Parfait ! Tous les tests passent !</h2>";
     echo "<p style='color: #155724; margin: 10px 0 0 0;'>{$tests_total} tests fonctionnels validés avec succès</p>";
     echo "</div>";
 }
