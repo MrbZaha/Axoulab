@@ -125,6 +125,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = "<p style='color:red;'>Erreur : ID du projet invalide.</p>";
         } elseif (empty($_POST['date_reservation']) || empty($_POST['heure_debut']) || empty($_POST['heure_fin'])) {
             $message = "<p style='color:red;'>Erreur : Veuillez sélectionner un créneau horaire.</p>";
+        } elseif (empty($_POST['materiels_selectionnes'])){
+            $message = "<p style='color:red;'>Erreur : Veuillez sélectionner au moins un matériel.</p>";
         } else {
             $date_reservation = $_POST['date_reservation'];
             $heure_debut = $_POST['heure_debut'];
@@ -265,6 +267,8 @@ if ($nom_salle_selectionnee !== '') {
 $nom_projet = ($id_projet && $id_projet > 0) ? get_nom_projet($bdd, $id_projet) : '';
 $heures = range(8, 19);
 ?>
+
+
 <!doctype html>
 <html lang="fr">
 <head>
